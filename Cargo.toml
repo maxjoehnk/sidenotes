@@ -1,0 +1,21 @@
+[package]
+name = "sidenotes"
+version = "0.1.0"
+edition = "2018"
+
+[features]
+default = ["github", "jira"]
+github = ["octorust", "async-compat"]
+jira = ["surf"]
+
+[dependencies]
+anyhow = "1"
+druid = { git = "https://github.com/linebender/druid.git", features = ["im"] }
+octorust = { version = "0.1.33", optional = true }
+serde = { version = "1", features = ["derive"] }
+toml = "0.5.8"
+smol = "1.2.5"
+async-compat = { version = "0.2", optional = true }
+futures = "0.3"
+surf = { version = "2.3", optional = true }
+base64 = "0.13"
