@@ -22,6 +22,7 @@ impl SyncThread {
     pub fn start(self) {
         thread::spawn(move || {
             if let Err(err) = self.run() {
+                tracing::error!("{:?}", err);
                 self.event_sink.submit_command(commands::FATAL_ERROR, format!("{:?}", err), Target::Auto).unwrap();
             }
         });
@@ -29,6 +30,7 @@ impl SyncThread {
 
     fn run(&self) -> anyhow::Result<()> {
         let config = crate::config::load()?;
+        self.event_sink.submit_command(commands::UI_CONFIG_LOADED, config.ui, Target::Auto)?;
         let providers = config.providers.into_iter()
             .map(|provider_config| provider_config.create())
             .collect::<anyhow::Result<Vec<_>>>()?;

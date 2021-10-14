@@ -10,7 +10,9 @@ struct Sidenotes;
 impl<W: Widget<TodoList>> Controller<TodoList, W> for Sidenotes {
     fn event(&mut self, child: &mut W, ctx: &mut EventCtx, event: &Event, data: &mut TodoList, env: &Env) {
         if let Event::Command(cmd) = event {
-            if let Some(providers) = cmd.get(commands::PROVIDERS_CONFIGURED) {
+            if let Some(config) = cmd.get(commands::UI_CONFIG_LOADED) {
+                data.ui_config = *config;
+            }else if let Some(providers) = cmd.get(commands::PROVIDERS_CONFIGURED) {
                 data.providers = providers.clone();
             }else if let Some((provider, todos)) = cmd.get(commands::TODOS_FETCHED) {
                 data.providers[*provider].items = todos.clone();
@@ -23,7 +25,7 @@ impl<W: Widget<TodoList>> Controller<TodoList, W> for Sidenotes {
 
 pub fn ui_builder() -> impl Widget<TodoList> {
     let list = List::new(provider_builder)
-        .lens(TodoList::providers);
+        .lens(TodoList::providers());
     let list = Scroll::new(list).vertical();
 
     list
