@@ -2,7 +2,7 @@ use octorust::Client;
 use octorust::auth::Credentials;
 use serde::Deserialize;
 use crate::models::Todo;
-use octorust::types::{IssuesListState, PullsListSort, Order};
+use octorust::types::{IssuesListState, PullsListSort, Order, PullRequestSimple, PullRequestReviewData};
 use druid::im::Vector;
 use super::Provider;
 use futures::future::BoxFuture;
@@ -46,16 +46,31 @@ impl GithubProvider {
         for (owner, repo) in self.repos.iter() {
             let pull_requests = self.client.pulls().list_all(owner, repo, IssuesListState::Open, "", "", PullsListSort::Created, Order::default()).await?;
             for pr in pull_requests {
+                let reviews = self.client.pulls().list_all_reviews(owner, repo, pr.number).await?;
                 todos.push_back(Todo {
-                    title: pr.title,
+                    title: format!("#{} - {}", pr.number, pr.title),
+                    state: Some(Self::get_pr_state(&pr, &reviews)),
                     completed: false,
-                    state: Some(pr.state),
                 })
             }
         }
         tracing::info!("Fetched {} Github notes", todos.len());
 
         Ok(todos)
+    }
+
+    fn get_pr_state(pr: &PullRequestSimple, reviews: &[PullRequestReviewData]) -> String {
+        if pr.draft {
+            return "Draft".into()
+        }
+        if reviews.iter().any(|review| review.state == "CHANGES_REQUESTED") {
+            return "Changes requested".into()
+        }
+        if !reviews.is_empty() && reviews.iter().all(|review| review.state == "COMMENTED" || review.state == "APPROVED") {
+            return "Approved".into()
+        }
+
+        return "Open".into()
     }
 }
 
