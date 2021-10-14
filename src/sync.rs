@@ -5,8 +5,8 @@ use druid::{ExtEventSink, Target};
 use druid::im::Vector;
 
 use crate::models::TodoProvider;
-use crate::ui::commands;
 use crate::providers::Provider;
+use crate::ui::commands;
 
 pub struct SyncThread {
     event_sink: ExtEventSink,
@@ -31,9 +31,8 @@ impl SyncThread {
     fn run(&self) -> anyhow::Result<()> {
         let config = crate::config::load()?;
         self.event_sink.submit_command(commands::UI_CONFIG_LOADED, config.ui, Target::Auto)?;
-        let providers = config.providers.into_iter()
-            .map(|provider_config| provider_config.create())
-            .collect::<anyhow::Result<Vec<_>>>()?;
+        let providers: Vec<Box<dyn Provider>> = smol::block_on(futures::future::try_join_all(config.providers.into_iter()
+            .map(|provider_config| provider_config.create())))?;
 
         let todo_providers: Vector<TodoProvider> = providers.iter().map(|provider| TodoProvider {
             name: provider.name(),
