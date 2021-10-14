@@ -54,7 +54,7 @@ impl GithubProvider {
                 })
             }
         }
-        tracing::info!("Fetched {} Github notes", todos.len());
+        tracing::info!("Fetched {} Github PRs", todos.len());
 
         Ok(todos)
     }
