@@ -60,7 +60,7 @@ impl Provider for JiraProvider {
 impl From<models::Issue> for Todo {
     fn from(issue: models::Issue) -> Self {
         Self {
-            title: format!("{} ({})", issue.fields.summary, issue.key),
+            title: format!("{} - {}", issue.key, issue.fields.summary),
             completed: false,
             state: Some(issue.fields.status.name),
         }
