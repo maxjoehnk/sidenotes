@@ -42,7 +42,7 @@ impl JiraApi {
         anyhow::ensure!(res.status().is_success(), "Jira api returned non success status code");
 
         let res: SearchResponse = res.body_json().await.map_err(|err| anyhow::anyhow!("{:?}", err))?;
-        println!("{:?}", res);
+        tracing::trace!("{:?}", res);
 
         Ok(res.issues)
     }

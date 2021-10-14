@@ -41,6 +41,7 @@ impl GithubProvider {
     }
 
     async fn fetch_todos(&self) -> anyhow::Result<Vector<Todo>> {
+        tracing::info!("Fetching Github PRs...");
         let mut todos = Vector::new();
         for (owner, repo) in self.repos.iter() {
             let pull_requests = self.client.pulls().list_all(owner, repo, IssuesListState::Open, "", "", PullsListSort::Created, Order::default()).await?;
@@ -52,6 +53,7 @@ impl GithubProvider {
                 })
             }
         }
+        tracing::info!("Fetched {} Github notes", todos.len());
 
         Ok(todos)
     }

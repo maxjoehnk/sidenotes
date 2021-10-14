@@ -57,6 +57,7 @@ impl SyncThread {
                 self.event_sink.submit_command(commands::TODOS_FETCHED, (index, todos), Target::Auto)?;
             },
             Err(err) => {
+                tracing::error!("{:?}", err);
                 self.event_sink.submit_command(commands::PROVIDER_ERROR, format!("{}", err), Target::Auto)?;
             }
         }

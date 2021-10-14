@@ -4,11 +4,13 @@ version = "0.1.0"
 edition = "2018"
 
 [features]
-default = ["github", "jira"]
+default = ["github", "jira", "joplin"]
 github = ["octorust", "async-compat"]
-jira = ["surf"]
+jira = ["surf", "base64"]
+joplin = ["surf"]
 
 [dependencies]
+tracing = "0.1"
 anyhow = "1"
 druid = { git = "https://github.com/linebender/druid.git", features = ["im"] }
 octorust = { version = "0.1.33", optional = true }
@@ -18,4 +20,4 @@ smol = "1.2.5"
 async-compat = { version = "0.2", optional = true }
 futures = "0.3"
 surf = { version = "2.3", optional = true }
-base64 = "0.13"
+base64 = { version = "0.13", optional = true }

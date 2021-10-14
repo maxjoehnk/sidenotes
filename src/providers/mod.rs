@@ -4,9 +4,11 @@ use futures::future::BoxFuture;
 use druid::im::Vector;
 
 #[cfg(feature = "github")]
-pub mod github;
+mod github;
 #[cfg(feature = "jira")]
 mod jira;
+#[cfg(feature = "joplin")]
+mod joplin;
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase", tag = "type")]
@@ -14,7 +16,9 @@ pub enum ProviderConfig {
     #[cfg(feature = "github")]
     Github(github::GithubConfig),
     #[cfg(feature = "jira")]
-    Jira(jira::JiraConfig)
+    Jira(jira::JiraConfig),
+    #[cfg(feature = "joplin")]
+    Joplin(joplin::JoplinConfig),
 }
 
 impl ProviderConfig {
@@ -24,6 +28,8 @@ impl ProviderConfig {
             Self::Github(config) => Box::new(github::GithubProvider::new(config)?) as Box<dyn Provider>,
             #[cfg(feature = "jira")]
             Self::Jira(config) => Box::new(jira::JiraProvider::new(config)?),
+            #[cfg(feature = "joplin")]
+            Self::Joplin(config) => Box::new(joplin::JoplinProvider::new(config)?),
         };
 
         Ok(provider)
