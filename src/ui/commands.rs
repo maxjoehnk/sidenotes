@@ -8,3 +8,5 @@ pub const PROVIDER_ERROR: Selector<String> = Selector::new("event-sidenotes.prov
 pub const PROVIDERS_CONFIGURED: Selector<Vector<TodoProvider>> = Selector::new("event-sidenotes.providers-configured");
 pub const TODOS_FETCHED: Selector<(usize, Vector<Todo>)> = Selector::new("event-sidenotes.todos-fetched");
 pub const UI_CONFIG_LOADED: Selector<UiConfig> = Selector::new("event-sidenotes.ui-config-loaded");
+pub const OPEN_TODO: Selector<Todo> = Selector::new("event-sidenotes.open-todo");
+pub const CLOSE_TODO: Selector<()> = Selector::new("event-sidenotes.close-todo");

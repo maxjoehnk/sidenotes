@@ -60,9 +60,10 @@ impl Provider for JoplinProvider {
 impl From<models::Note> for Todo {
     fn from(note: Note) -> Self {
         Self {
-            completed: note.is_completed(),
             title: note.title,
             state: None,
+            author: None,
+            body: note.body.into(),
         }
     }
 }

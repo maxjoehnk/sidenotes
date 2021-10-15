@@ -1,21 +1,29 @@
-use druid::{Env, Event, EventCtx, FontDescriptor, FontFamily, FontWeight, Widget, WidgetExt, Color, Insets, UnitPoint};
-use druid::widget::{Controller, Flex, Label, List, Scroll, CrossAxisAlignment, LineBreaking, Either};
+use druid::{Env, Event, EventCtx, Widget, WidgetExt, LensExt};
+use druid::widget::{Controller, ViewSwitcher};
 
-use crate::models::{Todo, TodoList, TodoProvider};
+use crate::models::*;
+use self::detail::detail_builder;
+use self::list::list_builder;
 
 pub mod commands;
+mod list;
+mod detail;
 
 struct Sidenotes;
 
-impl<W: Widget<TodoList>> Controller<TodoList, W> for Sidenotes {
-    fn event(&mut self, child: &mut W, ctx: &mut EventCtx, event: &Event, data: &mut TodoList, env: &Env) {
+impl<W: Widget<AppState>> Controller<AppState, W> for Sidenotes {
+    fn event(&mut self, child: &mut W, ctx: &mut EventCtx, event: &Event, data: &mut AppState, env: &Env) {
         if let Event::Command(cmd) = event {
             if let Some(config) = cmd.get(commands::UI_CONFIG_LOADED) {
                 data.ui_config = *config;
-            }else if let Some(providers) = cmd.get(commands::PROVIDERS_CONFIGURED) {
+            } else if let Some(providers) = cmd.get(commands::PROVIDERS_CONFIGURED) {
                 data.providers = providers.clone();
-            }else if let Some((provider, todos)) = cmd.get(commands::TODOS_FETCHED) {
+            } else if let Some((provider, todos)) = cmd.get(commands::TODOS_FETCHED) {
                 data.providers[*provider].items = todos.clone();
+            } else if let Some(todo) = cmd.get(commands::OPEN_TODO) {
+                data.navigation = Navigation::Selected(todo.clone());
+            } else if let Some(_) = cmd.get(commands::CLOSE_TODO) {
+                data.navigation = Navigation::List;
             }
         }else {
             child.event(ctx, event, data, env)
@@ -23,61 +31,17 @@ impl<W: Widget<TodoList>> Controller<TodoList, W> for Sidenotes {
     }
 }
 
-pub fn ui_builder() -> impl Widget<TodoList> {
-    let list = List::new(provider_builder)
-        .lens(TodoList::providers());
-    let list = Scroll::new(list).vertical();
-
-    list
+pub fn ui_builder() -> impl Widget<AppState> {
+    ViewSwitcher::new(
+        |state: &AppState, _| state.navigation.clone(),
+        |nav: &Navigation, _: &AppState, _| match nav {
+            Navigation::List => list_builder()
+                .lens(AppState::providers())
+                .boxed(),
+            Navigation::Selected(_) => detail_builder()
+                .lens(AppState::navigation.then(Navigation::selected()))
+                .boxed()
+        }
+    )
         .controller(Sidenotes)
-}
-
-fn provider_builder() -> impl Widget<TodoProvider> {
-    let font = FontDescriptor::new(FontFamily::SYSTEM_UI)
-        .with_size(18.0)
-        .with_weight(FontWeight::BOLD);
-    let header = Label::new(|item: &TodoProvider, _env: &_| item.name.clone()).with_font(font)
-        .align_horizontal(UnitPoint::CENTER);
-    let todos = List::new(todo_builder)
-        .lens(TodoProvider::items);
-
-    Flex::column()
-        .with_child(header)
-        .with_child(todos)
-        .cross_axis_alignment(CrossAxisAlignment::Start)
-        .padding(4.0)
-}
-
-fn todo_builder() -> impl Widget<Todo> {
-    let with_state = Label::new(|todo: &Todo, _env: &_| todo.state.clone().unwrap_or_default())
-        .with_text_color(Color::BLACK)
-        .padding(2.0)
-        .background(Color::from_hex_str("a3be8c").unwrap())
-        .rounded(2.0);
-    let with_state = Flex::column()
-        .cross_axis_alignment(CrossAxisAlignment::Start)
-        .with_child(title_builder())
-        .with_spacer(4.0)
-        .with_child(with_state);
-    let without_state = Flex::column()
-        .cross_axis_alignment(CrossAxisAlignment::Start)
-        .with_child(title_builder());
-
-    let state = Either::new(
-        |todo: &Todo, _: &_| todo.state.is_some(),
-        with_state,
-        without_state
-    );
-
-    state
-        .padding(4.0)
-        .background(Color::rgba8(0, 0, 0, 32))
-        .rounded(2.0)
-        .padding(Insets::uniform_xy(0., 2.))
-        .expand_width()
-}
-
-fn title_builder() -> impl Widget<Todo> {
-    Label::new(|item: &Todo, _env: &_| item.title.clone())
-        .with_line_break_mode(LineBreaking::WordWrap)
 }

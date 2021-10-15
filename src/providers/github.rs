@@ -50,7 +50,8 @@ impl GithubProvider {
                 todos.push_back(Todo {
                     title: format!("#{} - {}", pr.number, pr.title),
                     state: Some(Self::get_pr_state(&pr, &reviews)),
-                    completed: false,
+                    author: pr.user.map(|user| user.name),
+                    body: pr.body.into(),
                 })
             }
         }

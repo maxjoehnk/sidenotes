@@ -61,8 +61,9 @@ impl From<models::Issue> for Todo {
     fn from(issue: models::Issue) -> Self {
         Self {
             title: format!("{} - {}", issue.key, issue.fields.summary),
-            completed: false,
             state: Some(issue.fields.status.name),
+            body: issue.fields.description,
+            author: None,
         }
     }
 }

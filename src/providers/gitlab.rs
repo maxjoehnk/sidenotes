@@ -91,7 +91,8 @@ impl From<MergeRequest> for Todo {
         Self {
             title: format!("#{} - {}", mr.iid, mr.title),
             state: Some(format!("{:?}", mr.state)),
-            completed: false,
+            body: mr.description,
+            author: mr.author.name.into(),
         }
     }
 }
