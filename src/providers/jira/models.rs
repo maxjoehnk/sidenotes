@@ -1,4 +1,5 @@
 use serde::Deserialize;
+use crate::rich_text::JiraMarkup;
 
 #[derive(Debug, Deserialize)]
 pub(super) struct SearchResponse {
@@ -15,7 +16,7 @@ pub struct Issue {
 #[derive(Debug, Clone, Deserialize)]
 pub struct IssueFields {
     pub summary: String,
-    pub description: Option<String>,
+    pub description: Option<JiraMarkup>,
     pub status: Status,
 }
 

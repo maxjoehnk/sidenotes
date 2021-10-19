@@ -1,4 +1,5 @@
 use serde::Deserialize;
+use crate::rich_text::Markdown;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Note {
@@ -6,7 +7,7 @@ pub struct Note {
     #[serde(rename = "parent_id")]
     pub notebook_id: String,
     pub title: String,
-    pub body: String,
+    pub body: Markdown,
     pub is_todo: u32,
     pub todo_due: u64,
     pub todo_completed: u64,

@@ -63,7 +63,7 @@ impl From<models::Note> for Todo {
             title: note.title,
             state: None,
             author: None,
-            body: note.body.into(),
+            body: Some(note.body.into()),
         }
     }
 }

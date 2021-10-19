@@ -7,6 +7,7 @@ use gitlab::api::projects::{self, merge_requests};
 use async_compat::CompatExt;
 use futures::FutureExt;
 use serde::Deserialize;
+use crate::rich_text::Markdown;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct GitlabConfig {
@@ -91,7 +92,7 @@ impl From<MergeRequest> for Todo {
         Self {
             title: format!("#{} - {}", mr.iid, mr.title),
             state: Some(format!("{:?}", mr.state)),
-            body: mr.description,
+            body: mr.description.map(|desc| Markdown(desc).into()),
             author: mr.author.name.into(),
         }
     }

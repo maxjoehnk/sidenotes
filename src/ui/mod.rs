@@ -1,4 +1,4 @@
-use druid::{Env, Event, EventCtx, Widget, WidgetExt, LensExt};
+use druid::{Env, Event, EventCtx, LensExt, Widget, WidgetExt};
 use druid::widget::{Controller, ViewSwitcher};
 
 use crate::models::*;
@@ -24,6 +24,8 @@ impl<W: Widget<AppState>> Controller<AppState, W> for Sidenotes {
                 data.navigation = Navigation::Selected(todo.clone());
             } else if let Some(_) = cmd.get(commands::CLOSE_TODO) {
                 data.navigation = Navigation::List;
+            } else if let Some(link) = cmd.get(commands::OPEN_LINK) {
+                open::that_in_background(link);
             }
         }else {
             child.event(ctx, event, data, env)

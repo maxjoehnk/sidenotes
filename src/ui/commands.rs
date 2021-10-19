@@ -10,3 +10,4 @@ pub const TODOS_FETCHED: Selector<(usize, Vector<Todo>)> = Selector::new("event-
 pub const UI_CONFIG_LOADED: Selector<UiConfig> = Selector::new("event-sidenotes.ui-config-loaded");
 pub const OPEN_TODO: Selector<Todo> = Selector::new("event-sidenotes.open-todo");
 pub const CLOSE_TODO: Selector<()> = Selector::new("event-sidenotes.close-todo");
+pub const OPEN_LINK: Selector<String> = Selector::new("sidenotes.open-link");

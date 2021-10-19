@@ -8,6 +8,7 @@ use super::Provider;
 use futures::future::BoxFuture;
 use futures::{FutureExt};
 use async_compat::CompatExt;
+use crate::rich_text::Markdown;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct GithubConfig {
@@ -51,7 +52,7 @@ impl GithubProvider {
                     title: format!("#{} - {}", pr.number, pr.title),
                     state: Some(Self::get_pr_state(&pr, &reviews)),
                     author: pr.user.map(|user| user.name),
-                    body: pr.body.into(),
+                    body: Some(Markdown(pr.body).into()),
                 })
             }
         }

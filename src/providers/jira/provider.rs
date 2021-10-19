@@ -62,7 +62,7 @@ impl From<models::Issue> for Todo {
         Self {
             title: format!("{} - {}", issue.key, issue.fields.summary),
             state: Some(issue.fields.status.name),
-            body: issue.fields.description,
+            body: issue.fields.description.map(|desc| desc.into()),
             author: None,
         }
     }

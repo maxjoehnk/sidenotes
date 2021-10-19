@@ -27,8 +27,9 @@ pub fn detail_builder() -> impl Widget<Todo> {
     let header = Flex::row()
         .with_child(back_button)
         .with_child(title);
-    let body = Label::new(|item: &Todo, _: &_| item.body.clone().unwrap_or_default())
-        .with_line_break_mode(LineBreaking::WordWrap);
+    let body = RawLabel::new()
+        .with_line_break_mode(LineBreaking::WordWrap)
+        .lens(Todo::body_or_default());
 
     Flex::column()
         .with_child(header)
