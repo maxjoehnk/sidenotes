@@ -11,6 +11,8 @@ mod jira;
 mod joplin;
 #[cfg(feature = "gitlab")]
 mod gitlab;
+#[cfg(feature = "taskwarrior")]
+mod taskwarrior;
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase", tag = "type")]
@@ -23,6 +25,8 @@ pub enum ProviderConfig {
     Jira(jira::JiraConfig),
     #[cfg(feature = "joplin")]
     Joplin(joplin::JoplinConfig),
+    #[cfg(feature = "taskwarrior")]
+    Taskwarrior(taskwarrior::TaskwarriorConfig),
 }
 
 impl ProviderConfig {
@@ -36,6 +40,8 @@ impl ProviderConfig {
             Self::Jira(config) => Box::new(jira::JiraProvider::new(config)?),
             #[cfg(feature = "joplin")]
             Self::Joplin(config) => Box::new(joplin::JoplinProvider::new(config)?),
+            #[cfg(feature = "taskwarrior")]
+            Self::Taskwarrior(config) => Box::new(taskwarrior::TaskwarriorProvider::new(config)?),
         };
 
         Ok(provider)
