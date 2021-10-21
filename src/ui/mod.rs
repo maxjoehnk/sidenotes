@@ -1,13 +1,15 @@
 use druid::{Env, Event, EventCtx, LensExt, Widget, WidgetExt};
 use druid::widget::{Controller, ViewSwitcher};
 
+use widgets::detail::detail_builder;
+use widgets::list::list_builder;
+
 use crate::models::*;
-use self::detail::detail_builder;
-use self::list::list_builder;
 
 pub mod commands;
-mod list;
-mod detail;
+mod widgets;
+mod prism;
+mod lens;
 
 struct Sidenotes;
 

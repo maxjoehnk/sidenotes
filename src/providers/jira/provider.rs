@@ -37,11 +37,21 @@ impl JiraProvider {
         let issues = self.api.search(&self.jql).await?;
         let todos: Vector<_> = issues
             .into_iter()
-            .map(Todo::from)
+            .map(|issue| self.issue_to_todo(issue))
             .collect();
         tracing::info!("Fetched {} Jira notes", todos.len());
 
         Ok(todos)
+    }
+
+    fn issue_to_todo(&self, issue: models::Issue) -> Todo {
+        Todo {
+            title: format!("{} - {}", issue.key, issue.fields.summary),
+            state: Some(issue.fields.status.name),
+            body: issue.fields.description.map(|desc| desc.into()),
+            author: None,
+            link: Some(format!("{}/browse/{}", self.api.url, issue.key)),
+        }
     }
 }
 
@@ -54,16 +64,5 @@ impl Provider for JiraProvider {
 
     fn fetch_todos(&self) -> BoxFuture<anyhow::Result<Vector<Todo>>> {
         self.fetch_issues().boxed()
-    }
-}
-
-impl From<models::Issue> for Todo {
-    fn from(issue: models::Issue) -> Self {
-        Self {
-            title: format!("{} - {}", issue.key, issue.fields.summary),
-            state: Some(issue.fields.status.name),
-            body: issue.fields.description.map(|desc| desc.into()),
-            author: None,
-        }
     }
 }

@@ -53,6 +53,7 @@ impl GithubProvider {
                     state: Some(Self::get_pr_state(&pr, &reviews)),
                     author: pr.user.map(|user| user.name),
                     body: Some(Markdown(pr.body).into()),
+                    link: pr.html_url.map(|url| url.to_string()),
                 })
             }
         }

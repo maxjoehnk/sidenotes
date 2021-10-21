@@ -2,7 +2,7 @@ use serde::Serialize;
 use super::models::*;
 
 pub struct JiraApi {
-    url: String,
+    pub(super) url: String,
     username: String,
     password: String,
 }

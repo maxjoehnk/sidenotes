@@ -898,7 +898,7 @@ checksum = "fea41bba32d969b513997752735605054bc0dfa92b4c56bf1189f2e174be7a10"
 [[package]]
 name = "druid"
 version = "0.7.0"
-source = "git+https://github.com/linebender/druid.git#0c0851f7be7b2cadd477b9b0caaa91cb081f2e4a"
+source = "git+https://github.com/linebender/druid.git?rev=1801164629800938ba1316e5b58c5383641fdea6#1801164629800938ba1316e5b58c5383641fdea6"
 dependencies = [
  "console_error_panic_hook",
  "druid-derive",
@@ -920,7 +920,7 @@ dependencies = [
 [[package]]
 name = "druid-derive"
 version = "0.4.0"
-source = "git+https://github.com/linebender/druid.git#0c0851f7be7b2cadd477b9b0caaa91cb081f2e4a"
+source = "git+https://github.com/linebender/druid.git?rev=1801164629800938ba1316e5b58c5383641fdea6#1801164629800938ba1316e5b58c5383641fdea6"
 dependencies = [
  "proc-macro2 1.0.30",
  "quote 1.0.10",
@@ -930,7 +930,7 @@ dependencies = [
 [[package]]
 name = "druid-shell"
 version = "0.7.0"
-source = "git+https://github.com/linebender/druid.git#0c0851f7be7b2cadd477b9b0caaa91cb081f2e4a"
+source = "git+https://github.com/linebender/druid.git?rev=1801164629800938ba1316e5b58c5383641fdea6#1801164629800938ba1316e5b58c5383641fdea6"
 dependencies = [
  "anyhow",
  "bitflags",
@@ -958,6 +958,16 @@ dependencies = [
  "web-sys",
  "winapi",
  "wio",
+]
+
+[[package]]
+name = "druid-widget-nursery"
+version = "0.1.0"
+source = "git+https://github.com/linebender/druid-widget-nursery#3add7114a4e429205099b43023d8aa9bf5c21103"
+dependencies = [
+ "druid",
+ "log",
+ "tracing",
 ]
 
 [[package]]
@@ -3181,6 +3191,7 @@ dependencies = [
  "async-compat",
  "base64 0.13.0",
  "druid",
+ "druid-widget-nursery",
  "enum_dispatch",
  "futures",
  "gitlab",

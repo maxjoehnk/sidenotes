@@ -34,7 +34,8 @@ impl TaskwarriorProvider {
                     title: task.description().into(),
                     state: Some(task.status().into()),
                     author: None,
-                    body: None
+                    body: None,
+                    link: None,
                 })
             }
             tracing::info!("Fetched {} TaskWarrior tasks", todos.len());

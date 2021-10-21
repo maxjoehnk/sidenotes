@@ -2,8 +2,7 @@ use druid::{Data, Lens, lens};
 use druid::im::Vector;
 
 use crate::config::UiConfig;
-use druid::text::{RichText, RichTextBuilder};
-use crate::rich_text::{RawRichText, IntoRichText};
+use crate::rich_text::RawRichText;
 
 #[derive(Default, Debug, Clone, Data, Lens)]
 pub struct AppState {
@@ -61,17 +60,5 @@ pub struct Todo {
     pub state: Option<String>,
     pub author: Option<String>,
     pub body: Option<RawRichText>,
+    pub link: Option<String>,
 }
-
-impl Todo {
-    pub fn body_or_default() -> impl Lens<Self, RichText> {
-        lens::Map::new::<Self, RichText>(|data| {
-            if let Some(ref body) = data.body {
-                body.clone().into_rich_text()
-            }else {
-                RichTextBuilder::new().build()
-            }
-        }, |_, _| {})
-    }
-}
-

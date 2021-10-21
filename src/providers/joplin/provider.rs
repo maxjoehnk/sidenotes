@@ -64,6 +64,7 @@ impl From<models::Note> for Todo {
             state: None,
             author: None,
             body: Some(note.body.into()),
+            link: None,
         }
     }
 }

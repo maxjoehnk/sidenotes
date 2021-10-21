@@ -1,8 +1,11 @@
 use druid::{Command, Env, Event, EventCtx, KbKey, Target, Widget};
 use druid::widget::*;
+use druid_widget_nursery::prism;
 
 use crate::models::*;
 use crate::ui::commands;
+use crate::ui::prism::{TodoLink, TodoBody};
+use crate::ui::lens::Link;
 
 struct DetailController;
 
@@ -28,12 +31,18 @@ pub fn detail_builder() -> impl Widget<Todo> {
         .with_child(back_button)
         .with_child(title);
     let body = RawLabel::new()
-        .with_line_break_mode(LineBreaking::WordWrap)
-        .lens(Todo::body_or_default());
+        .with_line_break_mode(LineBreaking::WordWrap);
+    let body = prism::PrismWrap::new(body, TodoBody);
     let body = Scroll::new(body).vertical();
+    let link = prism::PrismWrap::new(link_builder(), TodoLink);
 
     Flex::column()
         .with_child(header)
+        .with_child(link)
         .with_flex_child(body, 1.)
         .controller(DetailController)
+}
+
+fn link_builder() -> impl Widget<String> {
+    RawLabel::new().lens(Link)
 }
