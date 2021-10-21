@@ -1,7 +1,12 @@
-use crate::rich_text::IntoRichText;
-use druid::text::{RichText, RichTextBuilder};
+use crate::rich_text::{IntoRichText, get_font_size_for_heading};
+use druid::text::{RichText, RichTextBuilder, AttributesAdder, Attribute};
 use serde::Deserialize;
-use druid::Data;
+use druid::{Data, FontWeight, FontStyle, Color, FontFamily};
+use jira_parser::ast::*;
+
+const BLOCKQUOTE_COLOR: Color = Color::grey8(0x88);
+const INSERTED_COLOR: Color = Color::rgb8(0, 255, 0);
+const DELETED_COLOR: Color = Color::rgb8(255, 0, 0);
 
 #[repr(transparent)]
 #[derive(Debug, Clone, Deserialize, Data)]
@@ -15,10 +20,78 @@ impl From<String> for JiraMarkup {
 
 impl IntoRichText for JiraMarkup {
     fn into_rich_text(self) -> RichText {
-        // TODO: implement jira parser
         let mut builder = RichTextBuilder::new();
-        builder.push(&self.0);
+        let tags = jira_parser::parse(&self.0).unwrap();
+        build_tags(&mut builder, &tags, vec![]);
 
         builder.build()
+    }
+}
+
+fn build_tags(builder: &mut RichTextBuilder, tags: &[Tag], attr: Vec<Attribute>) {
+    for tag in tags {
+        match tag {
+            Tag::Text(text) => builder.push(&text)
+                .add_attributes(&attr),
+            Tag::Strong(text) => builder.push(&text)
+                .weight(FontWeight::BOLD)
+                .add_attributes(&attr),
+            Tag::Emphasis(text) => builder.push(&text)
+                .style(FontStyle::Italic)
+                .add_attributes(&attr),
+            Tag::Panel(panel) => build_tags(builder, &panel.content, attr.clone()),
+            Tag::Newline => { builder.push("\n"); },
+            Tag::InlineQuote(text) => builder.push(text)
+                .style(FontStyle::Italic)
+                .text_color(BLOCKQUOTE_COLOR)
+                .add_attributes(&attr),
+            Tag::Quote(text) => builder.push(text)
+                .style(FontStyle::Italic)
+                .text_color(BLOCKQUOTE_COLOR)
+                .add_attributes(&attr),
+            Tag::Monospaced(text) => builder.push(text)
+                .font_family(FontFamily::MONOSPACE)
+                .add_attributes(&attr),
+            Tag::Inserted(text) => builder.push(text)
+                .underline(true)
+                .text_color(INSERTED_COLOR)
+                .add_attributes(&attr),
+            Tag::Deleted(text) => builder.push(text)
+                .strikethrough(true)
+                .text_color(DELETED_COLOR)
+                .add_attributes(&attr),
+            Tag::Subscript(text) => builder.push(text)
+                .add_attributes(&attr),
+            Tag::Superscript(text) => builder.push(text)
+                .add_attributes(&attr),
+            Tag::Color(color, text) => builder.push(text)
+                .text_color(from_color(color))
+                .add_attributes(&attr),
+            Tag::Heading(level, content) => build_tags(builder, content, vec![
+                Attribute::FontSize(get_font_size_for_heading(*level as u32).into()),
+            ]),
+            _ => {},
+        }
+    }
+}
+
+fn from_color(color: &str) -> Color {
+    match color {
+        "red" => Color::RED,
+        "green" => Color::GREEN,
+        "blue" => Color::BLUE,
+        c => Color::from_hex_str(c).unwrap_or(Color::WHITE)
+    }
+}
+
+trait AttributesAdderExt {
+    fn add_attributes(&mut self, attributes: &[Attribute]);
+}
+
+impl<'a> AttributesAdderExt for AttributesAdder<'a> {
+    fn add_attributes(&mut self, attributes: &[Attribute]) {
+        for attr in attributes {
+            self.add_attr(attr.clone());
+        }
     }
 }

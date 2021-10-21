@@ -1,0 +1,12 @@
+[package]
+name = "jira-parser"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+nom = "7"
+# TODO: replace with concrete error types
+anyhow = "1"
+
+[dev-dependencies]
+test-case = "1.2.0"

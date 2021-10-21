@@ -31,3 +31,14 @@ pub enum RawRichText {
     #[cfg(feature = "jira")]
     Jira(JiraMarkup)
 }
+
+pub fn get_font_size_for_heading(lvl: u32) -> f64 {
+    match lvl {
+        1 => 38.,
+        2 => 32.0,
+        3 => 26.0,
+        4 => 20.0,
+        5 => 16.0,
+        _ => 12.0,
+    }
+}

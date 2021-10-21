@@ -30,6 +30,7 @@ pub fn detail_builder() -> impl Widget<Todo> {
     let body = RawLabel::new()
         .with_line_break_mode(LineBreaking::WordWrap)
         .lens(Todo::body_or_default());
+    let body = Scroll::new(body).vertical();
 
     Flex::column()
         .with_child(header)

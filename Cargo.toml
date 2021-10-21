@@ -6,7 +6,7 @@ edition = "2018"
 [features]
 default = ["github", "jira", "joplin", "gitlab"]
 github = ["octorust", "async-compat"]
-jira = ["surf", "base64"]
+jira = ["surf", "base64", "jira-parser"]
 joplin = ["surf"]
 
 [dependencies]
@@ -25,3 +25,4 @@ gitlab = { version = "0.1403.0", optional = true }
 enum_dispatch = "0.3.7"
 pulldown-cmark = "0.8.0"
 open = "2.0.1"
+jira-parser = { path = "jira-parser", optional = true }

@@ -41,6 +41,7 @@ mod converter {
     use pulldown_cmark::{Event as ParseEvent, Options, Parser, Tag};
 
     use crate::ui::commands::OPEN_LINK;
+    use crate::rich_text::get_font_size_for_heading;
 
     const BLOCKQUOTE_COLOR: Color = Color::grey8(0x88);
     const LINK_COLOR: Color = Color::rgb8(0, 0, 0xEE);
@@ -105,14 +106,7 @@ mod converter {
     fn add_attribute_for_tag(tag: &Tag, mut attrs: AttributesAdder) {
         match tag {
             Tag::Heading(lvl) => {
-                let font_size = match lvl {
-                    1 => 38.,
-                    2 => 32.0,
-                    3 => 26.0,
-                    4 => 20.0,
-                    5 => 16.0,
-                    _ => 12.0,
-                };
+                let font_size = get_font_size_for_heading(*lvl);
                 attrs.size(font_size).weight(FontWeight::BOLD);
             }
             Tag::BlockQuote => {
