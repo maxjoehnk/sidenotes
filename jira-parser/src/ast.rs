@@ -13,10 +13,25 @@ pub enum Tag {
     InlineQuote(String),
     Quote(String),
     Color(String, String),
-    UnorderedList(Vec<Tag>),
-    OrderedList(Vec<Tag>),
+    UnorderedList(Vec<ListItem>),
+    OrderedList(Vec<ListItem>),
     Panel(Panel),
     Newline
+}
+
+#[derive(PartialEq, Eq, Debug, Clone)]
+pub struct ListItem {
+    pub level: u8,
+    pub content: Vec<Tag>
+}
+
+impl ListItem {
+    pub fn text(text: &str) -> Self {
+        ListItem {
+            level: 1,
+            content: vec![Tag::Text(text.into())]
+        }
+    }
 }
 
 #[derive(PartialEq, Eq, Debug, Clone, Default)]

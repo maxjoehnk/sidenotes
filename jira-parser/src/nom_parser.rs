@@ -1,12 +1,12 @@
 use nom::branch::alt;
-use nom::bytes::complete::{is_not, tag, take_till1, take_until};
-use nom::character::complete::{char, one_of, multispace0, not_line_ending};
-use nom::combinator::{map, eof};
-use nom::IResult;
-use nom::sequence::{delimited, pair, preceded, tuple, separated_pair};
-use nom::multi::{many0, many1};
-use nom::Parser;
+use nom::bytes::complete::{is_a, is_not, tag, take_till1, take_until};
+use nom::character::complete::{char, multispace0, not_line_ending, one_of};
+use nom::combinator::{eof, map};
 use nom::error::ParseError;
+use nom::IResult;
+use nom::multi::{many0, many1, separated_list1};
+use nom::Parser;
+use nom::sequence::{delimited, pair, preceded, separated_pair, tuple};
 
 use crate::ast;
 
@@ -20,6 +20,8 @@ fn parse_tag(input: &str) -> IResult<&str, ast::Tag> {
         quote,
         panel,
         heading,
+        unordered_list,
+        ordered_list,
         newline,
         parse_inline_tag
     ))(input)
@@ -117,17 +119,15 @@ fn panel(input: &str) -> IResult<&str, ast::Tag> {
 
 fn parse_panel_options(input: &str) -> IResult<&str, ast::Panel> {
     alt((
-        map(preceded(char(':'), pair(
-            parse_option,
-            many0(preceded(char('|'), parse_option))
-        )), |(option, further_options)| {
-            let mut panel = ast::Panel::default();
-            assign_option(&mut panel, option.0, option.1);
-            for (key, value) in further_options {
-                assign_option(&mut panel, key, value);
-            }
-            panel
-        }),
+        map(
+            preceded(char(':'), separated_list1(char('|'), parse_option)),
+            |further_options| {
+                let mut panel = ast::Panel::default();
+                for (key, value) in further_options {
+                    assign_option(&mut panel, key, value);
+                }
+                panel
+            }),
         map(eof, |_| ast::Panel::default())
     ))(input)
 }
@@ -184,4 +184,32 @@ fn ws<'a, F: 'a, O, E: ParseError<&'a str>>(inner: F) -> impl FnMut(&'a str) -> 
         inner,
         multispace0
     )
+}
+
+fn unordered_list(input: &str) -> IResult<&str, ast::Tag> {
+    map(
+        list("*"),
+        |items| ast::Tag::UnorderedList(items)
+    )(input)
+}
+
+fn ordered_list(input: &str) -> IResult<&str, ast::Tag> {
+    map(
+        list("#"),
+        |items| ast::Tag::OrderedList(items)
+    )(input)
+}
+
+fn list(separator: &'static str) -> impl FnMut(&str) -> IResult<&str, Vec<ast::ListItem>> {
+    move |input| map(separated_list1(
+        nom::character::complete::newline,
+        separated_pair(is_a(separator), char(' '), ws(take_till1(|c| c == '\n')).and_then(many1(parse_inline_tag))),
+    ), |lines: Vec<(&str, Vec<ast::Tag>)>| {
+        lines.into_iter()
+            .map(|(level, content)| ast::ListItem {
+                level: level.len() as u8,
+                content,
+            })
+            .collect()
+    })(input)
 }

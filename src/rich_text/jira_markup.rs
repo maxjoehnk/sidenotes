@@ -22,13 +22,13 @@ impl IntoRichText for JiraMarkup {
     fn into_rich_text(self) -> RichText {
         let mut builder = RichTextBuilder::new();
         let tags = jira_parser::parse(&self.0).unwrap();
-        build_tags(&mut builder, &tags, vec![]);
+        build_tags(&mut builder, tags, vec![]);
 
         builder.build()
     }
 }
 
-fn build_tags(builder: &mut RichTextBuilder, tags: &[Tag], attr: Vec<Attribute>) {
+fn build_tags(builder: &mut RichTextBuilder, tags: Vec<Tag>, attr: Vec<Attribute>) {
     for tag in tags {
         match tag {
             Tag::Text(text) => builder.push(&text)
@@ -39,37 +39,47 @@ fn build_tags(builder: &mut RichTextBuilder, tags: &[Tag], attr: Vec<Attribute>)
             Tag::Emphasis(text) => builder.push(&text)
                 .style(FontStyle::Italic)
                 .add_attributes(&attr),
-            Tag::Panel(panel) => build_tags(builder, &panel.content, attr.clone()),
+            Tag::Panel(panel) => build_tags(builder, panel.content, attr.clone()),
             Tag::Newline => { builder.push("\n"); },
-            Tag::InlineQuote(text) => builder.push(text)
+            Tag::InlineQuote(text) => builder.push(&text)
                 .style(FontStyle::Italic)
                 .text_color(BLOCKQUOTE_COLOR)
                 .add_attributes(&attr),
-            Tag::Quote(text) => builder.push(text)
+            Tag::Quote(text) => builder.push(&text)
                 .style(FontStyle::Italic)
                 .text_color(BLOCKQUOTE_COLOR)
                 .add_attributes(&attr),
-            Tag::Monospaced(text) => builder.push(text)
+            Tag::Monospaced(text) => builder.push(&text)
                 .font_family(FontFamily::MONOSPACE)
                 .add_attributes(&attr),
-            Tag::Inserted(text) => builder.push(text)
+            Tag::Inserted(text) => builder.push(&text)
                 .underline(true)
                 .text_color(INSERTED_COLOR)
                 .add_attributes(&attr),
-            Tag::Deleted(text) => builder.push(text)
+            Tag::Deleted(text) => builder.push(&text)
                 .strikethrough(true)
                 .text_color(DELETED_COLOR)
                 .add_attributes(&attr),
-            Tag::Subscript(text) => builder.push(text)
+            Tag::Subscript(text) => builder.push(&text)
                 .add_attributes(&attr),
-            Tag::Superscript(text) => builder.push(text)
+            Tag::Superscript(text) => builder.push(&text)
                 .add_attributes(&attr),
-            Tag::Color(color, text) => builder.push(text)
-                .text_color(from_color(color))
+            Tag::Color(color, text) => builder.push(&text)
+                .text_color(from_color(&color))
                 .add_attributes(&attr),
             Tag::Heading(level, content) => build_tags(builder, content, vec![
-                Attribute::FontSize(get_font_size_for_heading(*level as u32).into()),
+                Attribute::FontSize(get_font_size_for_heading(level as u32).into()),
             ]),
+            Tag::UnorderedList(items) => {
+                for item in items {
+                    for _ in 0..item.level {
+                        builder.push("  ");
+                    }
+                    builder.push("* ");
+                    build_tags(builder, item.content, attr.clone());
+                    builder.push("\n");
+                }
+            }
             _ => {},
         }
     }

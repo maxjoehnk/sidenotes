@@ -64,12 +64,13 @@ h3. *Acceptance criteria*
                 Tag::Heading(3, Tag::Strong("Acceptance criteria".into()).into()),
                 Tag::Newline,
                 Tag::UnorderedList(vec![
-                    Tag::Text("text effects are supported".into()),
-                    Tag::Text("panels are supported".into()),
-                    Tag::Text("lists are supported".into()),
-                    Tag::UnorderedList(vec![
-                        Tag::Text("nested lists as well".into())
-                    ])
+                    ListItem::text("text effects are supported"),
+                    ListItem::text("panels are supported"),
+                    ListItem::text("lists are supported"),
+                    ListItem {
+                        level: 2,
+                        content: vec![Tag::Text("nested lists as well".into())]
+                    }
                 ])
             ],
             background_color: Some("#e3fcef".into()),
