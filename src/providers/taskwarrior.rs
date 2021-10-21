@@ -32,7 +32,7 @@ impl TaskwarriorProvider {
             for task in tasks {
                 todos.push_back(Todo{
                     title: task.description().into(),
-                    state: Some(task.status().into()),
+                    state: Some(task.status().to_string()),
                     author: None,
                     body: None,
                     link: None,
