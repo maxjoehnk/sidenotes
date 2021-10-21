@@ -31,8 +31,8 @@ impl TaskwarriorProvider {
         if let Ok(tasks) = query(&self.query) {
             for task in tasks {
                 todos.push_back(Todo{
-                    title: String::from(task.description()),
-                    state: Option::from(task.status().to_string()),
+                    title: task.description().into(),
+                    state: Some(task.status().into()),
                     author: None,
                     body: None
                 })
