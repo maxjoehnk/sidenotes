@@ -1,5 +1,5 @@
-use druid::Data;
 use druid::text::RichText;
+use druid::Data;
 use serde::Deserialize;
 
 use crate::rich_text::IntoRichText;
@@ -36,12 +36,12 @@ mod converter {
     // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     // See the License for the specific language governing permissions and
     // limitations under the License.
-    use druid::text::{RichText, RichTextBuilder, AttributesAdder};
+    use druid::text::{AttributesAdder, RichText, RichTextBuilder};
     use druid::{Color, FontFamily, FontStyle, FontWeight};
     use pulldown_cmark::{Event as ParseEvent, Options, Parser, Tag};
 
-    use crate::ui::commands::OPEN_LINK;
     use crate::rich_text::get_font_size_for_heading;
+    use crate::ui::commands::OPEN_LINK;
 
     const BLOCKQUOTE_COLOR: Color = Color::grey8(0x88);
     const LINK_COLOR: Color = Color::rgb8(0, 0, 0xEE);
@@ -98,9 +98,9 @@ mod converter {
 
     fn add_newline_after_tag(tag: &Tag) -> bool {
         !matches!(
-        tag,
-        Tag::Emphasis | Tag::Strong | Tag::Strikethrough | Tag::Link(..)
-    )
+            tag,
+            Tag::Emphasis | Tag::Strong | Tag::Strikethrough | Tag::Link(..)
+        )
     }
 
     fn add_attribute_for_tag(tag: &Tag, mut attrs: AttributesAdder) {

@@ -1,5 +1,5 @@
-use jira_parser::*;
 use jira_parser::ast::*;
+use jira_parser::*;
 
 #[test]
 fn simple_panel() {
@@ -10,10 +10,13 @@ fn simple_panel() {
 
     let tag = parse(input).unwrap();
 
-    assert_eq!(vec![Tag::Panel(Panel {
-        content: vec![Tag::Text(expected.into())],
-        ..Default::default()
-    })], tag);
+    assert_eq!(
+        vec![Tag::Panel(Panel {
+            content: vec![Tag::Text(expected.into())],
+            ..Default::default()
+        })],
+        tag
+    );
 }
 
 #[test]
@@ -25,9 +28,12 @@ fn panel_with_title() {
 
     let tag = parse(input).unwrap();
 
-    assert_eq!(vec![Tag::Panel(Panel {
-        content: vec![Tag::Text(expected.into())],
-        title: Some("Test Title".into()),
-        ..Default::default()
-    })], tag);
+    assert_eq!(
+        vec![Tag::Panel(Panel {
+            content: vec![Tag::Text(expected.into())],
+            title: Some("Test Title".into()),
+            ..Default::default()
+        })],
+        tag
+    );
 }

@@ -1,11 +1,11 @@
-use crate::providers::Provider;
-use futures::future::BoxFuture;
-use druid::im::Vector;
-use crate::models::Todo;
-use serde::Deserialize;
-use futures::FutureExt;
 use super::api;
 use super::models;
+use crate::models::Todo;
+use crate::providers::Provider;
+use druid::im::Vector;
+use futures::future::BoxFuture;
+use futures::FutureExt;
+use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct JiraConfig {
@@ -57,9 +57,7 @@ impl JiraProvider {
 
 impl Provider for JiraProvider {
     fn name(&self) -> String {
-        self.name
-            .clone()
-            .unwrap_or_else(|| "Jira".into())
+        self.name.clone().unwrap_or_else(|| "Jira".into())
     }
 
     fn fetch_todos(&self) -> BoxFuture<anyhow::Result<Vector<Todo>>> {

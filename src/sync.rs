@@ -1,8 +1,8 @@
 use std::thread;
 use std::time::Duration;
 
-use druid::{ExtEventSink, Target};
 use druid::im::Vector;
+use druid::{ExtEventSink, Target};
 
 use crate::models::TodoProvider;
 use crate::providers::Provider;
@@ -14,32 +14,44 @@ pub struct SyncThread {
 
 impl SyncThread {
     pub fn new(event_sink: ExtEventSink) -> Self {
-        Self {
-            event_sink
-        }
+        Self { event_sink }
     }
 
     pub fn start(self) {
         thread::spawn(move || {
             if let Err(err) = self.run() {
                 tracing::error!("{:?}", err);
-                self.event_sink.submit_command(commands::FATAL_ERROR, format!("{:?}", err), Target::Auto).unwrap();
+                self.event_sink
+                    .submit_command(commands::FATAL_ERROR, format!("{:?}", err), Target::Auto)
+                    .unwrap();
             }
         });
     }
 
     fn run(&self) -> anyhow::Result<()> {
         let config = crate::config::load()?;
-        self.event_sink.submit_command(commands::UI_CONFIG_LOADED, config.ui, Target::Auto)?;
-        let providers: Vec<Box<dyn Provider>> = smol::block_on(futures::future::try_join_all(config.providers.into_iter()
-            .map(|provider_config| provider_config.create())))?;
+        self.event_sink
+            .submit_command(commands::UI_CONFIG_LOADED, config.ui, Target::Auto)?;
+        let providers: Vec<Box<dyn Provider>> = smol::block_on(futures::future::try_join_all(
+            config
+                .providers
+                .into_iter()
+                .map(|provider_config| provider_config.create()),
+        ))?;
 
-        let todo_providers: Vector<TodoProvider> = providers.iter().map(|provider| TodoProvider {
-            name: provider.name(),
-            items: Default::default(),
-        }).collect();
+        let todo_providers: Vector<TodoProvider> = providers
+            .iter()
+            .map(|provider| TodoProvider {
+                name: provider.name(),
+                items: Default::default(),
+            })
+            .collect();
 
-        self.event_sink.submit_command(commands::PROVIDERS_CONFIGURED, todo_providers, Target::Auto)?;
+        self.event_sink.submit_command(
+            commands::PROVIDERS_CONFIGURED,
+            todo_providers,
+            Target::Auto,
+        )?;
 
         loop {
             let tasks = providers
@@ -55,11 +67,19 @@ impl SyncThread {
     async fn sync_provider(&self, index: usize, provider: &dyn Provider) -> anyhow::Result<()> {
         match provider.fetch_todos().await {
             Ok(todos) => {
-                self.event_sink.submit_command(commands::TODOS_FETCHED, (index, todos), Target::Auto)?;
-            },
+                self.event_sink.submit_command(
+                    commands::TODOS_FETCHED,
+                    (index, todos),
+                    Target::Auto,
+                )?;
+            }
             Err(err) => {
                 tracing::error!("{:?}", err);
-                self.event_sink.submit_command(commands::PROVIDER_ERROR, format!("{}", err), Target::Auto)?;
+                self.event_sink.submit_command(
+                    commands::PROVIDER_ERROR,
+                    format!("{}", err),
+                    Target::Auto,
+                )?;
             }
         }
         Ok(())

@@ -1,28 +1,35 @@
-use jira_parser::parse;
 use jira_parser::ast::*;
+use jira_parser::parse;
 
 #[test]
 fn combine_format() {
     let tags = parse("*bold*_italic_-deleted-+inserted+").unwrap();
 
-    assert_eq!(vec![
-        Tag::Strong("bold".into()),
-        Tag::Emphasis("italic".into()),
-        Tag::Deleted("deleted".into()),
-        Tag::Inserted("inserted".into()),
-    ], tags)
+    assert_eq!(
+        vec![
+            Tag::Strong("bold".into()),
+            Tag::Emphasis("italic".into()),
+            Tag::Deleted("deleted".into()),
+            Tag::Inserted("inserted".into()),
+        ],
+        tags
+    )
 }
 
 #[test]
 fn formatted_heading() {
     let tags = parse("h1. *Important* something something").unwrap();
 
-    assert_eq!(vec![
-        Tag::Heading(1, vec![
-            Tag::Strong("Important".into()),
-            Tag::Text(" something something".into()).into(),
-        ])
-    ], tags);
+    assert_eq!(
+        vec![Tag::Heading(
+            1,
+            vec![
+                Tag::Strong("Important".into()),
+                Tag::Text(" something something".into()).into(),
+            ]
+        )],
+        tags
+    );
 }
 
 #[test]
@@ -69,13 +76,13 @@ h3. *Acceptance criteria*
                     ListItem::text("lists are supported"),
                     ListItem {
                         level: 2,
-                        content: vec![Tag::Text("nested lists as well".into())]
-                    }
-                ])
+                        content: vec![Tag::Text("nested lists as well".into())],
+                    },
+                ]),
             ],
             background_color: Some("#e3fcef".into()),
             ..Default::default()
-        })
+        }),
     ];
 
     let tags = parse(text).unwrap();

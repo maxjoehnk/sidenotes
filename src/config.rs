@@ -24,7 +24,7 @@ fn default_hide_empty_providers() -> bool {
 impl Default for UiConfig {
     fn default() -> Self {
         Self {
-            hide_empty_providers: default_hide_empty_providers()
+            hide_empty_providers: default_hide_empty_providers(),
         }
     }
 }

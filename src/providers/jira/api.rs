@@ -1,5 +1,5 @@
-use serde::Serialize;
 use super::models::*;
+use serde::Serialize;
 
 pub struct JiraApi {
     pub(super) url: String,
@@ -22,9 +22,7 @@ impl JiraApi {
     }
 
     pub async fn search(&self, query: &str) -> anyhow::Result<Vec<Issue>> {
-        let query = SearchQuery {
-            jql: query
-        };
+        let query = SearchQuery { jql: query };
         let mut res = surf::get(format!("{}/rest/api/2/search", &self.url))
             .content_type("application/json")
             .header("Authorization", self.auth_header())
@@ -36,12 +34,23 @@ impl JiraApi {
         #[cfg(debug_assertions)]
         if !res.status().is_success() {
             eprintln!("{:?}", res.status());
-            eprintln!("{:?}", res.body_string().await.map_err(|err| anyhow::anyhow!("{:?}", err))?);
+            eprintln!(
+                "{:?}",
+                res.body_string()
+                    .await
+                    .map_err(|err| anyhow::anyhow!("{:?}", err))?
+            );
             anyhow::bail!("Jira api failure");
         }
-        anyhow::ensure!(res.status().is_success(), "Jira api returned non success status code");
+        anyhow::ensure!(
+            res.status().is_success(),
+            "Jira api returned non success status code"
+        );
 
-        let res: SearchResponse = res.body_json().await.map_err(|err| anyhow::anyhow!("{:?}", err))?;
+        let res: SearchResponse = res
+            .body_json()
+            .await
+            .map_err(|err| anyhow::anyhow!("{:?}", err))?;
         tracing::trace!("{:?}", res);
 
         Ok(res.issues)

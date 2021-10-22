@@ -2,13 +2,13 @@ use druid::text::{RichText, RichTextBuilder};
 use druid::Data;
 use enum_dispatch::enum_dispatch;
 
-pub use self::markdown::*;
 #[cfg(feature = "jira")]
 pub use self::jira_markup::*;
+pub use self::markdown::*;
 
-mod markdown;
 #[cfg(feature = "jira")]
 mod jira_markup;
+mod markdown;
 
 #[enum_dispatch(RawRichText)]
 pub trait IntoRichText {
@@ -29,7 +29,7 @@ impl IntoRichText for String {
 pub enum RawRichText {
     Markdown,
     #[cfg(feature = "jira")]
-    Jira(JiraMarkup)
+    Jira(JiraMarkup),
 }
 
 pub fn get_font_size_for_heading(lvl: u32) -> f64 {

@@ -2,12 +2,12 @@ use druid::{AppLauncher, WindowDesc};
 
 use crate::sync::SyncThread;
 
-mod providers;
 pub mod config;
 mod models;
-mod ui;
-mod sync;
+mod providers;
 pub(crate) mod rich_text;
+mod sync;
+mod ui;
 
 fn main() -> anyhow::Result<()> {
     let window = WindowDesc::new(ui::ui_builder()).title("Sidenotes");

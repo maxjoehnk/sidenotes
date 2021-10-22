@@ -8,4 +8,3 @@ pub fn parse(input: &str) -> anyhow::Result<Vec<ast::Tag>> {
 
     Ok(tags)
 }
-
