@@ -189,14 +189,14 @@ fn ws<'a, F: 'a, O, E: ParseError<&'a str>>(inner: F) -> impl FnMut(&'a str) -> 
 fn unordered_list(input: &str) -> IResult<&str, ast::Tag> {
     map(
         list("*"),
-        |items| ast::Tag::UnorderedList(items)
+        ast::Tag::UnorderedList
     )(input)
 }
 
 fn ordered_list(input: &str) -> IResult<&str, ast::Tag> {
     map(
         list("#"),
-        |items| ast::Tag::OrderedList(items)
+        ast::Tag::OrderedList
     )(input)
 }
 

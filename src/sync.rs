@@ -45,14 +45,14 @@ impl SyncThread {
             let tasks = providers
                 .iter()
                 .enumerate()
-                .map(|(index, provider)| self.sync_provider(index, provider));
+                .map(|(index, provider)| self.sync_provider(index, provider.as_ref()));
 
             smol::block_on(futures::future::try_join_all(tasks))?;
             thread::sleep(Duration::from_secs(config.sync_timeout));
         }
     }
 
-    async fn sync_provider(&self, index: usize, provider: &Box<dyn Provider>) -> anyhow::Result<()> {
+    async fn sync_provider(&self, index: usize, provider: &dyn Provider) -> anyhow::Result<()> {
         match provider.fetch_todos().await {
             Ok(todos) => {
                 self.event_sink.submit_command(commands::TODOS_FETCHED, (index, todos), Target::Auto)?;

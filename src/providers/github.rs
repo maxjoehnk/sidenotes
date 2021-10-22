@@ -33,7 +33,7 @@ impl GithubProvider {
             client,
             repos: config.repos.into_iter()
                 .map(|repo| {
-                    let parts = repo.split("/").collect::<Vec<_>>();
+                    let parts = repo.split('/').collect::<Vec<_>>();
 
                     (parts[0].into(), parts[1].into())
                 })
@@ -73,7 +73,7 @@ impl GithubProvider {
             return "Approved".into()
         }
 
-        return "Open".into()
+        "Open".into()
     }
 }
 

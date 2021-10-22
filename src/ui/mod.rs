@@ -24,7 +24,7 @@ impl<W: Widget<AppState>> Controller<AppState, W> for Sidenotes {
                 data.providers[*provider].items = todos.clone();
             } else if let Some(todo) = cmd.get(commands::OPEN_TODO) {
                 data.navigation = Navigation::Selected(todo.clone());
-            } else if let Some(_) = cmd.get(commands::CLOSE_TODO) {
+            } else if cmd.get(commands::CLOSE_TODO).is_some() {
                 data.navigation = Navigation::List;
             } else if let Some(link) = cmd.get(commands::OPEN_LINK) {
                 open::that_in_background(link);
