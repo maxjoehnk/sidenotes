@@ -1,16 +1,16 @@
-use serde::Deserialize;
 use crate::models::Todo;
-use futures::future::BoxFuture;
 use druid::im::Vector;
+use futures::future::BoxFuture;
+use serde::Deserialize;
 
 #[cfg(feature = "github")]
 mod github;
+#[cfg(feature = "gitlab")]
+mod gitlab;
 #[cfg(feature = "jira")]
 mod jira;
 #[cfg(feature = "joplin")]
 mod joplin;
-#[cfg(feature = "gitlab")]
-mod gitlab;
 #[cfg(feature = "taskwarrior")]
 mod taskwarrior;
 
@@ -33,9 +33,13 @@ impl ProviderConfig {
     pub async fn create(self) -> anyhow::Result<Box<dyn Provider>> {
         let provider = match self {
             #[cfg(feature = "github")]
-            Self::Github(config) => Box::new(github::GithubProvider::new(config)?) as Box<dyn Provider>,
+            Self::Github(config) => {
+                Box::new(github::GithubProvider::new(config)?) as Box<dyn Provider>
+            }
             #[cfg(feature = "gitlab")]
-            Self::Gitlab(config) => Box::new(gitlab::GitlabProvider::new(config).await?) as Box<dyn Provider>,
+            Self::Gitlab(config) => {
+                Box::new(gitlab::GitlabProvider::new(config).await?) as Box<dyn Provider>
+            }
             #[cfg(feature = "jira")]
             Self::Jira(config) => Box::new(jira::JiraProvider::new(config)?),
             #[cfg(feature = "joplin")]

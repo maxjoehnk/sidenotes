@@ -1,5 +1,7 @@
-use druid::{Color, Command, FontDescriptor, FontFamily, FontWeight, Insets, Target, UnitPoint, Widget};
 use druid::widget::*;
+use druid::{
+    Color, Command, FontDescriptor, FontFamily, FontWeight, Insets, Target, UnitPoint, Widget,
+};
 
 use crate::models::*;
 
@@ -15,10 +17,10 @@ fn provider_builder() -> impl Widget<TodoProvider> {
     let font = FontDescriptor::new(FontFamily::SYSTEM_UI)
         .with_size(18.0)
         .with_weight(FontWeight::BOLD);
-    let header = Label::new(|item: &TodoProvider, _env: &_| item.name.clone()).with_font(font)
+    let header = Label::new(|item: &TodoProvider, _env: &_| item.name.clone())
+        .with_font(font)
         .align_horizontal(UnitPoint::CENTER);
-    let todos = List::new(todo_builder)
-        .lens(TodoProvider::items);
+    let todos = List::new(todo_builder).lens(TodoProvider::items);
 
     Flex::column()
         .with_child(header)
@@ -54,7 +56,13 @@ fn todo_builder() -> impl Widget<Todo> {
         .rounded(2.0)
         .padding(Insets::uniform_xy(0., 2.))
         .expand_width()
-        .on_click(|event_ctx, todo: &mut Todo, _: &_| event_ctx.submit_command(Command::new(commands::OPEN_TODO, todo.clone(), Target::Auto)))
+        .on_click(|event_ctx, todo: &mut Todo, _: &_| {
+            event_ctx.submit_command(Command::new(
+                commands::OPEN_TODO,
+                todo.clone(),
+                Target::Auto,
+            ))
+        })
 }
 
 fn title_builder() -> impl Widget<Todo> {

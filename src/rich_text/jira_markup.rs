@@ -1,8 +1,8 @@
-use crate::rich_text::{IntoRichText, get_font_size_for_heading};
-use druid::text::{RichText, RichTextBuilder, AttributesAdder, Attribute};
-use serde::Deserialize;
-use druid::{Data, FontWeight, FontStyle, Color, FontFamily};
+use crate::rich_text::{get_font_size_for_heading, IntoRichText};
+use druid::text::{Attribute, AttributesAdder, RichText, RichTextBuilder};
+use druid::{Color, Data, FontFamily, FontStyle, FontWeight};
 use jira_parser::ast::*;
+use serde::Deserialize;
 
 const BLOCKQUOTE_COLOR: Color = Color::grey8(0x88);
 const INSERTED_COLOR: Color = Color::rgb8(0, 255, 0);
@@ -31,45 +31,56 @@ impl IntoRichText for JiraMarkup {
 fn build_tags(builder: &mut RichTextBuilder, tags: Vec<Tag>, attr: Vec<Attribute>) {
     for tag in tags {
         match tag {
-            Tag::Text(text) => builder.push(&text)
-                .add_attributes(&attr),
-            Tag::Strong(text) => builder.push(&text)
+            Tag::Text(text) => builder.push(&text).add_attributes(&attr),
+            Tag::Strong(text) => builder
+                .push(&text)
                 .weight(FontWeight::BOLD)
                 .add_attributes(&attr),
-            Tag::Emphasis(text) => builder.push(&text)
+            Tag::Emphasis(text) => builder
+                .push(&text)
                 .style(FontStyle::Italic)
                 .add_attributes(&attr),
             Tag::Panel(panel) => build_tags(builder, panel.content, attr.clone()),
-            Tag::Newline => { builder.push("\n"); },
-            Tag::InlineQuote(text) => builder.push(&text)
+            Tag::Newline => {
+                builder.push("\n");
+            }
+            Tag::InlineQuote(text) => builder
+                .push(&text)
                 .style(FontStyle::Italic)
                 .text_color(BLOCKQUOTE_COLOR)
                 .add_attributes(&attr),
-            Tag::Quote(text) => builder.push(&text)
+            Tag::Quote(text) => builder
+                .push(&text)
                 .style(FontStyle::Italic)
                 .text_color(BLOCKQUOTE_COLOR)
                 .add_attributes(&attr),
-            Tag::Monospaced(text) => builder.push(&text)
+            Tag::Monospaced(text) => builder
+                .push(&text)
                 .font_family(FontFamily::MONOSPACE)
                 .add_attributes(&attr),
-            Tag::Inserted(text) => builder.push(&text)
+            Tag::Inserted(text) => builder
+                .push(&text)
                 .underline(true)
                 .text_color(INSERTED_COLOR)
                 .add_attributes(&attr),
-            Tag::Deleted(text) => builder.push(&text)
+            Tag::Deleted(text) => builder
+                .push(&text)
                 .strikethrough(true)
                 .text_color(DELETED_COLOR)
                 .add_attributes(&attr),
-            Tag::Subscript(text) => builder.push(&text)
-                .add_attributes(&attr),
-            Tag::Superscript(text) => builder.push(&text)
-                .add_attributes(&attr),
-            Tag::Color(color, text) => builder.push(&text)
+            Tag::Subscript(text) => builder.push(&text).add_attributes(&attr),
+            Tag::Superscript(text) => builder.push(&text).add_attributes(&attr),
+            Tag::Color(color, text) => builder
+                .push(&text)
                 .text_color(from_color(&color))
                 .add_attributes(&attr),
-            Tag::Heading(level, content) => build_tags(builder, content, vec![
-                Attribute::FontSize(get_font_size_for_heading(level as u32).into()),
-            ]),
+            Tag::Heading(level, content) => build_tags(
+                builder,
+                content,
+                vec![Attribute::FontSize(
+                    get_font_size_for_heading(level as u32).into(),
+                )],
+            ),
             Tag::UnorderedList(items) => {
                 for item in items {
                     for _ in 0..item.level {
@@ -80,7 +91,7 @@ fn build_tags(builder: &mut RichTextBuilder, tags: Vec<Tag>, attr: Vec<Attribute
                     builder.push("\n");
                 }
             }
-            _ => {},
+            _ => {}
         }
     }
 }
@@ -90,7 +101,7 @@ fn from_color(color: &str) -> Color {
         "red" => Color::RED,
         "green" => Color::GREEN,
         "blue" => Color::BLUE,
-        c => Color::from_hex_str(c).unwrap_or(Color::WHITE)
+        c => Color::from_hex_str(c).unwrap_or(Color::WHITE),
     }
 }
 

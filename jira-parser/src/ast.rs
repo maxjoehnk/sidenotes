@@ -16,20 +16,20 @@ pub enum Tag {
     UnorderedList(Vec<ListItem>),
     OrderedList(Vec<ListItem>),
     Panel(Panel),
-    Newline
+    Newline,
 }
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub struct ListItem {
     pub level: u8,
-    pub content: Vec<Tag>
+    pub content: Vec<Tag>,
 }
 
 impl ListItem {
     pub fn text(text: &str) -> Self {
         ListItem {
             level: 1,
-            content: vec![Tag::Text(text.into())]
+            content: vec![Tag::Text(text.into())],
         }
     }
 }

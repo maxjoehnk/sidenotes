@@ -1,0 +1,50 @@
+on: [push]
+
+name: CI
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - run: sudo apt update && sudo apt install -y libgtk-3-dev
+      - uses: actions/checkout@v1
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          components: rustfmt, clippy
+          override: true
+      - uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all -- --check
+      - uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: -- -D warnings
+
+  build:
+    name: Build (${{ matrix.runs_on }})
+    runs-on: ${{ matrix.runs_on }}
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - os: linux
+            runs_on: ubuntu-latest
+          - os: macos
+            runs_on: macos-latest
+          - os: windows
+            runs_on: windows-latest
+    steps:
+      - if: ${{ matrix.os=='linux' }}
+        run: sudo apt update && sudo apt install -y libgtk-3-dev
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release

@@ -1,9 +1,9 @@
-use serde::Deserialize;
 use crate::rich_text::JiraMarkup;
+use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 pub(super) struct SearchResponse {
-    pub issues: Vec<Issue>
+    pub issues: Vec<Issue>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -22,5 +22,5 @@ pub struct IssueFields {
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Status {
-    pub name: String
+    pub name: String,
 }

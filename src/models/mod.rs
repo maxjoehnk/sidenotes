@@ -1,5 +1,5 @@
-use druid::{Data, Lens, lens};
 use druid::im::Vector;
+use druid::{lens, Data, Lens};
 
 use crate::config::UiConfig;
 use crate::rich_text::RawRichText;
@@ -14,13 +14,18 @@ pub struct AppState {
 
 impl AppState {
     pub fn providers() -> impl Lens<Self, Vector<TodoProvider>> {
-        lens::Map::new::<Self, Vector<TodoProvider>>(|data| {
-            data.providers
-                .iter()
-                .filter(|provider| !provider.items.is_empty() || !data.ui_config.hide_empty_providers)
-                .cloned()
-                .collect()
-        }, |_, _| {})
+        lens::Map::new::<Self, Vector<TodoProvider>>(
+            |data| {
+                data.providers
+                    .iter()
+                    .filter(|provider| {
+                        !provider.items.is_empty() || !data.ui_config.hide_empty_providers
+                    })
+                    .cloned()
+                    .collect()
+            },
+            |_, _| {},
+        )
     }
 }
 
@@ -38,13 +43,16 @@ impl Default for Navigation {
 
 impl Navigation {
     pub fn selected() -> impl Lens<Self, Todo> {
-        lens::Map::new::<Self, Todo>(|data| {
-            if let Navigation::Selected(ref todo) = data {
-                todo.clone()
-            }else {
-                unreachable!()
-            }
-        }, |_, _| {})
+        lens::Map::new::<Self, Todo>(
+            |data| {
+                if let Navigation::Selected(ref todo) = data {
+                    todo.clone()
+                } else {
+                    unreachable!()
+                }
+            },
+            |_, _| {},
+        )
     }
 }
 

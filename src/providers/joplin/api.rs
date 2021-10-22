@@ -11,7 +11,7 @@ impl JoplinApi {
     pub fn new(token: String) -> Self {
         Self {
             token,
-            url: "http://localhost:41184".into()
+            url: "http://localhost:41184".into(),
         }
     }
 
@@ -37,9 +37,13 @@ impl JoplinApi {
                 tracing::error!("{:?}", body);
                 anyhow::bail!("Joplin api failure");
             }
-            anyhow::ensure!(res.status().is_success(), "Joplin api returned non success status code");
+            anyhow::ensure!(
+                res.status().is_success(),
+                "Joplin api returned non success status code"
+            );
 
-            let res: JoplinResponse<Note> = res.body_json().await.map_err(surf::Error::into_inner)?;
+            let res: JoplinResponse<Note> =
+                res.body_json().await.map_err(surf::Error::into_inner)?;
             tracing::trace!("{:?}", res);
             for note in res.items {
                 if note.is_todo() && !note.is_completed() {

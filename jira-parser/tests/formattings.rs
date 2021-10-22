@@ -1,7 +1,7 @@
 use test_case::test_case;
 
-use jira_parser::*;
 use jira_parser::ast::*;
+use jira_parser::*;
 
 #[test_case("h1. Biggest heading", 1)]
 #[test_case("h2. Bigger heading", 2)]
@@ -12,7 +12,13 @@ use jira_parser::ast::*;
 fn heading(input: &'static str, level: u8) {
     let tag = parse(input).unwrap();
 
-    assert_eq!(vec![Tag::Heading(level, Tag::Text(input[4..].to_string()).into())], tag);
+    assert_eq!(
+        vec![Tag::Heading(
+            level,
+            Tag::Text(input[4..].to_string()).into()
+        )],
+        tag
+    );
 }
 
 #[test]
@@ -86,7 +92,6 @@ fn text_effect_inline_quote() {
     assert_eq!(vec![Tag::InlineQuote("Some block quoted text".into())], tag);
 }
 
-
 #[test]
 fn quote() {
     let input = r#"{quote}
@@ -109,5 +114,8 @@ fn color() {
 
     let tag = parse(input).unwrap();
 
-    assert_eq!(vec![Tag::Color("red".into(), "look ma, red text!".into())], tag);
+    assert_eq!(
+        vec![Tag::Color("red".into(), "look ma, red text!".into())],
+        tag
+    );
 }

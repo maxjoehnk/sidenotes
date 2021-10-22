@@ -1,5 +1,5 @@
-use serde::Deserialize;
 use crate::rich_text::Markdown;
+use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Note {

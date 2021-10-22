@@ -1,11 +1,11 @@
 use super::api;
 use super::models;
-use crate::providers::Provider;
-use futures::future::BoxFuture;
-use druid::im::Vector;
 use crate::models::Todo;
-use futures::FutureExt;
 use crate::providers::joplin::models::Note;
+use crate::providers::Provider;
+use druid::im::Vector;
+use futures::future::BoxFuture;
+use futures::FutureExt;
 use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]
@@ -24,18 +24,19 @@ impl JoplinProvider {
     pub fn new(config: JoplinConfig) -> anyhow::Result<Self> {
         Ok(Self {
             api: api::JoplinApi::new(config.token),
-            notebooks: config.notebooks
+            notebooks: config.notebooks,
         })
     }
 
     async fn fetch_notes(&self) -> anyhow::Result<Vector<Todo>> {
         tracing::info!("Fetching Joplin notes...");
         let notes = self.api.get_todo_notes().await?;
-        let todos: Vector<_> = notes.into_iter()
+        let todos: Vector<_> = notes
+            .into_iter()
             .filter(|note| {
                 if let Some(notebooks) = self.notebooks.as_ref() {
                     notebooks.contains(&note.notebook_id)
-                }else {
+                } else {
                     true
                 }
             })

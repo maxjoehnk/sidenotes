@@ -20,11 +20,7 @@ pub struct TodoBody;
 
 impl Prism<Todo, RichText> for TodoBody {
     fn get(&self, data: &Todo) -> Option<RichText> {
-        if let Some(body) = data.body.clone() {
-            Some(body.into_rich_text())
-        } else {
-            None
-        }
+        data.body.clone().map(|body| body.into_rich_text())
     }
 
     fn put(&self, _: &mut Todo, _: RichText) {

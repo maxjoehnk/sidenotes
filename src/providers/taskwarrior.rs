@@ -1,27 +1,27 @@
-use serde::Deserialize;
 use super::Provider;
-use futures::future::BoxFuture;
-use futures::FutureExt;
 use crate::models::Todo;
 use druid::im::Vector;
+use futures::future::BoxFuture;
+use futures::FutureExt;
+use serde::Deserialize;
 use task_hookrs::tw::query;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct TaskwarriorConfig {
     name: Option<String>,
-    query: String
+    query: String,
 }
 
 pub struct TaskwarriorProvider {
     name: Option<String>,
-    query: String
+    query: String,
 }
 
 impl TaskwarriorProvider {
     pub fn new(config: TaskwarriorConfig) -> anyhow::Result<Self> {
         Ok(Self {
             name: config.name,
-            query: config.query
+            query: config.query,
         })
     }
 
@@ -30,7 +30,7 @@ impl TaskwarriorProvider {
         let mut todos: Vector<Todo> = Vector::new();
         if let Ok(tasks) = query(&self.query) {
             for task in tasks {
-                todos.push_back(Todo{
+                todos.push_back(Todo {
                     title: task.description().into(),
                     state: Some(task.status().to_string()),
                     author: None,
@@ -49,8 +49,7 @@ impl TaskwarriorProvider {
 
 impl Provider for TaskwarriorProvider {
     fn name(&self) -> String {
-        self.name.clone()
-            .unwrap_or_else(|| "TaskWarrior".into())
+        self.name.clone().unwrap_or_else(|| "TaskWarrior".into())
     }
 
     fn fetch_todos(&self) -> BoxFuture<anyhow::Result<Vector<Todo>>> {
