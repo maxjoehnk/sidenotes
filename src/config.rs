@@ -31,15 +31,10 @@ impl Default for UiConfig {
 }
 
 pub fn load() -> anyhow::Result<Config> {
-    let xdg_home = ProjectDirs::from(
-        "de",
-        "max",
-        "sidenotes"
-    ).unwrap();
+    let xdg_home = ProjectDirs::from("de", "max", "sidenotes").unwrap();
 
     let file = std::fs::read_to_string(xdg_home.config_dir().join("settings.toml"))?;
     let config = toml::from_str(&file)?;
 
     Ok(config)
 }
-
