@@ -7,6 +7,8 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
+      - if: ${{ matrix.os=='linux' }}
+        run: sudo apt update && sudo apt install -y libgtk-3-dev
       - uses: actions/checkout@v1
       - uses: actions-rs/toolchain@v1
         with:
