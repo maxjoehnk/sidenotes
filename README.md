@@ -4,11 +4,11 @@ A small desktop app to view github prs, jira issues and taskwarrior tasks in a s
 
 Overview-Page:
 
-![Overview Page](./docs/img/overview.png "Overview Page")
+![Image Overview Page](docs/img/overview.png?raw=true "Overview Page")
 
 Detail-Page:
 
-![Detail Page](./docs/img/detail.png "Detail Page")
+![Image Detail Page](docs/img/detail.png?raw=true "Detail Page")
 
 ## Installation
 
