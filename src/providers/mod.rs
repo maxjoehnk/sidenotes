@@ -13,6 +13,8 @@ mod jira;
 mod joplin;
 #[cfg(feature = "taskwarrior")]
 mod taskwarrior;
+#[cfg(feature = "upsource")]
+mod upsource;
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase", tag = "type")]
@@ -27,6 +29,8 @@ pub enum ProviderConfig {
     Joplin(joplin::JoplinConfig),
     #[cfg(feature = "taskwarrior")]
     Taskwarrior(taskwarrior::TaskwarriorConfig),
+    #[cfg(feature = "upsource")]
+    Upsource(upsource::UpsourceConfig),
 }
 
 impl ProviderConfig {
@@ -46,6 +50,8 @@ impl ProviderConfig {
             Self::Joplin(config) => Box::new(joplin::JoplinProvider::new(config)?),
             #[cfg(feature = "taskwarrior")]
             Self::Taskwarrior(config) => Box::new(taskwarrior::TaskwarriorProvider::new(config)?),
+            #[cfg(feature = "upsource")]
+            Self::Upsource(config) => Box::new(upsource::UpsourceProvider::new(config)?),
         };
 
         Ok(provider)

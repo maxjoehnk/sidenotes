@@ -10,11 +10,12 @@ version = "0.1.0"
 edition = "2018"
 
 [features]
-default = ["github", "jira", "joplin", "gitlab", "taskwarrior"]
+default = ["github", "jira", "joplin", "gitlab", "taskwarrior", "upsource"]
 github = ["octorust", "async-compat"]
 jira = ["surf", "base64", "jira-parser"]
 joplin = ["surf"]
 taskwarrior = ["task-hookrs"]
+upsource = ["surf", "serde_repr"]
 
 [dependencies]
 tracing = "0.1"
@@ -35,3 +36,4 @@ pulldown-cmark = "0.8.0"
 open = "2.0.1"
 jira-parser = { path = "jira-parser", optional = true }
 druid-widget-nursery = { git = "https://github.com/linebender/druid-widget-nursery" }
+serde_repr = { version = "0.1", optional = true }
