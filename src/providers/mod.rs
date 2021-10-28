@@ -15,6 +15,8 @@ mod joplin;
 mod taskwarrior;
 #[cfg(feature = "upsource")]
 mod upsource;
+#[cfg(feature = "microsoft")]
+mod microsoft;
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase", tag = "type")]
@@ -31,6 +33,8 @@ pub enum ProviderConfig {
     Taskwarrior(taskwarrior::TaskwarriorConfig),
     #[cfg(feature = "upsource")]
     Upsource(upsource::UpsourceConfig),
+    #[cfg(feature = "microsoft")]
+    Planner(microsoft::planner::MicrosoftPlannerConfig),
 }
 
 impl ProviderConfig {
@@ -52,6 +56,8 @@ impl ProviderConfig {
             Self::Taskwarrior(config) => Box::new(taskwarrior::TaskwarriorProvider::new(config)?),
             #[cfg(feature = "upsource")]
             Self::Upsource(config) => Box::new(upsource::UpsourceProvider::new(config)?),
+            #[cfg(feature = "microsoft")]
+            Self::Planner(config) => Box::new(microsoft::planner::MicrosoftPlannerProvider::new(config).await?),
         };
 
         Ok(provider)
