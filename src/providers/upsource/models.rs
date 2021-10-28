@@ -41,7 +41,7 @@ pub struct ReviewDescriptor {
 #[serde(rename_all = "camelCase")]
 pub struct ReviewId {
     pub project_id: String,
-    pub review_id: String
+    pub review_id: String,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -49,14 +49,14 @@ pub struct ReviewId {
 pub struct IssueId {
     pub issue_id: String,
     pub issue_link: Option<String>,
-    pub is_created_from_upsource: Option<bool>
+    pub is_created_from_upsource: Option<bool>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize_repr, Deserialize_repr)]
 #[repr(u8)]
 pub enum ReviewState {
     Open = 1,
-    Closed = 2
+    Closed = 2,
 }
 
 impl Display for ReviewState {

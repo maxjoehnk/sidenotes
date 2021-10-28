@@ -1,11 +1,11 @@
 use super::{api, models};
-use serde::Deserialize;
-use druid::im::Vector;
 use crate::models::Todo;
 use crate::providers::upsource::models::{ReviewDescriptor, ReviewState};
-use crate::rich_text::Markdown;
-use futures::future::{FutureExt, BoxFuture};
 use crate::providers::Provider;
+use crate::rich_text::Markdown;
+use druid::im::Vector;
+use futures::future::{BoxFuture, FutureExt};
+use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct UpsourceConfig {
@@ -75,7 +75,10 @@ impl From<(&str, models::ReviewDescriptor)> for Todo {
             state: Some(review.state()),
             body: review.description.map(|desc| Markdown(desc).into()),
             author: None,
-            link: Some(format!("{}/{}/review/{}", url, review.review_id.project_id, review.review_id.review_id)),
+            link: Some(format!(
+                "{}/{}/review/{}",
+                url, review.review_id.project_id, review.review_id.review_id
+            )),
         }
     }
 }
@@ -84,11 +87,11 @@ impl models::ReviewDescriptor {
     fn state(&self) -> String {
         if self.completion_rate.has_concern {
             "Raised concerns".into()
-        }else if self.state == ReviewState::Open && self.completion_rate.reviewers_count == 0 {
+        } else if self.state == ReviewState::Open && self.completion_rate.reviewers_count == 0 {
             "Open".into()
-        }else if self.completion_rate.completed_count == self.completion_rate.reviewers_count {
+        } else if self.completion_rate.completed_count == self.completion_rate.reviewers_count {
             "Approved".into()
-        }else {
+        } else {
             "In Progress".into()
         }
     }

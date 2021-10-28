@@ -8,17 +8,11 @@ pub struct UpsourceApi {
 
 impl UpsourceApi {
     pub fn new(url: String, token: String) -> Self {
-        Self {
-            url,
-            token,
-        }
+        Self { url, token }
     }
 
     pub async fn get_reviews(&self, query: &str) -> anyhow::Result<Vec<ReviewDescriptor>> {
-        let body = ReviewsRequest {
-            limit: 30,
-            query,
-        };
+        let body = ReviewsRequest { limit: 30, query };
         let mut res = surf::post(format!("{}/~rpc/getReviews", &self.url))
             .content_type("application/json")
             .header("Authorization", format!("Bearer {}", &self.token))
@@ -43,7 +37,8 @@ impl UpsourceApi {
             "Upsource api returned non success status code"
         );
 
-        let res: ApiResult<ReviewList> = res.body_json()
+        let res: ApiResult<ReviewList> = res
+            .body_json()
             .await
             .map_err(|err| anyhow::anyhow!("{:?}", err))?;
         tracing::trace!("{:?}", res);
@@ -60,5 +55,5 @@ struct ReviewsRequest<'a> {
 
 #[derive(Debug, Deserialize)]
 struct ApiResult<T> {
-    pub result: T
+    pub result: T,
 }
