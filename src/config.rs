@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use directories_next::ProjectDirs;
 use serde::Deserialize;
 
@@ -31,9 +33,19 @@ impl Default for UiConfig {
 }
 
 pub fn load() -> anyhow::Result<Config> {
-    let xdg_home = ProjectDirs::from("de", "max", "sidenotes").unwrap();
+    let workspace = PathBuf::from("settings.toml");
+    let xdg_home = ProjectDirs::from("me", "maxjoehnk", "sidenotes")
+        .unwrap()
+        .config_dir()
+        .join("settings.toml");
+    let file: String;
 
-    let file = std::fs::read_to_string(xdg_home.config_dir().join("settings.toml"))?;
+    if workspace.exists() {
+        file = std::fs::read_to_string(workspace)?;
+    } else {
+        file = std::fs::read_to_string(xdg_home)?;
+    }
+
     let config = toml::from_str(&file)?;
 
     Ok(config)
