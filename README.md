@@ -15,16 +15,20 @@ Detail-Page:
 All features are optional but will be installed by default.
 
 Available:
+
 * github
 * gitlab
 * jira
 * taskwarrior
+* joplin
+* upsource
 
 ## Installation
 
 Create a `settings.toml` in `$XDG_HOME/sitenotes/`
 
 Example:
+
 ```toml
 sync_timeout = 30
 
@@ -37,7 +41,7 @@ repos = ["maxjoehnk/sidenotes"]
 [[provider]]
 name = "Gitlab"
 type = "gitlab"
-url = "https://your.gitlab.url"
+url = "your.gitlab.url"
 token = "<gitlab token>"
 repos = ["maxjoehnk/sidenotes"]
 
@@ -53,4 +57,10 @@ jql = "assignee = currentUser() and statusCategory != Done"
 name = "Tasks"
 type = "taskwarrior"
 query = "status:pending"
+
+[[provider]]
+type = "joplin"
+token = "<Web Clipper token>"
+# Notebook Ids
+notebooks = ["bc956e0e43b74c678817a1e82f468127", "d705bc49caa34927926a3c8018bf593d", "cc1fe66cbf384c60b65978dec330f364", "5002ad0da82f4e6e8b3c3735ae205c41", "8a537e1c29e14884a32efd28c629652c"]
 ```
