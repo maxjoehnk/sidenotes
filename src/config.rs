@@ -34,7 +34,10 @@ impl Default for UiConfig {
 
 pub fn load() -> anyhow::Result<Config> {
     let workspace = PathBuf::from("settings.toml");
-    let xdg_home = ProjectDirs::from("me", "maxjoehnk", "sidenotes").unwrap().config_dir().join("settings.toml");
+    let xdg_home = ProjectDirs::from("me", "maxjoehnk", "sidenotes")
+        .unwrap()
+        .config_dir()
+        .join("settings.toml");
     let file: String;
 
     if workspace.exists() {
