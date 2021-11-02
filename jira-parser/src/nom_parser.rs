@@ -141,7 +141,7 @@ fn panel(input: &str) -> IResult<&str, ast::Tag> {
                 take_until("}").and_then(parse_panel_options),
                 pair(tag("}"), newline),
             ),
-            map(ws(is_not("{")), |text| text.trim()).and_then(parse),
+            map(ws(take_until("{panel}")), |text| text.trim()).and_then(parse),
             pair(
                 tag("{panel}"),
                 alt((map(newline, |_| ()), map(eof, |_| ()))),
@@ -169,12 +169,12 @@ fn parse_panel_options(input: &str) -> IResult<&str, ast::Panel> {
 
 fn assign_option(panel: &mut ast::Panel, key: &str, value: &str) {
     match key {
-        "title" => panel.title = Some(value.into()),
+        "title" => panel.title = Some(value.trim().into()),
         "borderStyle" => panel.border_style = Some(value.into()),
         "borderColor" => panel.border_color = Some(value.into()),
         "borderWidth" => panel.border_width = Some(value.into()),
         "bgColor" => panel.background_color = Some(value.into()),
-        "titleBgColor" => panel.title_background_color = Some(value.into()),
+        "titleBGColor" => panel.title_background_color = Some(value.into()),
         _ => {}
     }
 }
@@ -200,13 +200,13 @@ fn heading_level(input: &str) -> IResult<&str, u8> {
 }
 
 fn plain_text(input: &str) -> IResult<&str, ast::Tag> {
-    map(take_till1(|c| c == '\n'), |text: &str| {
+    map(take_till1(|c| c == '\n' || c == '\r'), |text: &str| {
         ast::Tag::Text(text.into())
     })(input)
 }
 
 fn newline(input: &str) -> IResult<&str, ast::Tag> {
-    map(char('\n'), |_| ast::Tag::Newline)(input)
+    map(alt((tag("\n"), tag("\r\n"))), |_| ast::Tag::Newline)(input)
 }
 
 fn ws<'a, F: 'a, O, E: ParseError<&'a str>>(
