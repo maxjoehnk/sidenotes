@@ -6,6 +6,9 @@ use crate::models::*;
 use crate::ui::commands;
 use crate::ui::lens::Link;
 use crate::ui::prism::{TodoBody, TodoLink};
+use crate::ui::theme::CARD_COLOR;
+
+const BACK_BUTTON_ICON: &str = include_str!("../../../assets/icons/arrow-back.svg");
 
 struct DetailController;
 
@@ -30,12 +33,19 @@ impl<W: Widget<Todo>> Controller<Todo, W> for DetailController {
 }
 
 pub fn detail_builder() -> impl Widget<Todo> {
-    let back_button = Button::new("Back").on_click(|ctx: _, _: &mut Todo, _: &_| {
-        ctx.submit_command(Command::new(commands::CLOSE_TODO, (), Target::Auto))
-    });
+    let svg = BACK_BUTTON_ICON.parse::<SvgData>().unwrap();
+    let back_button = Svg::new(svg)
+        .padding(8.)
+        .on_click(|ctx: _, _: &mut Todo, _: &_| {
+            ctx.submit_command(Command::new(commands::CLOSE_TODO, (), Target::Auto))
+        });
     let title = Label::new(|item: &Todo, _env: &_| item.title.clone())
-        .with_line_break_mode(LineBreaking::WordWrap);
-    let header = Flex::row().with_child(back_button).with_child(title);
+        .with_line_break_mode(LineBreaking::WordWrap)
+        .padding(4.);
+    let header = Flex::row()
+        .with_child(back_button)
+        .with_flex_child(title, 1.)
+        .background(CARD_COLOR);
     let body = RawLabel::new().with_line_break_mode(LineBreaking::WordWrap);
     let body = prism::PrismWrap::new(body, TodoBody);
     let body = Scroll::new(body).vertical();
@@ -49,5 +59,7 @@ pub fn detail_builder() -> impl Widget<Todo> {
 }
 
 fn link_builder() -> impl Widget<String> {
-    RawLabel::new().lens(Link)
+    RawLabel::new()
+        .with_line_break_mode(LineBreaking::WordWrap)
+        .lens(Link)
 }

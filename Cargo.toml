@@ -20,7 +20,7 @@ upsource = ["surf", "serde_repr"]
 [dependencies]
 tracing = "0.1"
 anyhow = "1"
-druid = { git = "https://github.com/linebender/druid.git", features = ["im"], rev = "1801164629800938ba1316e5b58c5383641fdea6" }
+druid = { git = "https://github.com/linebender/druid.git", features = ["im", "svg"], rev = "1801164629800938ba1316e5b58c5383641fdea6" }
 octorust = { version = "0.1.33", optional = true }
 serde = { version = "1", features = ["derive"] }
 task-hookrs = { version = "0.7.0", optional = true}
