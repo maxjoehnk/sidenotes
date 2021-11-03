@@ -5,6 +5,7 @@ use std::fmt::{Display, Formatter};
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ReviewList {
+    #[serde(default)]
     pub reviews: Vec<ReviewDescriptor>,
     pub has_more: bool,
     pub total_count: i32,
