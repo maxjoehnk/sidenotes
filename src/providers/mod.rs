@@ -11,6 +11,8 @@ mod gitlab;
 mod jira;
 #[cfg(feature = "joplin")]
 mod joplin;
+#[cfg(feature = "nextcloud")]
+mod nextcloud;
 #[cfg(feature = "taskwarrior")]
 mod taskwarrior;
 #[cfg(feature = "upsource")]
@@ -31,6 +33,8 @@ pub enum ProviderConfig {
     Taskwarrior(taskwarrior::TaskwarriorConfig),
     #[cfg(feature = "upsource")]
     Upsource(upsource::UpsourceConfig),
+    #[cfg(feature = "nextcloud")]
+    NextcloudDeck(nextcloud::deck::NextcloudDeckProviderConfig),
 }
 
 impl ProviderConfig {
@@ -52,6 +56,10 @@ impl ProviderConfig {
             Self::Taskwarrior(config) => Box::new(taskwarrior::TaskwarriorProvider::new(config)?),
             #[cfg(feature = "upsource")]
             Self::Upsource(config) => Box::new(upsource::UpsourceProvider::new(config)?),
+            #[cfg(feature = "nextcloud")]
+            Self::NextcloudDeck(config) => {
+                Box::new(nextcloud::deck::NextcloudDeckProvider::new(config))
+            }
         };
 
         Ok(provider)
