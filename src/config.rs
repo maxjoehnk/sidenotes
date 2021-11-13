@@ -35,16 +35,15 @@ impl Default for UiConfig {
 pub fn load() -> anyhow::Result<Config> {
     let workspace = PathBuf::from("settings.toml");
     let xdg_home = ProjectDirs::from("me", "maxjoehnk", "sidenotes")
-        .unwrap()
+        .expect("Home directory could not be detected")
         .config_dir()
         .join("settings.toml");
-    let file: String;
 
-    if workspace.exists() {
-        file = std::fs::read_to_string(workspace)?;
+    let file = if workspace.exists() {
+        std::fs::read_to_string(workspace)?
     } else {
-        file = std::fs::read_to_string(xdg_home)?;
-    }
+        std::fs::read_to_string(xdg_home)?
+    };
 
     let config = toml::from_str(&file)?;
 
