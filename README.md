@@ -1,6 +1,6 @@
 # Sidenotes
 
-A small desktop app to view github prs, jira issues and taskwarrior tasks in a sidebar.
+A small desktop app to view github PRs, gitlab MRs, jira issues, taskwarrior tasks, joplin notebooks and upsource tasks in a sidebar.
 
 Overview-Page:
 
@@ -63,4 +63,11 @@ type = "joplin"
 token = "<Web Clipper token>"
 # Notebook Ids
 notebooks = ["bc956e0e43b74c678817a1e82f468127", "d705bc49caa34927926a3c8018bf593d", "cc1fe66cbf384c60b65978dec330f364", "5002ad0da82f4e6e8b3c3735ae205c41", "8a537e1c29e14884a32efd28c629652c"]
+
+[[provider]]
+type = "upsource"
+url = "https://your-upsource-instance"
+token = "auth token"
+# optional, default is "state: open"
+query = "an upsource query"
 ```
