@@ -38,3 +38,4 @@ open = "2.0.1"
 jira-parser = { path = "jira-parser", optional = true }
 druid-widget-nursery = { git = "https://github.com/linebender/druid-widget-nursery" }
 serde_repr = { version = "0.1", optional = true }
+im = { version = "15", features = ["serde"] }

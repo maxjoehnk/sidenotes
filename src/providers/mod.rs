@@ -1,4 +1,5 @@
 use crate::models::Todo;
+use druid::Data;
 use druid::im::Vector;
 use futures::future::BoxFuture;
 use serde::Deserialize;
@@ -17,6 +18,20 @@ mod nextcloud;
 mod taskwarrior;
 #[cfg(feature = "upsource")]
 mod upsource;
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct ProviderConfigEntry {
+    #[serde(flatten)]
+    pub provider: ProviderConfig,
+    #[serde(flatten, default)]
+    pub settings: ProviderSettings,
+}
+
+#[derive(Default, Debug, Clone, Deserialize, Data)]
+pub struct ProviderSettings {
+    #[serde(default, rename = "exclude")]
+    pub exclude_status: Vector<String>,
+}
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase", tag = "type")]

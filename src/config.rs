@@ -1,11 +1,11 @@
 use serde::Deserialize;
 
-use crate::providers::ProviderConfig;
+use crate::providers::ProviderConfigEntry;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Config {
     #[serde(rename = "provider")]
-    pub providers: Vec<ProviderConfig>,
+    pub providers: Vec<ProviderConfigEntry>,
     pub sync_timeout: u64,
     #[serde(flatten)]
     pub ui: UiConfig,
