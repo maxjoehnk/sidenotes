@@ -3,8 +3,11 @@ use druid::im::Vector;
 use futures::future::BoxFuture;
 use futures::FutureExt;
 use octorust::auth::Credentials;
+use octorust::types::{
+    IssueSearchResultItem, IssuesListState, Order, PullRequestReviewData, PullRequestSimple,
+    PullsListSort, SearchIssuesPullRequestsSort, SimpleUser,
+};
 use octorust::Client;
-use octorust::types::{IssueSearchResultItem, IssuesListState, Order, PullRequestReviewData, PullRequestSimple, PullsListSort, SearchIssuesPullRequestsSort, SimpleUser};
 use serde::Deserialize;
 
 use crate::models::Todo;
@@ -54,8 +57,9 @@ impl GithubProvider {
         tracing::info!("Fetching Github Todos...");
         let (lhs, rhs): (Vector<Todo>, Vector<Todo>) = futures::future::try_join(
             self.fetch_repo_pull_requests(),
-            self.search_issues_and_prs()
-        ).await?;
+            self.search_issues_and_prs(),
+        )
+        .await?;
         let mut todos = lhs;
         todos.append(rhs);
 
@@ -105,12 +109,24 @@ impl GithubProvider {
         if let Some(query) = self.query.as_ref() {
             tracing::info!("Searching for Github Issues and PRs...");
             let mut todos = Vector::new();
-            let res = self.client.search()
-                .issues_and_pull_requests(query, SearchIssuesPullRequestsSort::Created, Order::Asc, 20, 0)
+            let res = self
+                .client
+                .search()
+                .issues_and_pull_requests(
+                    query,
+                    SearchIssuesPullRequestsSort::Created,
+                    Order::Asc,
+                    20,
+                    0,
+                )
                 .await?;
             for item in res.items {
                 let state = if item.pull_request.is_some() {
-                    if let Some(repository_url) = item.repository_url.as_ref().and_then(|url| url.path_segments()) {
+                    if let Some(repository_url) = item
+                        .repository_url
+                        .as_ref()
+                        .and_then(|url| url.path_segments())
+                    {
                         let paths = repository_url.skip(1).collect::<Vec<_>>();
 
                         let reviews = self
@@ -119,10 +135,10 @@ impl GithubProvider {
                             .list_all_reviews(paths[0], paths[1], item.number)
                             .await?;
                         Some(Self::get_pr_state(&item, &reviews))
-                    }else {
+                    } else {
                         None
                     }
-                }else {
+                } else {
                     Some(item.state)
                 };
                 todos.push_back(Todo {
@@ -137,12 +153,15 @@ impl GithubProvider {
             tracing::info!("Found {} Github Issues and PRs", todos.len());
 
             Ok(todos)
-        }else {
+        } else {
             Ok(Default::default())
         }
     }
 
-    fn get_pr_state(pr: &impl GithubIssueOrPullRequest, reviews: &[PullRequestReviewData]) -> String {
+    fn get_pr_state(
+        pr: &impl GithubIssueOrPullRequest,
+        reviews: &[PullRequestReviewData],
+    ) -> String {
         if pr.is_draft() {
             return "Draft".into();
         }

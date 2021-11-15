@@ -34,18 +34,19 @@ impl SyncThread {
         let config = crate::config::load()?;
         self.event_sink
             .submit_command(commands::UI_CONFIG_LOADED, config.ui, Target::Auto)?;
-        let providers: Vec<(ProviderSettings, Box<dyn Provider>)> = smol::block_on(futures::future::try_join_all(
-            config
-                .providers
-                .into_iter()
-                .map::<BoxFuture<anyhow::Result<(ProviderSettings, Box<dyn Provider>)>>, _>(|provider_config| {
+        let providers: Vec<(ProviderSettings, Box<dyn Provider>)> =
+            smol::block_on(futures::future::try_join_all(
+                config.providers.into_iter().map::<BoxFuture<
+                    anyhow::Result<(ProviderSettings, Box<dyn Provider>)>,
+                >, _>(|provider_config| {
                     async {
                         let provider = provider_config.provider.create().await?;
 
                         Ok((provider_config.settings, provider))
-                    }.boxed()
+                    }
+                    .boxed()
                 }),
-        ))?;
+            ))?;
 
         let todo_providers: Vector<TodoProvider> = providers
             .iter()
@@ -66,14 +67,21 @@ impl SyncThread {
             let tasks = providers
                 .iter()
                 .enumerate()
-                .map(|(index, (settings, provider))| self.sync_provider(index, provider.as_ref(), settings));
+                .map(|(index, (settings, provider))| {
+                    self.sync_provider(index, provider.as_ref(), settings)
+                });
 
             smol::block_on(futures::future::try_join_all(tasks))?;
             thread::sleep(Duration::from_secs(config.sync_timeout));
         }
     }
 
-    async fn sync_provider(&self, index: usize, provider: &dyn Provider, settings: &ProviderSettings) -> anyhow::Result<()> {
+    async fn sync_provider(
+        &self,
+        index: usize,
+        provider: &dyn Provider,
+        settings: &ProviderSettings,
+    ) -> anyhow::Result<()> {
         match provider.fetch_todos().await {
             Ok(todos) => {
                 let todos = filter_todos(todos, settings);
@@ -102,7 +110,7 @@ fn filter_todos(todos: Vector<Todo>, settings: &ProviderSettings) -> Vector<Todo
         .filter(|todo| {
             if let Some(state) = todo.state.as_ref() {
                 !settings.exclude_status.contains(state)
-            }else {
+            } else {
                 true
             }
         })

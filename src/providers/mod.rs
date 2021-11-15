@@ -1,6 +1,6 @@
 use crate::models::Todo;
-use druid::Data;
 use druid::im::Vector;
+use druid::Data;
 use futures::future::BoxFuture;
 use serde::Deserialize;
 
