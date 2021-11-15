@@ -1,3 +1,6 @@
+use std::path::PathBuf;
+
+use directories_next::ProjectDirs;
 use serde::Deserialize;
 
 use crate::providers::ProviderConfigEntry;
@@ -30,7 +33,17 @@ impl Default for UiConfig {
 }
 
 pub fn load() -> anyhow::Result<Config> {
-    let file = std::fs::read_to_string("settings.toml")?;
+    let workspace = PathBuf::from("settings.toml");
+    let xdg_home = ProjectDirs::from("me", "maxjoehnk", "sidenotes")
+        .expect("Home directory could not be detected")
+        .config_dir()
+        .join("settings.toml");
+
+    let file = if workspace.exists() {
+        std::fs::read_to_string(workspace)?
+    } else {
+        std::fs::read_to_string(xdg_home)?
+    };
 
     let config = toml::from_str(&file)?;
 

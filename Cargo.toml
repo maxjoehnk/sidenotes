@@ -19,6 +19,7 @@ upsource = ["surf", "serde_repr"]
 nextcloud = ["surf", "base64"]
 
 [dependencies]
+directories-next = "2.0.0"
 tracing = "0.1"
 anyhow = "1"
 druid = { git = "https://github.com/linebender/druid.git", features = ["im", "svg"], rev = "1801164629800938ba1316e5b58c5383641fdea6" }
