@@ -8,6 +8,7 @@ members = [
 name = "sidenotes"
 version = "0.1.0"
 edition = "2018"
+license = "GPL-3.0"
 
 [features]
 default = ["github", "jira", "joplin", "gitlab", "taskwarrior", "upsource", "nextcloud"]
