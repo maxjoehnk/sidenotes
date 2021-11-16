@@ -17,12 +17,15 @@ pub struct GitlabConfig {
     token: String,
     #[serde(default)]
     repos: Option<Vec<String>>,
+    #[serde(default)]
+    show_drafts: bool,
 }
 
 pub struct GitlabProvider {
     name: Option<String>,
     client: AsyncGitlab,
     repos: Option<Vec<String>>,
+    show_drafts: bool,
 }
 
 impl GitlabProvider {
@@ -37,6 +40,7 @@ impl GitlabProvider {
             name: config.name,
             client,
             repos: config.repos,
+            show_drafts: config.show_drafts,
         })
     }
 
@@ -46,11 +50,14 @@ impl GitlabProvider {
         let repos = self.get_repos().await?;
         for repo in repos {
             tracing::debug!("Fetching MRs for {:?}", repo);
-            let endpoint = merge_requests::MergeRequests::builder()
+            let mut builder = merge_requests::MergeRequests::builder();
+            builder
                 .project(repo.as_str())
-                .state(merge_requests::MergeRequestState::Opened)
-                .build()
-                .map_err(|err| anyhow::anyhow!("{}", err))?;
+                .state(merge_requests::MergeRequestState::Opened);
+            if !self.show_drafts {
+                builder.wip(true);
+            }
+            let endpoint = builder.build().map_err(|err| anyhow::anyhow!("{}", err))?;
             let requests: Vec<MergeRequest> = endpoint.query_async(&self.client).await?;
             tracing::debug!("{:?}", requests);
 
