@@ -42,9 +42,9 @@ mod converter {
 
     use crate::rich_text::get_font_size_for_heading;
     use crate::ui::commands::OPEN_LINK;
+    use crate::ui::theme::LINK_COLOR;
 
     const BLOCKQUOTE_COLOR: Color = Color::grey8(0x88);
-    const LINK_COLOR: Color = Color::rgb8(0, 0, 0xEE);
 
     pub fn render_text(text: &str) -> RichText {
         let mut current_pos = 0;

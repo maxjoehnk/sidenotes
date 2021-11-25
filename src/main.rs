@@ -1,6 +1,7 @@
-use druid::{AppLauncher, WindowDesc};
+use druid::{AppLauncher, Color, WindowDesc};
 
 use crate::sync::SyncThread;
+use crate::ui::theme::*;
 
 pub mod config;
 mod models;
@@ -11,7 +12,13 @@ mod ui;
 
 fn main() -> anyhow::Result<()> {
     let window = WindowDesc::new(ui::ui_builder()).title("Sidenotes");
-    let launcher = AppLauncher::with_window(window).log_to_console();
+    let launcher = AppLauncher::with_window(window)
+        .log_to_console()
+        .configure_env(|env, _| {
+            env.set(LINK_COLOR, Color::rgb8(94, 129, 172));
+            env.set(CARD_COLOR, Color::rgba8(0, 0, 0, 32));
+            env.set(STATUS_COLOR, Color::rgb8(163, 190, 140))
+        });
 
     let event_sink = launcher.get_external_handle();
 

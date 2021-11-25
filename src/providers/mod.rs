@@ -1,5 +1,6 @@
 use crate::models::Todo;
 use druid::im::Vector;
+use druid::Data;
 use futures::future::BoxFuture;
 use serde::Deserialize;
 
@@ -11,10 +12,26 @@ mod gitlab;
 mod jira;
 #[cfg(feature = "joplin")]
 mod joplin;
+#[cfg(feature = "nextcloud")]
+mod nextcloud;
 #[cfg(feature = "taskwarrior")]
 mod taskwarrior;
 #[cfg(feature = "upsource")]
 mod upsource;
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct ProviderConfigEntry {
+    #[serde(flatten)]
+    pub provider: ProviderConfig,
+    #[serde(flatten, default)]
+    pub settings: ProviderSettings,
+}
+
+#[derive(Default, Debug, Clone, Deserialize, Data)]
+pub struct ProviderSettings {
+    #[serde(default, rename = "exclude")]
+    pub exclude_status: Vector<String>,
+}
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase", tag = "type")]
@@ -31,6 +48,8 @@ pub enum ProviderConfig {
     Taskwarrior(taskwarrior::TaskwarriorConfig),
     #[cfg(feature = "upsource")]
     Upsource(upsource::UpsourceConfig),
+    #[cfg(feature = "nextcloud")]
+    NextcloudDeck(nextcloud::deck::NextcloudDeckProviderConfig),
 }
 
 impl ProviderConfig {
@@ -52,6 +71,10 @@ impl ProviderConfig {
             Self::Taskwarrior(config) => Box::new(taskwarrior::TaskwarriorProvider::new(config)?),
             #[cfg(feature = "upsource")]
             Self::Upsource(config) => Box::new(upsource::UpsourceProvider::new(config)?),
+            #[cfg(feature = "nextcloud")]
+            Self::NextcloudDeck(config) => {
+                Box::new(nextcloud::deck::NextcloudDeckProvider::new(config))
+            }
         };
 
         Ok(provider)

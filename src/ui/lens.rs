@@ -1,8 +1,8 @@
-use crate::ui::commands::OPEN_LINK;
 use druid::text::{RichText, RichTextBuilder};
-use druid::{Color, Lens};
+use druid::Lens;
 
-const LINK_COLOR: Color = Color::rgb8(0, 0, 0xEE);
+use crate::ui::commands::OPEN_LINK;
+use crate::ui::theme::LINK_COLOR;
 
 pub struct Link;
 

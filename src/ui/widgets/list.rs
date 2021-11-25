@@ -1,3 +1,4 @@
+use druid::im::Vector;
 use druid::widget::*;
 use druid::{
     Color, Command, FontDescriptor, FontFamily, FontWeight, Insets, Target, UnitPoint, Widget,
@@ -6,7 +7,7 @@ use druid::{
 use crate::models::*;
 
 use crate::ui::commands;
-use druid::im::Vector;
+use crate::ui::theme::{CARD_COLOR, STATUS_COLOR};
 
 pub fn list_builder() -> impl Widget<Vector<TodoProvider>> {
     let list = List::new(provider_builder);
@@ -33,7 +34,7 @@ fn todo_builder() -> impl Widget<Todo> {
     let with_state = Label::new(|todo: &Todo, _env: &_| todo.state.clone().unwrap_or_default())
         .with_text_color(Color::BLACK)
         .padding(2.0)
-        .background(Color::from_hex_str("a3be8c").unwrap())
+        .background(STATUS_COLOR)
         .rounded(2.0);
     let with_state = Flex::column()
         .cross_axis_alignment(CrossAxisAlignment::Start)
@@ -52,7 +53,7 @@ fn todo_builder() -> impl Widget<Todo> {
 
     state
         .padding(4.0)
-        .background(Color::rgba8(0, 0, 0, 32))
+        .background(CARD_COLOR)
         .rounded(2.0)
         .padding(Insets::uniform_xy(0., 2.))
         .expand_width()

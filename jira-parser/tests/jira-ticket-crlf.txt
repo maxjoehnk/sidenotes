@@ -1,0 +1,9 @@
+{panel:title=UserStory |titleBGColor=#1abc9c}
+*As a* User
+*I want to be able* to view formatted jira tickets
+*in order to* better comprehend the ticket content.
+{panel}
+
+{panel:title=Acceptance criteria|titleBGColor=lightgreen}
+Combinations of multiple panel options should work as well
+{panel}
