@@ -40,7 +40,14 @@ fn build_tags(builder: &mut RichTextBuilder, tags: Vec<Tag>, attr: Vec<Attribute
                 .push(&text)
                 .style(FontStyle::Italic)
                 .add_attributes(&attr),
-            Tag::Panel(panel) => build_tags(builder, panel.content, attr.clone()),
+            Tag::Panel(panel) => {
+                if let Some(title) = panel.title {
+                    builder.push(&title).size(26.);
+                    builder.push("\n");
+                }
+                build_tags(builder, panel.content, attr.clone());
+                builder.push("\n");
+            }
             Tag::Newline => {
                 builder.push("\n");
             }

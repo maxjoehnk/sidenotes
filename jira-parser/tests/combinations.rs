@@ -33,6 +33,84 @@ fn formatted_heading() {
 }
 
 #[test]
+fn user_story_panels() {
+    let text = r#"{panel:title=UserStory |titleBGColor=#1abc9c}
+*As a* User
+*I want to be able* to view formatted jira tickets
+*in order to* better comprehend the ticket content.
+{panel}
+
+{panel:title=Acceptance criteria|titleBGColor=lightgreen}
+Combinations of multiple panel options should work as well
+{panel}"#;
+    let expected = vec![
+        Tag::Panel(Panel {
+            content: vec![
+                Tag::Strong("As a".into()),
+                Tag::Text(" User".into()),
+                Tag::Newline,
+                Tag::Strong("I want to be able".into()),
+                Tag::Text(" to view formatted jira tickets".into()),
+                Tag::Newline,
+                Tag::Strong("in order to".into()),
+                Tag::Text(" better comprehend the ticket content.".into()),
+            ],
+            title_background_color: Some("#1abc9c".into()),
+            title: Some("UserStory".into()),
+            ..Default::default()
+        }),
+        Tag::Newline,
+        Tag::Panel(Panel {
+            content: vec![Tag::Text(
+                "Combinations of multiple panel options should work as well".into(),
+            )],
+            title_background_color: Some("lightgreen".into()),
+            title: Some("Acceptance criteria".into()),
+            ..Default::default()
+        }),
+    ];
+
+    let tags = parse(text).unwrap();
+
+    assert_eq!(expected, tags);
+}
+
+#[test]
+fn user_story_crlf() {
+    let text = include_str!("jira-ticket-crlf.txt");
+    let expected = vec![
+        Tag::Panel(Panel {
+            content: vec![
+                Tag::Strong("As a".into()),
+                Tag::Text(" User".into()),
+                Tag::Newline,
+                Tag::Strong("I want to be able".into()),
+                Tag::Text(" to view formatted jira tickets".into()),
+                Tag::Newline,
+                Tag::Strong("in order to".into()),
+                Tag::Text(" better comprehend the ticket content.".into()),
+            ],
+            title_background_color: Some("#1abc9c".into()),
+            title: Some("UserStory".into()),
+            ..Default::default()
+        }),
+        Tag::Newline,
+        Tag::Panel(Panel {
+            content: vec![Tag::Text(
+                "Combinations of multiple panel options should work as well".into(),
+            )],
+            title_background_color: Some("lightgreen".into()),
+            title: Some("Acceptance criteria".into()),
+            ..Default::default()
+        }),
+    ];
+
+    let tags = parse(text).unwrap();
+
+    assert_eq!(expected, tags);
+}
+
+#[test]
 fn user_story() {
     let text = r#"{panel:bgColor=#eae6ff}
 h3. *User-Story*
@@ -84,6 +162,29 @@ h3. *Acceptance criteria*
             ..Default::default()
         }),
     ];
+
+    let tags = parse(text).unwrap();
+
+    assert_eq!(expected, tags);
+}
+
+#[test]
+fn color_in_panel_ticket() {
+    let text = r#"{panel:title=Steps to reproduce}
+{color:#14892c}Browser{color}: Firefox
+{color:#14892c}Environment{color}: Test
+{panel}"#;
+    let expected = vec![Tag::Panel(Panel {
+        content: vec![
+            Tag::Color("#14892c".into(), "Browser".into()),
+            Tag::Text(": Firefox".into()),
+            Tag::Newline,
+            Tag::Color("#14892c".into(), "Environment".into()),
+            Tag::Text(": Test".into()),
+        ],
+        title: Some("Steps to reproduce".into()),
+        ..Default::default()
+    })];
 
     let tags = parse(text).unwrap();
 

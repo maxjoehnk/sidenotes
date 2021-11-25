@@ -12,6 +12,9 @@ pub enum Tag {
     Monospaced(String),
     InlineQuote(String),
     Quote(String),
+    /**
+     * (Color, Text)
+     */
     Color(String, String),
     UnorderedList(Vec<ListItem>),
     OrderedList(Vec<ListItem>),

@@ -2,6 +2,7 @@ use druid::im::Vector;
 use druid::{lens, Data, Lens};
 
 use crate::config::UiConfig;
+use crate::providers::ProviderSettings;
 use crate::rich_text::RawRichText;
 
 #[derive(Default, Debug, Clone, Data, Lens)]
@@ -60,6 +61,8 @@ impl Navigation {
 pub struct TodoProvider {
     pub name: String,
     pub items: Vector<Todo>,
+    #[lens(ignore)]
+    pub settings: ProviderSettings,
 }
 
 #[derive(Debug, Clone, Data, Lens)]

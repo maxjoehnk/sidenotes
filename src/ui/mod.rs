@@ -9,6 +9,7 @@ use crate::models::*;
 pub mod commands;
 mod lens;
 mod prism;
+pub mod theme;
 mod widgets;
 
 struct Sidenotes;

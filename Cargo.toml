@@ -8,20 +8,22 @@ members = [
 name = "sidenotes"
 version = "0.1.0"
 edition = "2018"
+license = "GPL-3.0"
 
 [features]
-default = ["github", "jira", "joplin", "gitlab", "taskwarrior", "upsource"]
+default = ["github", "jira", "joplin", "gitlab", "taskwarrior", "upsource", "nextcloud"]
 github = ["octorust", "async-compat"]
 jira = ["surf", "base64", "jira-parser"]
 joplin = ["surf"]
 taskwarrior = ["task-hookrs"]
 upsource = ["surf", "serde_repr"]
+nextcloud = ["surf", "base64"]
 
 [dependencies]
 directories-next = "2.0.0"
 tracing = "0.1"
 anyhow = "1"
-druid = { git = "https://github.com/linebender/druid.git", features = ["im"], rev = "1801164629800938ba1316e5b58c5383641fdea6" }
+druid = { git = "https://github.com/linebender/druid.git", features = ["im", "svg"], rev = "1801164629800938ba1316e5b58c5383641fdea6" }
 octorust = { version = "0.1.33", optional = true }
 serde = { version = "1", features = ["derive"] }
 task-hookrs = { version = "0.7.0", optional = true}
@@ -38,3 +40,4 @@ open = "2.0.1"
 jira-parser = { path = "jira-parser", optional = true }
 druid-widget-nursery = { git = "https://github.com/linebender/druid-widget-nursery" }
 serde_repr = { version = "0.1", optional = true }
+im = { version = "15", features = ["serde"] }
