@@ -9,8 +9,6 @@ use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct UpsourceConfig {
-    #[serde(default)]
-    name: Option<String>,
     url: String,
     token: String,
     #[serde(default)]
@@ -30,7 +28,6 @@ impl Default for UpsourceQuery {
 
 pub struct UpsourceProvider {
     base_url: String,
-    name: Option<String>,
     api: api::UpsourceApi,
     query: String,
 }
@@ -39,7 +36,6 @@ impl UpsourceProvider {
     pub fn new(config: UpsourceConfig) -> anyhow::Result<Self> {
         Ok(Self {
             base_url: config.url.clone(),
-            name: config.name,
             api: api::UpsourceApi::new(config.url, config.token),
             query: config.query.0,
         })
@@ -59,8 +55,8 @@ impl UpsourceProvider {
 }
 
 impl Provider for UpsourceProvider {
-    fn name(&self) -> String {
-        self.name.clone().unwrap_or_else(|| "Upsource".into())
+    fn name(&self) -> &'static str {
+        "Upsource"
     }
 
     fn fetch_todos(&self) -> BoxFuture<anyhow::Result<Vector<Todo>>> {

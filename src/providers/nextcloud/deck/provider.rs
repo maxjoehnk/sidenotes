@@ -10,8 +10,6 @@ use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct NextcloudDeckProviderConfig {
-    #[serde(default)]
-    name: Option<String>,
     pub host: String,
     pub username: String,
     pub password: String,
@@ -25,7 +23,6 @@ pub struct BoardConfig {
 }
 
 pub struct NextcloudDeckProvider {
-    name: Option<String>,
     api: NextcloudApi,
     boards: Vec<BoardConfig>,
 }
@@ -33,7 +30,6 @@ pub struct NextcloudDeckProvider {
 impl NextcloudDeckProvider {
     pub fn new(config: NextcloudDeckProviderConfig) -> Self {
         Self {
-            name: config.name,
             api: NextcloudApi::new(config.host, config.username, config.password),
             boards: config.boards,
         }
@@ -72,8 +68,8 @@ impl NextcloudDeckProvider {
 }
 
 impl Provider for NextcloudDeckProvider {
-    fn name(&self) -> String {
-        self.name.clone().unwrap_or_else(|| "Nextcloud Deck".into())
+    fn name(&self) -> &'static str {
+        "Nextcloud Deck"
     }
 
     fn fetch_todos(&self) -> BoxFuture<anyhow::Result<Vector<Todo>>> {

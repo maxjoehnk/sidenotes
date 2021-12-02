@@ -29,6 +29,8 @@ pub struct ProviderConfigEntry {
 
 #[derive(Default, Debug, Clone, Deserialize, Data)]
 pub struct ProviderSettings {
+    #[serde(default)]
+    pub name: Option<String>,
     #[serde(default, rename = "exclude")]
     pub exclude_status: Vector<String>,
 }
@@ -82,6 +84,6 @@ impl ProviderConfig {
 }
 
 pub trait Provider {
-    fn name(&self) -> String;
+    fn name(&self) -> &'static str;
     fn fetch_todos(&self) -> BoxFuture<anyhow::Result<Vector<Todo>>>;
 }

@@ -9,8 +9,6 @@ use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct JiraConfig {
-    #[serde(default)]
-    name: Option<String>,
     url: String,
     username: String,
     password: String,
@@ -18,7 +16,6 @@ pub struct JiraConfig {
 }
 
 pub struct JiraProvider {
-    name: Option<String>,
     api: api::JiraApi,
     jql: String,
 }
@@ -26,7 +23,6 @@ pub struct JiraProvider {
 impl JiraProvider {
     pub fn new(config: JiraConfig) -> anyhow::Result<Self> {
         Ok(Self {
-            name: config.name,
             api: api::JiraApi::new(config.url, config.username, config.password),
             jql: config.jql,
         })
@@ -56,8 +52,8 @@ impl JiraProvider {
 }
 
 impl Provider for JiraProvider {
-    fn name(&self) -> String {
-        self.name.clone().unwrap_or_else(|| "Jira".into())
+    fn name(&self) -> &'static str {
+        "Jira"
     }
 
     fn fetch_todos(&self) -> BoxFuture<anyhow::Result<Vector<Todo>>> {

@@ -17,8 +17,6 @@ use super::Provider;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct GithubConfig {
-    #[serde(default)]
-    name: Option<String>,
     token: String,
     #[serde(default)]
     repos: Vec<String>,
@@ -27,7 +25,6 @@ pub struct GithubConfig {
 }
 
 pub struct GithubProvider {
-    name: Option<String>,
     client: Client,
     repos: Vec<(String, String)>,
     query: Option<String>,
@@ -38,7 +35,6 @@ impl GithubProvider {
         let client = Client::new("sidenotes", Credentials::Token(config.token))?;
 
         Ok(Self {
-            name: config.name,
             client,
             repos: config
                 .repos
@@ -184,8 +180,8 @@ impl GithubProvider {
 }
 
 impl Provider for GithubProvider {
-    fn name(&self) -> String {
-        self.name.clone().unwrap_or_else(|| "Github".into())
+    fn name(&self) -> &'static str {
+        "Github"
     }
 
     fn fetch_todos(&self) -> BoxFuture<anyhow::Result<Vector<Todo>>> {

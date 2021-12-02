@@ -49,8 +49,8 @@ impl JoplinProvider {
 }
 
 impl Provider for JoplinProvider {
-    fn name(&self) -> String {
-        "Joplin".into()
+    fn name(&self) -> &'static str {
+        "Joplin"
     }
 
     fn fetch_todos(&self) -> BoxFuture<anyhow::Result<Vector<Todo>>> {

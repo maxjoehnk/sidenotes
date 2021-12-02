@@ -11,8 +11,6 @@ use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct GitlabConfig {
-    #[serde(default)]
-    name: Option<String>,
     url: String,
     token: String,
     #[serde(default)]
@@ -22,7 +20,6 @@ pub struct GitlabConfig {
 }
 
 pub struct GitlabProvider {
-    name: Option<String>,
     client: AsyncGitlab,
     repos: Option<Vec<String>>,
     show_drafts: bool,
@@ -37,7 +34,6 @@ impl GitlabProvider {
             .await?;
 
         Ok(Self {
-            name: config.name,
             client,
             repos: config.repos,
             show_drafts: config.show_drafts,
@@ -93,8 +89,8 @@ impl GitlabProvider {
 }
 
 impl Provider for GitlabProvider {
-    fn name(&self) -> String {
-        self.name.clone().unwrap_or_else(|| "Gitlab".into())
+    fn name(&self) -> &'static str {
+        "Gitlab"
     }
 
     fn fetch_todos(&self) -> BoxFuture<anyhow::Result<Vector<Todo>>> {

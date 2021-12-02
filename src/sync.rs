@@ -51,7 +51,10 @@ impl SyncThread {
         let todo_providers: Vector<TodoProvider> = providers
             .iter()
             .map(|(settings, provider)| TodoProvider {
-                name: provider.name(),
+                name: settings
+                    .name
+                    .clone()
+                    .unwrap_or_else(|| provider.name().to_string()),
                 items: Default::default(),
                 settings: settings.clone(),
             })

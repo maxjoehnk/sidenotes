@@ -8,19 +8,16 @@ use task_hookrs::tw::query;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct TaskwarriorConfig {
-    name: Option<String>,
     query: String,
 }
 
 pub struct TaskwarriorProvider {
-    name: Option<String>,
     query: String,
 }
 
 impl TaskwarriorProvider {
     pub fn new(config: TaskwarriorConfig) -> anyhow::Result<Self> {
         Ok(Self {
-            name: config.name,
             query: config.query,
         })
     }
@@ -48,8 +45,8 @@ impl TaskwarriorProvider {
 }
 
 impl Provider for TaskwarriorProvider {
-    fn name(&self) -> String {
-        self.name.clone().unwrap_or_else(|| "TaskWarrior".into())
+    fn name(&self) -> &'static str {
+        "TaskWarrior"
     }
 
     fn fetch_todos(&self) -> BoxFuture<anyhow::Result<Vector<Todo>>> {
