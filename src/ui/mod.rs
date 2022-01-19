@@ -36,6 +36,10 @@ impl<W: Widget<AppState>> Controller<AppState, W> for Sidenotes {
                 data.navigation = Navigation::List;
             } else if let Some(link) = cmd.get(commands::OPEN_LINK) {
                 open::that_in_background(link);
+            } else if let Some(provider) = cmd.get(commands::TOGGLE_PROVIDER) {
+                if let Some(index) = data.providers.iter().position(|p| p.name == provider.name) {
+                    data.providers[index].collapsed = !data.providers[index].collapsed;
+                }
             }
         } else {
             child.event(ctx, event, data, env)

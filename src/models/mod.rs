@@ -63,6 +63,7 @@ pub struct TodoProvider {
     pub items: Vector<Todo>,
     #[lens(ignore)]
     pub settings: ProviderSettings,
+    pub collapsed: bool,
 }
 
 #[derive(Debug, Clone, Data, Lens)]

@@ -57,6 +57,7 @@ impl SyncThread {
                     .unwrap_or_else(|| provider.name().to_string()),
                 items: Default::default(),
                 settings: settings.clone(),
+                collapsed: false,
             })
             .collect();
 

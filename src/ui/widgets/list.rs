@@ -1,13 +1,13 @@
+use druid::{Color, Command, FontDescriptor, FontFamily, FontWeight, Insets, Target, UnitPoint, Widget};
 use druid::im::Vector;
 use druid::widget::*;
-use druid::{
-    Color, Command, FontDescriptor, FontFamily, FontWeight, Insets, Target, UnitPoint, Widget,
-};
 
 use crate::models::*;
-
 use crate::ui::commands;
 use crate::ui::theme::{CARD_COLOR, STATUS_COLOR};
+
+const MENU_UP_ICON: &str = include_str!("../../../assets/icons/menu-up.svg");
+const MENU_DOWN_ICON: &str = include_str!("../../../assets/icons/menu-down.svg");
 
 pub fn list_builder() -> impl Widget<Vector<TodoProvider>> {
     let list = List::new(provider_builder);
@@ -15,13 +15,22 @@ pub fn list_builder() -> impl Widget<Vector<TodoProvider>> {
 }
 
 fn provider_builder() -> impl Widget<TodoProvider> {
+    let up_icon = MENU_UP_ICON.parse::<SvgData>().unwrap();
+    let down_icon = MENU_DOWN_ICON.parse::<SvgData>().unwrap();
     let font = FontDescriptor::new(FontFamily::SYSTEM_UI)
         .with_size(18.0)
         .with_weight(FontWeight::BOLD);
-    let header = Label::new(|item: &TodoProvider, _env: &_| item.name.clone())
+    let title = Label::new(|item: &TodoProvider, _env: &_| format!("{} ({})", item.name, item.items.len()))
         .with_font(font)
         .align_horizontal(UnitPoint::CENTER);
-    let todos = List::new(todo_builder).lens(TodoProvider::items);
+    let expand_icon = Either::new(|item: &TodoProvider, _env: &_| item.collapsed, Svg::new(up_icon), Svg::new(down_icon));
+    let header = Flex::row()
+        .with_flex_child(title, 1.)
+        .with_child(expand_icon)
+        .on_click(|ctx: _, provider: &mut _, _: &_| {
+            ctx.submit_command(Command::new(commands::TOGGLE_PROVIDER, provider.clone(), Target::Auto))
+        });
+    let todos = Either::new(|item: &TodoProvider, _env: &_| item.collapsed, Flex::column(), List::new(todo_builder).lens(TodoProvider::items));
 
     Flex::column()
         .with_child(header)
