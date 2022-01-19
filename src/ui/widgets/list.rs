@@ -1,6 +1,8 @@
-use druid::{Color, Command, FontDescriptor, FontFamily, FontWeight, Insets, Target, UnitPoint, Widget};
 use druid::im::Vector;
 use druid::widget::*;
+use druid::{
+    Color, Command, FontDescriptor, FontFamily, FontWeight, Insets, Target, UnitPoint, Widget,
+};
 
 use crate::models::*;
 use crate::ui::commands;
@@ -20,17 +22,30 @@ fn provider_builder() -> impl Widget<TodoProvider> {
     let font = FontDescriptor::new(FontFamily::SYSTEM_UI)
         .with_size(18.0)
         .with_weight(FontWeight::BOLD);
-    let title = Label::new(|item: &TodoProvider, _env: &_| format!("{} ({})", item.name, item.items.len()))
-        .with_font(font)
-        .align_horizontal(UnitPoint::CENTER);
-    let expand_icon = Either::new(|item: &TodoProvider, _env: &_| item.collapsed, Svg::new(up_icon), Svg::new(down_icon));
+    let title =
+        Label::new(|item: &TodoProvider, _env: &_| format!("{} ({})", item.name, item.items.len()))
+            .with_font(font)
+            .align_horizontal(UnitPoint::CENTER);
+    let expand_icon = Either::new(
+        |item: &TodoProvider, _env: &_| item.collapsed,
+        Svg::new(up_icon),
+        Svg::new(down_icon),
+    );
     let header = Flex::row()
         .with_flex_child(title, 1.)
         .with_child(expand_icon)
         .on_click(|ctx: _, provider: &mut _, _: &_| {
-            ctx.submit_command(Command::new(commands::TOGGLE_PROVIDER, provider.clone(), Target::Auto))
+            ctx.submit_command(Command::new(
+                commands::TOGGLE_PROVIDER,
+                provider.clone(),
+                Target::Auto,
+            ))
         });
-    let todos = Either::new(|item: &TodoProvider, _env: &_| item.collapsed, Flex::column(), List::new(todo_builder).lens(TodoProvider::items));
+    let todos = Either::new(
+        |item: &TodoProvider, _env: &_| item.collapsed,
+        Flex::column(),
+        List::new(todo_builder).lens(TodoProvider::items),
+    );
 
     Flex::column()
         .with_child(header)
