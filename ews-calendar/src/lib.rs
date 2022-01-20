@@ -50,6 +50,7 @@ impl EwsClient {
     pub async fn find_items(&self) -> anyhow::Result<Vec<CalendarItem>> {
         let start = TZ::now();
         let end = start.date().add(Duration::days(1)).and_hms(0, 0, 0);
+        tracing::debug!("Fetching Calendar items between {} and {}", start, end);
         let mut response = surf::post(&self.url)
             .body(self.get_find_items_request(start, end))
             .header("Authorization", self.get_authorization_header())

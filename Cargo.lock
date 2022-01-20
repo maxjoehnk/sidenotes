@@ -1154,6 +1154,7 @@ dependencies = [
  "chrono",
  "derive_builder 0.10.2",
  "surf",
+ "tracing",
  "xml-rs",
 ]
 
