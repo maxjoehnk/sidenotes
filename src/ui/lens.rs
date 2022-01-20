@@ -1,4 +1,4 @@
-use chrono::DateTime;
+use chrono::{DateTime, Timelike};
 use druid::text::{RichText, RichTextBuilder};
 use druid::Lens;
 use crate::calendar::TZ;
@@ -53,12 +53,16 @@ impl TimeUntilNextAppointment {
     fn calculate(time: DateTime<TZ>) -> String {
         let now = TZ::now();
         let time_until = time - now;
-        let time_until = time_until.num_minutes();
+        let minutes_until = time_until.num_minutes().abs();
+        if minutes_until >= 60 {
+            return format!("At {}:{}", time.hour(), time.minute());
+        }
+        let time = format!("{} minutes", minutes_until);
 
-        if time_until > 0 {
-            format!("In {} minutes", time_until)
+        if time_until.num_minutes() > 0  {
+            format!("In {}", time)
         }else {
-            format!("Since {} minutes", -time_until)
+            format!("Since {}", time)
         }
     }
 }
