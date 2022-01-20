@@ -1,5 +1,5 @@
-pub mod detail;
-pub mod list;
-pub mod meeting;
+pub use self::clickable_area::*;
+pub use self::header::*;
 
-mod timer;
+mod clickable_area;
+mod header;

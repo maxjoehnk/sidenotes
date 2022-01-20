@@ -2,6 +2,7 @@ use druid::{AppLauncher, Color, WindowDesc};
 
 use crate::sync::SyncThread;
 use crate::ui::theme::*;
+use crate::ui::SidenotesDelegate;
 
 mod calendar;
 pub mod config;
@@ -14,6 +15,7 @@ mod ui;
 fn main() -> anyhow::Result<()> {
     let window = WindowDesc::new(ui::ui_builder()).title("Sidenotes");
     let launcher = AppLauncher::with_window(window)
+        .delegate(SidenotesDelegate)
         .log_to_console()
         .configure_env(|env, _| {
             env.set(LINK_COLOR, Color::rgb8(94, 129, 172));

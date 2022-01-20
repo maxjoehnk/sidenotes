@@ -4,12 +4,12 @@ use druid::{FontDescriptor, FontFamily, Widget, WidgetExt};
 use crate::models::Appointment;
 use crate::ui::lazy_icon::*;
 use crate::ui::lens::TimeUntilNextAppointment;
-use crate::ui::widgets::timer::TimerController;
+use crate::ui::views::list::timer::TimerController;
 use crate::CARD_COLOR;
 
 thread_local! {
     static CALENDAR_ICON: LazyIcon = LazyIcon::new(|| {
-        include_str!("../../../assets/icons/calendar.svg").load()
+        include_str!("../../../../assets/icons/calendar.svg").load()
     });
 }
 
