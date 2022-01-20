@@ -19,8 +19,6 @@ fn main() -> anyhow::Result<()> {
             env.set(LINK_COLOR, Color::rgb8(94, 129, 172));
             env.set(CARD_COLOR, Color::rgba8(0, 0, 0, 32));
             env.set(STATUS_COLOR, Color::rgb8(163, 190, 140));
-            env.set(MEETING_TIME_COLOR, Color::rgba(1., 1., 1., 0.2));
-            env.set(MEETING_JOIN_COLOR, Color::rgb8(163, 190, 140));
         });
 
     let event_sink = launcher.get_external_handle();

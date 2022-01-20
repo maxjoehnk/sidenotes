@@ -1,7 +1,7 @@
 use druid::{FontDescriptor, FontFamily, Widget, WidgetExt};
 use druid::widget::{Flex, Label, MainAxisAlignment, Maybe, Svg, SvgData};
 
-use crate::{CARD_COLOR, MEETING_TIME_COLOR};
+use crate::CARD_COLOR;
 use crate::models::{Appointment};
 use crate::ui::lens::TimeUntilNextAppointment;
 use crate::ui::widgets::timer::TimerController;
@@ -16,7 +16,7 @@ fn meeting_body() -> Flex<Appointment> {
         .with_child(
             Label::new(|time_until: &String, _: &_| time_until.clone())
                 .with_font(time_font)
-                .with_text_color(MEETING_TIME_COLOR)
+                .with_text_color(druid::theme::PLACEHOLDER_COLOR)
                 .align_left()
                 .lens(TimeUntilNextAppointment)
                 .controller(TimerController::default())
