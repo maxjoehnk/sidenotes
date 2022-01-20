@@ -6,11 +6,18 @@ use druid::{
 
 use crate::models::*;
 use crate::ui::commands;
+use crate::ui::lazy_icon::*;
 use crate::ui::theme::{CARD_COLOR, STATUS_COLOR};
 use crate::ui::widgets::meeting::meeting_builder;
 
-const MENU_UP_ICON: &str = include_str!("../../../assets/icons/menu-up.svg");
-const MENU_DOWN_ICON: &str = include_str!("../../../assets/icons/menu-down.svg");
+thread_local! {
+    static MENU_UP_ICON: LazyIcon = LazyIcon::new(|| {
+        include_str!("../../../assets/icons/menu-up.svg").load()
+    });
+    static MENU_DOWN_ICON: LazyIcon = LazyIcon::new(|| {
+        include_str!("../../../assets/icons/menu-down.svg").load()
+    });
+}
 
 pub fn list_builder() -> impl Widget<AppState> {
     let list = List::new(provider_builder).lens(AppState::providers());
@@ -22,8 +29,6 @@ pub fn list_builder() -> impl Widget<AppState> {
 }
 
 fn provider_builder() -> impl Widget<TodoProvider> {
-    let up_icon = MENU_UP_ICON.parse::<SvgData>().unwrap();
-    let down_icon = MENU_DOWN_ICON.parse::<SvgData>().unwrap();
     let title = Either::new(
         |item: &TodoProvider, _env: &_| item.collapsed,
         todo_title_builder().with_text_color(PLACEHOLDER_COLOR),
@@ -32,8 +37,8 @@ fn provider_builder() -> impl Widget<TodoProvider> {
     .align_horizontal(UnitPoint::CENTER);
     let expand_icon = Either::new(
         |item: &TodoProvider, _env: &_| item.collapsed,
-        Svg::new(up_icon),
-        Svg::new(down_icon),
+        MENU_UP_ICON.to_svg(),
+        MENU_DOWN_ICON.to_svg(),
     );
     let header = Flex::row()
         .with_flex_child(title, 1.)

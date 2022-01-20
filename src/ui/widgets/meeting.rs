@@ -1,12 +1,17 @@
-use druid::widget::{Flex, Label, MainAxisAlignment, Maybe, Svg, SvgData};
+use druid::widget::{Flex, Label, MainAxisAlignment, Maybe};
 use druid::{FontDescriptor, FontFamily, Widget, WidgetExt};
 
 use crate::models::Appointment;
+use crate::ui::lazy_icon::*;
 use crate::ui::lens::TimeUntilNextAppointment;
 use crate::ui::widgets::timer::TimerController;
 use crate::CARD_COLOR;
 
-const CALENDAR_ICON: &str = include_str!("../../../assets/icons/calendar.svg");
+thread_local! {
+    static CALENDAR_ICON: LazyIcon = LazyIcon::new(|| {
+        include_str!("../../../assets/icons/calendar.svg").load()
+    });
+}
 
 fn meeting_body() -> Flex<Appointment> {
     let time_font = FontDescriptor::new(FontFamily::SYSTEM_UI).with_size(14.0);
@@ -26,8 +31,7 @@ fn meeting_body() -> Flex<Appointment> {
 }
 
 fn meeting_card() -> impl Widget<Appointment> {
-    let icon = CALENDAR_ICON.parse::<SvgData>().unwrap();
-    let icon = Svg::new(icon).fix_size(48., 48.).padding(8.);
+    let icon = CALENDAR_ICON.to_svg().fix_size(48., 48.).padding(8.);
 
     let body = meeting_body();
 

@@ -7,6 +7,7 @@ use widgets::list::list_builder;
 use crate::models::*;
 
 pub mod commands;
+mod lazy_icon;
 mod lens;
 mod prism;
 pub mod theme;

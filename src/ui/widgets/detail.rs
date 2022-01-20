@@ -4,11 +4,16 @@ use druid_widget_nursery::prism;
 
 use crate::models::*;
 use crate::ui::commands;
+use crate::ui::lazy_icon::*;
 use crate::ui::lens::Link;
 use crate::ui::prism::{TodoBody, TodoLink};
 use crate::ui::theme::CARD_COLOR;
 
-const BACK_BUTTON_ICON: &str = include_str!("../../../assets/icons/arrow-back.svg");
+thread_local! {
+    static BACK_BUTTON_ICON: LazyIcon = LazyIcon::new(|| {
+        include_str!("../../../assets/icons/arrow-back.svg").load()
+    });
+}
 
 struct DetailController;
 
@@ -33,12 +38,13 @@ impl<W: Widget<Todo>> Controller<Todo, W> for DetailController {
 }
 
 pub fn detail_builder() -> impl Widget<Todo> {
-    let svg = BACK_BUTTON_ICON.parse::<SvgData>().unwrap();
-    let back_button = Svg::new(svg)
-        .padding(8.)
-        .on_click(|ctx: _, _: &mut Todo, _: &_| {
-            ctx.submit_command(Command::new(commands::CLOSE_TODO, (), Target::Auto))
-        });
+    let back_button =
+        BACK_BUTTON_ICON
+            .to_svg()
+            .padding(8.)
+            .on_click(|ctx: _, _: &mut Todo, _: &_| {
+                ctx.submit_command(Command::new(commands::CLOSE_TODO, (), Target::Auto))
+            });
     let title = Label::new(|item: &Todo, _env: &_| item.title.clone())
         .with_line_break_mode(LineBreaking::WordWrap)
         .padding(4.);
