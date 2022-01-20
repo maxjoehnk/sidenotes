@@ -1,12 +1,9 @@
 use druid::{FontDescriptor, FontFamily, Widget, WidgetExt};
-use druid::widget::{Flex, Label, MainAxisAlignment, Svg, SvgData};
-use druid_widget_nursery::prism::DisablePrismWrap;
+use druid::widget::{Flex, Label, MainAxisAlignment, Maybe, Svg, SvgData};
 
 use crate::{CARD_COLOR, MEETING_TIME_COLOR};
-use crate::calendar::TZ;
-use crate::models::{Appointment, AppState};
+use crate::models::{Appointment};
 use crate::ui::lens::TimeUntilNextAppointment;
-use crate::ui::prism::NextAppointment;
 use crate::ui::widgets::timer::TimerController;
 
 const CALENDAR_ICON: &str = include_str!("../../../assets/icons/calendar.svg");
@@ -42,12 +39,6 @@ fn meeting_card() -> impl Widget<Appointment> {
         .padding(8.0)
 }
 
-pub fn meeting_builder() -> impl Widget<AppState> {
-    DisablePrismWrap::new(meeting_card(), Appointment {
-        title: Default::default(),
-        description: Default::default(),
-        meeting_link: None,
-        end_time: TZ::now(),
-        start_time: TZ::now(),
-    }, NextAppointment)
+pub fn meeting_builder() -> impl Widget<Option<Appointment>> {
+    Maybe::new(meeting_card, Flex::row)
 }

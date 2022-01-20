@@ -14,7 +14,7 @@ const MENU_DOWN_ICON: &str = include_str!("../../../assets/icons/menu-down.svg")
 pub fn list_builder() -> impl Widget<AppState> {
     let list = List::new(provider_builder).lens(AppState::providers());
     let list_view = Flex::column()
-        .with_child(meeting_builder())
+        .with_child(meeting_builder().lens(AppState::next_appointment))
         .with_child(list);
 
     Scroll::new(list_view).vertical()

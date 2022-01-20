@@ -27,15 +27,3 @@ impl Prism<Todo, RichText> for TodoBody {
         // Formatted body is readonly
     }
 }
-
-pub struct NextAppointment;
-
-impl Prism<AppState, Appointment> for NextAppointment {
-    fn get(&self, data: &AppState) -> Option<Appointment> {
-        data.next_appointment.clone()
-    }
-
-    fn put(&self, data: &mut AppState, appointment: Appointment) {
-        data.next_appointment.replace(appointment);
-    }
-}
