@@ -47,7 +47,7 @@ pub struct SoapHeader {}
 
 impl XmlParser for SoapHeader {
     fn parse(reader: &mut Events<&[u8]>) -> anyhow::Result<Self> {
-        while let Some(e) = reader.next() {
+        for e in reader.by_ref() {
             let event = e?;
             match event {
                 XmlEvent::EndElement { name } if name.local_name == "Header" => {
@@ -194,7 +194,7 @@ impl XmlParser for CalendarItem {
 fn read_text(element: &str, reader: &mut Events<&[u8]>) -> anyhow::Result<Option<String>> {
     let mut text = None;
 
-    while let Some(e) = reader.next() {
+    for e in reader.by_ref() {
         let event = e?;
         match event {
             XmlEvent::Characters(chars) => text = Some(chars),

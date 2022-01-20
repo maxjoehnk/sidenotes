@@ -32,7 +32,6 @@ impl Display for ExchangeVersion {
 
 pub struct EwsClient {
     url: String,
-    version: ExchangeVersion,
     username: String,
     password: String,
 }
@@ -40,13 +39,12 @@ pub struct EwsClient {
 impl EwsClient {
     pub fn new(
         url: impl Into<String>,
-        version: ExchangeVersion,
+        _: ExchangeVersion,
         username: impl Into<String>,
         password: impl Into<String>,
     ) -> Self {
         Self {
             url: url.into(),
-            version,
             username: username.into(),
             password: password.into(),
         }
