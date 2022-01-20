@@ -1,4 +1,3 @@
-use druid::im::Vector;
 use druid::widget::*;
 use druid::{
     Color, Command, FontDescriptor, FontFamily, FontWeight, Insets, Target, UnitPoint, Widget,
@@ -7,13 +6,18 @@ use druid::{
 use crate::models::*;
 use crate::ui::commands;
 use crate::ui::theme::{CARD_COLOR, STATUS_COLOR};
+use crate::ui::widgets::meeting::meeting_builder;
 
 const MENU_UP_ICON: &str = include_str!("../../../assets/icons/menu-up.svg");
 const MENU_DOWN_ICON: &str = include_str!("../../../assets/icons/menu-down.svg");
 
-pub fn list_builder() -> impl Widget<Vector<TodoProvider>> {
-    let list = List::new(provider_builder);
-    Scroll::new(list).vertical()
+pub fn list_builder() -> impl Widget<AppState> {
+    let list = List::new(provider_builder).lens(AppState::providers());
+    let list_view = Flex::column()
+        .with_child(meeting_builder())
+        .with_child(list);
+
+    Scroll::new(list_view).vertical()
 }
 
 fn provider_builder() -> impl Widget<TodoProvider> {

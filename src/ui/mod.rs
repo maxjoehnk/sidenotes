@@ -36,6 +36,8 @@ impl<W: Widget<AppState>> Controller<AppState, W> for Sidenotes {
                 data.navigation = Navigation::List;
             } else if let Some(link) = cmd.get(commands::OPEN_LINK) {
                 open::that_in_background(link);
+            } else if let Some(appointment) = cmd.get(commands::NEXT_APPOINTMENT_FETCHED) {
+                data.next_appointment = appointment.clone();
             } else if let Some(provider) = cmd.get(commands::TOGGLE_PROVIDER) {
                 if let Some(index) = data.providers.iter().position(|p| p.name == provider.name) {
                     data.providers[index].collapsed = !data.providers[index].collapsed;
@@ -51,7 +53,7 @@ pub fn ui_builder() -> impl Widget<AppState> {
     ViewSwitcher::new(
         |state: &AppState, _| state.navigation.clone(),
         |nav: &Navigation, _: &AppState, _| match nav {
-            Navigation::List => list_builder().lens(AppState::providers()).boxed(),
+            Navigation::List => list_builder().boxed(),
             Navigation::Selected(_) => detail_builder()
                 .lens(AppState::navigation.then(Navigation::selected()))
                 .boxed(),

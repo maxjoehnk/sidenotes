@@ -1,5 +1,5 @@
 use crate::config::UiConfig;
-use crate::models::{Todo, TodoProvider};
+use crate::models::*;
 use druid::im::Vector;
 use druid::Selector;
 
@@ -14,3 +14,5 @@ pub const OPEN_TODO: Selector<Todo> = Selector::new("event-sidenotes.open-todo")
 pub const CLOSE_TODO: Selector<()> = Selector::new("event-sidenotes.close-todo");
 pub const OPEN_LINK: Selector<String> = Selector::new("sidenotes.open-link");
 pub const TOGGLE_PROVIDER: Selector<TodoProvider> = Selector::new("sidenotes.TOGGLE_PROVIDER");
+
+pub const NEXT_APPOINTMENT_FETCHED: Selector<Option<Appointment>> = Selector::new("event-sidenotes.next-appointment-fetched");

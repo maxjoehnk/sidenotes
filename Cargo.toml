@@ -1,7 +1,8 @@
 [workspace]
 members = [
     ".",
-    "jira-parser"
+    "jira-parser",
+    "ews-calendar"
 ]
 
 [package]
@@ -11,7 +12,7 @@ edition = "2018"
 license = "GPL-3.0"
 
 [features]
-default = ["github", "jira", "joplin", "gitlab", "taskwarrior", "upsource", "nextcloud"]
+default = ["github", "jira", "joplin", "gitlab", "taskwarrior", "upsource", "nextcloud", "ews-calendar"]
 github = ["octorust", "async-compat"]
 jira = ["surf", "base64", "jira-parser"]
 joplin = ["surf"]
@@ -23,7 +24,7 @@ nextcloud = ["surf", "base64"]
 directories-next = "2.0.0"
 tracing = "0.1"
 anyhow = "1"
-druid = { git = "https://github.com/linebender/druid.git", features = ["im", "svg"], rev = "1801164629800938ba1316e5b58c5383641fdea6" }
+druid = { git = "https://github.com/linebender/druid.git", features = ["im", "svg"], rev = "2f5beb8faba648c170a485b8d6a00d0d991a1737" }
 octorust = { version = "0.1.33", optional = true }
 serde = { version = "1", features = ["derive"] }
 task-hookrs = { version = "0.7.0", optional = true}
@@ -38,6 +39,8 @@ enum_dispatch = "0.3.7"
 pulldown-cmark = "0.8.0"
 open = "2.0.1"
 jira-parser = { path = "jira-parser", optional = true }
-druid-widget-nursery = { git = "https://github.com/linebender/druid-widget-nursery" }
+druid-widget-nursery = { git = "https://github.com/linebender/druid-widget-nursery", rev = "6d5dfc548603a45f307cfc1fde9b9d5f49863b49" }
 serde_repr = { version = "0.1", optional = true }
 im = { version = "15", features = ["serde"] }
+ews-calendar = { path = "ews-calendar", optional = true }
+chrono = "0.4.19"

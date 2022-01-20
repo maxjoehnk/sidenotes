@@ -1,7 +1,7 @@
 use druid::text::RichText;
 use druid_widget_nursery::prism::Prism;
 
-use crate::models::Todo;
+use crate::models::*;
 use crate::rich_text::IntoRichText;
 
 pub struct TodoLink;
@@ -25,5 +25,17 @@ impl Prism<Todo, RichText> for TodoBody {
 
     fn put(&self, _: &mut Todo, _: RichText) {
         // Formatted body is readonly
+    }
+}
+
+pub struct NextAppointment;
+
+impl Prism<AppState, Appointment> for NextAppointment {
+    fn get(&self, data: &AppState) -> Option<Appointment> {
+        data.next_appointment.clone()
+    }
+
+    fn put(&self, data: &mut AppState, appointment: Appointment) {
+        data.next_appointment.replace(appointment);
     }
 }

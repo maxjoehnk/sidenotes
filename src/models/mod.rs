@@ -1,5 +1,7 @@
+use chrono::DateTime;
 use druid::im::Vector;
 use druid::{lens, Data, Lens};
+use crate::calendar::{TZ};
 
 use crate::config::UiConfig;
 use crate::providers::ProviderSettings;
@@ -9,6 +11,7 @@ use crate::rich_text::RawRichText;
 pub struct AppState {
     #[lens(ignore)]
     pub providers: Vector<TodoProvider>,
+    pub next_appointment: Option<Appointment>,
     pub navigation: Navigation,
     pub ui_config: UiConfig,
 }
@@ -73,4 +76,15 @@ pub struct Todo {
     pub author: Option<String>,
     pub body: Option<RawRichText>,
     pub link: Option<String>,
+}
+
+#[derive(Debug, Clone, Data, Lens)]
+pub struct Appointment {
+    pub title: String,
+    pub description: String,
+    #[data(ignore)]
+    pub start_time: DateTime<TZ>,
+    #[data(ignore)]
+    pub end_time: DateTime<TZ>,
+    pub meeting_link: Option<String>,
 }

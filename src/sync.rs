@@ -5,6 +5,7 @@ use druid::im::Vector;
 use druid::{ExtEventSink, Target};
 use futures::future::BoxFuture;
 use futures::FutureExt;
+use crate::calendar::{Calendar, CalendarProvider};
 
 use crate::models::{Todo, TodoProvider};
 use crate::providers::{Provider, ProviderSettings};
@@ -61,6 +62,9 @@ impl SyncThread {
             })
             .collect();
 
+        let calendar_provider: Option<CalendarProvider> = config.calendar_config
+            .map(|config| config.build());
+
         self.event_sink.submit_command(
             commands::PROVIDERS_CONFIGURED,
             todo_providers,
@@ -68,12 +72,16 @@ impl SyncThread {
         )?;
 
         loop {
-            let tasks = providers
+            let mut tasks = providers
                 .iter()
                 .enumerate()
                 .map(|(index, (settings, provider))| {
-                    self.sync_provider(index, provider.as_ref(), settings)
-                });
+                    self.sync_provider(index, provider.as_ref(), settings).boxed_local()
+                })
+                .collect::<Vec<_>>();
+            if let Some(provider) = calendar_provider.as_ref() {
+                tasks.push(self.sync_calendar(provider).boxed_local())
+            }
 
             smol::block_on(futures::future::try_join_all(tasks))?;
             thread::sleep(Duration::from_secs(config.sync_timeout));
@@ -95,6 +103,28 @@ impl SyncThread {
                     Target::Auto,
                 )?;
             }
+            Err(err) => {
+                tracing::error!("{:?}", err);
+                self.event_sink.submit_command(
+                    commands::PROVIDER_ERROR,
+                    format!("{}", err),
+                    Target::Auto,
+                )?;
+            }
+        }
+        Ok(())
+    }
+
+    async fn sync_calendar(
+        &self,
+        provider: &impl Calendar
+    ) -> anyhow::Result<()> {
+        match provider.next_appointment().await {
+            Ok(appointment) => self.event_sink.submit_command(
+                commands::NEXT_APPOINTMENT_FETCHED,
+                appointment,
+                Target::Auto,
+            )?,
             Err(err) => {
                 tracing::error!("{:?}", err);
                 self.event_sink.submit_command(
