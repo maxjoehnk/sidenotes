@@ -15,4 +15,5 @@ pub const CLOSE_TODO: Selector<()> = Selector::new("event-sidenotes.close-todo")
 pub const OPEN_LINK: Selector<String> = Selector::new("sidenotes.open-link");
 pub const TOGGLE_PROVIDER: Selector<TodoProvider> = Selector::new("sidenotes.TOGGLE_PROVIDER");
 
-pub const NEXT_APPOINTMENT_FETCHED: Selector<Option<Appointment>> = Selector::new("event-sidenotes.next-appointment-fetched");
+pub const NEXT_APPOINTMENT_FETCHED: Selector<Option<Appointment>> =
+    Selector::new("event-sidenotes.next-appointment-fetched");

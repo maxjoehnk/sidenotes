@@ -1,7 +1,7 @@
+use crate::models::Appointment;
 use chrono::Local;
 use futures::future::BoxFuture;
 use serde::{Deserialize, Serialize};
-use crate::models::Appointment;
 
 pub(crate) type TZ = Local;
 
@@ -16,7 +16,7 @@ pub trait Calendar {
 #[serde(rename_all = "camelCase", tag = "type")]
 pub enum CalendarConfig {
     #[cfg(feature = "ews-calendar")]
-    Ews(ews::EwsConfig)
+    Ews(ews::EwsConfig),
 }
 
 impl CalendarConfig {
@@ -30,7 +30,7 @@ impl CalendarConfig {
 
 pub enum CalendarProvider {
     #[cfg(feature = "ews-calendar")]
-    Ews(ews::EwsClient)
+    Ews(ews::EwsClient),
 }
 
 impl Calendar for CalendarProvider {

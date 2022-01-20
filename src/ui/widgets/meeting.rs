@@ -1,10 +1,10 @@
-use druid::{FontDescriptor, FontFamily, Widget, WidgetExt};
 use druid::widget::{Flex, Label, MainAxisAlignment, Maybe, Svg, SvgData};
+use druid::{FontDescriptor, FontFamily, Widget, WidgetExt};
 
-use crate::CARD_COLOR;
-use crate::models::{Appointment};
+use crate::models::Appointment;
 use crate::ui::lens::TimeUntilNextAppointment;
 use crate::ui::widgets::timer::TimerController;
+use crate::CARD_COLOR;
 
 const CALENDAR_ICON: &str = include_str!("../../../assets/icons/calendar.svg");
 
@@ -12,14 +12,16 @@ fn meeting_body() -> Flex<Appointment> {
     let time_font = FontDescriptor::new(FontFamily::SYSTEM_UI).with_size(14.0);
     Flex::column()
         .main_axis_alignment(MainAxisAlignment::Start)
-        .with_child(Label::new(|appointment: &Appointment, _: &_| appointment.title.clone()).align_left())
+        .with_child(
+            Label::new(|appointment: &Appointment, _: &_| appointment.title.clone()).align_left(),
+        )
         .with_child(
             Label::new(|time_until: &String, _: &_| time_until.clone())
                 .with_font(time_font)
                 .with_text_color(druid::theme::PLACEHOLDER_COLOR)
                 .align_left()
                 .lens(TimeUntilNextAppointment)
-                .controller(TimerController::default())
+                .controller(TimerController::default()),
         )
 }
 

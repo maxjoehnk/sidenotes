@@ -1,11 +1,11 @@
 use std::thread;
 use std::time::Duration;
 
+use crate::calendar::{Calendar, CalendarProvider};
 use druid::im::Vector;
 use druid::{ExtEventSink, Target};
 use futures::future::BoxFuture;
 use futures::FutureExt;
-use crate::calendar::{Calendar, CalendarProvider};
 
 use crate::models::{Todo, TodoProvider};
 use crate::providers::{Provider, ProviderSettings};
@@ -62,8 +62,8 @@ impl SyncThread {
             })
             .collect();
 
-        let calendar_provider: Option<CalendarProvider> = config.calendar_config
-            .map(|config| config.build());
+        let calendar_provider: Option<CalendarProvider> =
+            config.calendar_config.map(|config| config.build());
 
         self.event_sink.submit_command(
             commands::PROVIDERS_CONFIGURED,
@@ -76,7 +76,8 @@ impl SyncThread {
                 .iter()
                 .enumerate()
                 .map(|(index, (settings, provider))| {
-                    self.sync_provider(index, provider.as_ref(), settings).boxed_local()
+                    self.sync_provider(index, provider.as_ref(), settings)
+                        .boxed_local()
                 })
                 .collect::<Vec<_>>();
             if let Some(provider) = calendar_provider.as_ref() {
@@ -115,10 +116,7 @@ impl SyncThread {
         Ok(())
     }
 
-    async fn sync_calendar(
-        &self,
-        provider: &impl Calendar
-    ) -> anyhow::Result<()> {
+    async fn sync_calendar(&self, provider: &impl Calendar) -> anyhow::Result<()> {
         match provider.next_appointment().await {
             Ok(appointment) => self.event_sink.submit_command(
                 commands::NEXT_APPOINTMENT_FETCHED,

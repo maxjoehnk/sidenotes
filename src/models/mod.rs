@@ -1,7 +1,7 @@
+use crate::calendar::TZ;
 use chrono::DateTime;
 use druid::im::Vector;
 use druid::{lens, Data, Lens};
-use crate::calendar::{TZ};
 
 use crate::config::UiConfig;
 use crate::providers::ProviderSettings;

@@ -1,9 +1,9 @@
+use crate::calendar::{Appointment, Calendar};
+pub(crate) use ews_calendar::EwsClient;
+use ews_calendar::ExchangeVersion::Exchange2016;
 use futures::future::BoxFuture;
 use futures::FutureExt;
 use serde::{Deserialize, Serialize};
-pub(crate) use ews_calendar::EwsClient;
-use ews_calendar::ExchangeVersion::Exchange2016;
-use crate::calendar::{Appointment, Calendar};
 
 impl Calendar for EwsClient {
     fn next_appointment(&self) -> BoxFuture<anyhow::Result<Option<Appointment>>> {
@@ -18,7 +18,8 @@ impl Calendar for EwsClient {
             });
 
             Ok(appointment)
-        }.boxed()
+        }
+        .boxed()
     }
 }
 

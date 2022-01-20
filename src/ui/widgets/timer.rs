@@ -19,14 +19,7 @@ impl Default for TimerController {
 }
 
 impl<T: Data, W: Widget<T>> Controller<T, W> for TimerController {
-    fn event(
-        &mut self,
-        child: &mut W,
-        ctx: &mut EventCtx,
-        event: &Event,
-        data: &mut T,
-        env: &Env,
-    ) {
+    fn event(&mut self, child: &mut W, ctx: &mut EventCtx, event: &Event, data: &mut T, env: &Env) {
         if let Event::Timer(id) = event {
             if *id == self.timer_id {
                 ctx.request_update();
@@ -36,7 +29,14 @@ impl<T: Data, W: Widget<T>> Controller<T, W> for TimerController {
         child.event(ctx, event, data, env)
     }
 
-    fn lifecycle(&mut self, child: &mut W, ctx: &mut LifeCycleCtx, event: &LifeCycle, data: &T, env: &Env) {
+    fn lifecycle(
+        &mut self,
+        child: &mut W,
+        ctx: &mut LifeCycleCtx,
+        event: &LifeCycle,
+        data: &T,
+        env: &Env,
+    ) {
         if let LifeCycle::WidgetAdded = event {
             self.timer_id = ctx.request_timer(TIMER_INTERVAL);
         }

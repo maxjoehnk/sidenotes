@@ -1,8 +1,8 @@
+use crate::parser::{parse_soap_response, CalendarItem, FindItemResponseMessage};
+use chrono::{DateTime, Duration, Local};
 use std::fmt::{Display, Formatter};
 use std::ops::Add;
 use std::str::FromStr;
-use chrono::{Duration, DateTime, Local};
-use crate::parser::{CalendarItem, FindItemResponseMessage, parse_soap_response};
 
 pub(crate) type TZ = Local;
 
@@ -10,7 +10,7 @@ mod parser;
 
 #[derive(Debug)]
 pub enum ExchangeVersion {
-    Exchange2016
+    Exchange2016,
 }
 
 impl FromStr for ExchangeVersion {
@@ -19,7 +19,7 @@ impl FromStr for ExchangeVersion {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "Exchange2016" => Ok(Self::Exchange2016),
-            _ => Err(())
+            _ => Err(()),
         }
     }
 }
@@ -38,7 +38,12 @@ pub struct EwsClient {
 }
 
 impl EwsClient {
-    pub fn new(url: impl Into<String>, version: ExchangeVersion, username: impl Into<String>, password: impl Into<String>) -> Self {
+    pub fn new(
+        url: impl Into<String>,
+        version: ExchangeVersion,
+        username: impl Into<String>,
+        password: impl Into<String>,
+    ) -> Self {
         Self {
             url: url.into(),
             version,
@@ -71,7 +76,8 @@ impl EwsClient {
     }
 
     fn get_find_items_request(&self, start: DateTime<TZ>, end: DateTime<TZ>) -> String {
-        format!(r#"<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages" xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
+        format!(
+            r#"<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:m="http://schemas.microsoft.com/exchange/services/2006/messages" xmlns:t="http://schemas.microsoft.com/exchange/services/2006/types">
     <s:Header>
         <t:RequestServerVersion Version="Exchange2016"></t:RequestServerVersion>
     </s:Header>
@@ -98,7 +104,11 @@ impl EwsClient {
             </m:ParentFolderIds>
         </m:FindItem>
     </s:Body>
-</s:Envelope>"#, start.to_rfc3339(), end.to_rfc3339(), self.username)
+</s:Envelope>"#,
+            start.to_rfc3339(),
+            end.to_rfc3339(),
+            self.username
+        )
     }
 
     fn get_authorization_header(&self) -> String {

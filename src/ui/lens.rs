@@ -1,8 +1,8 @@
+use crate::calendar::TZ;
+use crate::models::Appointment;
 use chrono::{DateTime, Timelike};
 use druid::text::{RichText, RichTextBuilder};
 use druid::Lens;
-use crate::calendar::TZ;
-use crate::models::Appointment;
 
 use crate::ui::commands::OPEN_LINK;
 use crate::ui::theme::LINK_COLOR;
@@ -59,9 +59,9 @@ impl TimeUntilNextAppointment {
         }
         let time = format!("{} minutes", minutes_until);
 
-        if time_until.num_minutes() > 0  {
+        if time_until.num_minutes() > 0 {
             format!("In {}", time)
-        }else {
+        } else {
             format!("Since {}", time)
         }
     }

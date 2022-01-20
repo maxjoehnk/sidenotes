@@ -1,11 +1,11 @@
-use std::str::FromStr;
-use chrono::DateTime;
-use xml::EventReader;
-use xml::reader::{Events, XmlEvent};
-use derive_builder::Builder;
 use crate::TZ;
+use chrono::DateTime;
+use derive_builder::Builder;
+use std::str::FromStr;
+use xml::reader::{Events, XmlEvent};
+use xml::EventReader;
 
-pub trait XmlParser : Sized + Clone {
+pub trait XmlParser: Sized + Clone {
     fn parse(reader: &mut Events<&[u8]>) -> anyhow::Result<Self>;
 }
 
@@ -50,8 +50,10 @@ impl XmlParser for SoapHeader {
         while let Some(e) = reader.next() {
             let event = e?;
             match event {
-                XmlEvent::EndElement { name } if name.local_name == "Header" => return Ok(SoapHeader {}),
-                _ => continue
+                XmlEvent::EndElement { name } if name.local_name == "Header" => {
+                    return Ok(SoapHeader {})
+                }
+                _ => continue,
             }
         }
         unreachable!()
@@ -60,7 +62,7 @@ impl XmlParser for SoapHeader {
 
 #[derive(Clone, Debug, Builder)]
 pub struct SoapBody<TBody> {
-    pub response: TBody
+    pub response: TBody,
 }
 
 impl<TBody: XmlParser> XmlParser for SoapBody<TBody> {
@@ -70,11 +72,13 @@ impl<TBody: XmlParser> XmlParser for SoapBody<TBody> {
             let event = e?;
             match event {
                 XmlEvent::EndElement { name } if name.local_name == "Body" => break,
-                XmlEvent::StartElement { name, .. } if name.local_name == "FindItemResponseMessage" => {
+                XmlEvent::StartElement { name, .. }
+                    if name.local_name == "FindItemResponseMessage" =>
+                {
                     let response_message = TBody::parse(reader)?;
                     builder.response(response_message);
                 }
-                _ => continue
+                _ => continue,
             }
         }
         let body = builder.build()?;
@@ -94,12 +98,14 @@ impl XmlParser for FindItemResponseMessage {
         while let Some(e) = reader.next() {
             let event = e?;
             match event {
-                XmlEvent::EndElement { name } if name.local_name == "FindItemResponseMessage" => break,
+                XmlEvent::EndElement { name } if name.local_name == "FindItemResponseMessage" => {
+                    break
+                }
                 XmlEvent::StartElement { name, .. } if name.local_name == "Items" => {
                     let items = Vec::<CalendarItem>::parse(reader)?;
                     builder.root_folder(items);
                 }
-                _ => continue
+                _ => continue,
             }
         }
         let message = builder.build()?;
@@ -132,7 +138,7 @@ impl XmlParser for Vec<CalendarItem> {
                     let item = CalendarItem::parse(reader)?;
                     items.push(item);
                 }
-                _ => continue
+                _ => continue,
             }
         }
         Ok(items)
@@ -146,8 +152,13 @@ impl XmlParser for CalendarItem {
             let event = e?;
             match event {
                 XmlEvent::EndElement { name } if name.local_name == "CalendarItem" => break,
-                XmlEvent::StartElement { name, attributes, .. } if name.local_name == "ItemId" => {
-                    if let Some(id) = attributes.into_iter().find(|attr| attr.name.local_name == "Id") {
+                XmlEvent::StartElement {
+                    name, attributes, ..
+                } if name.local_name == "ItemId" => {
+                    if let Some(id) = attributes
+                        .into_iter()
+                        .find(|attr| attr.name.local_name == "Id")
+                    {
                         builder.id(id.value);
                     }
                 }
@@ -172,7 +183,7 @@ impl XmlParser for CalendarItem {
                     let location = read_text("Location", reader)?;
                     builder.location(location);
                 }
-                _ => continue
+                _ => continue,
             }
         }
         let item = builder.build()?;
