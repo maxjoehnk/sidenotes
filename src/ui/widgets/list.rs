@@ -1,3 +1,4 @@
+use druid::theme::PLACEHOLDER_COLOR;
 use druid::widget::*;
 use druid::{
     Color, Command, FontDescriptor, FontFamily, FontWeight, Insets, Target, UnitPoint, Widget,
@@ -23,13 +24,12 @@ pub fn list_builder() -> impl Widget<AppState> {
 fn provider_builder() -> impl Widget<TodoProvider> {
     let up_icon = MENU_UP_ICON.parse::<SvgData>().unwrap();
     let down_icon = MENU_DOWN_ICON.parse::<SvgData>().unwrap();
-    let font = FontDescriptor::new(FontFamily::SYSTEM_UI)
-        .with_size(18.0)
-        .with_weight(FontWeight::BOLD);
-    let title =
-        Label::new(|item: &TodoProvider, _env: &_| format!("{} ({})", item.name, item.items.len()))
-            .with_font(font)
-            .align_horizontal(UnitPoint::CENTER);
+    let title = Either::new(
+        |item: &TodoProvider, _env: &_| item.collapsed,
+        todo_title_builder().with_text_color(PLACEHOLDER_COLOR),
+        todo_title_builder(),
+    )
+    .align_horizontal(UnitPoint::CENTER);
     let expand_icon = Either::new(
         |item: &TodoProvider, _env: &_| item.collapsed,
         Svg::new(up_icon),
@@ -56,6 +56,14 @@ fn provider_builder() -> impl Widget<TodoProvider> {
         .with_child(todos)
         .cross_axis_alignment(CrossAxisAlignment::Start)
         .padding(4.0)
+}
+
+fn todo_title_builder() -> Label<TodoProvider> {
+    let font = FontDescriptor::new(FontFamily::SYSTEM_UI)
+        .with_size(18.0)
+        .with_weight(FontWeight::BOLD);
+    Label::new(|item: &TodoProvider, _env: &_| format!("{} ({})", item.name, item.items.len()))
+        .with_font(font)
 }
 
 fn todo_builder() -> impl Widget<Todo> {
