@@ -1,7 +1,7 @@
 use druid::text::RichText;
 use druid_widget_nursery::prism::Prism;
 
-use crate::models::Todo;
+use crate::models::*;
 use crate::rich_text::IntoRichText;
 
 pub struct TodoLink;

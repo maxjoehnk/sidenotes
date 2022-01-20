@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use directories_next::ProjectDirs;
 use serde::Deserialize;
 
+use crate::calendar::CalendarConfig;
 use crate::providers::ProviderConfigEntry;
 
 #[derive(Debug, Clone, Deserialize)]
@@ -12,6 +13,8 @@ pub struct Config {
     pub sync_timeout: u64,
     #[serde(flatten)]
     pub ui: UiConfig,
+    #[serde(rename = "calendar", default)]
+    pub calendar_config: Vec<CalendarConfig>,
 }
 
 #[derive(Debug, Clone, Copy, Deserialize, druid::Data)]

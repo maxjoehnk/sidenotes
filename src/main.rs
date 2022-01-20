@@ -3,6 +3,7 @@ use druid::{AppLauncher, Color, WindowDesc};
 use crate::sync::SyncThread;
 use crate::ui::theme::*;
 
+mod calendar;
 pub mod config;
 mod models;
 mod providers;
@@ -17,7 +18,7 @@ fn main() -> anyhow::Result<()> {
         .configure_env(|env, _| {
             env.set(LINK_COLOR, Color::rgb8(94, 129, 172));
             env.set(CARD_COLOR, Color::rgba8(0, 0, 0, 32));
-            env.set(STATUS_COLOR, Color::rgb8(163, 190, 140))
+            env.set(STATUS_COLOR, Color::rgb8(163, 190, 140));
         });
 
     let event_sink = launcher.get_external_handle();

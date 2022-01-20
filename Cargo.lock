@@ -111,6 +111,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "46016233fc1bb55c23b856fe556b7db6ccd05119a0a392e04f0b3b7c79058f16"
 
 [[package]]
+name = "async-attributes"
+version = "1.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a3203e79f4dd9bdda415ed03cf14dae5a2bf775c683a00f94e9cd1faf0f596e5"
+dependencies = [
+ "quote 1.0.10",
+ "syn 1.0.80",
+]
+
+[[package]]
 name = "async-channel"
 version = "1.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -257,6 +267,7 @@ version = "1.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f8056f1455169ab86dd47b47391e4ab0cbd25410a70e9fe675544f49bafaf952"
 dependencies = [
+ "async-attributes",
  "async-channel",
  "async-global-executor",
  "async-io",
@@ -781,6 +792,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "darling"
+version = "0.12.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5f2c43f534ea4b0b049015d00269734195e6d3f0f6635cb692251aca6f9f8b3c"
+dependencies = [
+ "darling_core 0.12.4",
+ "darling_macro 0.12.4",
+]
+
+[[package]]
 name = "darling_core"
 version = "0.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -803,7 +824,21 @@ dependencies = [
  "ident_case",
  "proc-macro2 1.0.30",
  "quote 1.0.10",
- "strsim",
+ "strsim 0.9.3",
+ "syn 1.0.80",
+]
+
+[[package]]
+name = "darling_core"
+version = "0.12.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8e91455b86830a1c21799d94524df0845183fa55bafd9aa137b01c7d1065fa36"
+dependencies = [
+ "fnv",
+ "ident_case",
+ "proc-macro2 1.0.30",
+ "quote 1.0.10",
+ "strsim 0.10.0",
  "syn 1.0.80",
 ]
 
@@ -825,6 +860,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d9b5a2f4ac4969822c62224815d069952656cadc7084fdca9751e6d959189b72"
 dependencies = [
  "darling_core 0.10.2",
+ "quote 1.0.10",
+ "syn 1.0.80",
+]
+
+[[package]]
+name = "darling_macro"
+version = "0.12.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "29b5acf0dea37a7f66f7b25d2c5e93fd46f8f6968b1a5d7a3e02e97768afc95a"
+dependencies = [
+ "darling_core 0.12.4",
  "quote 1.0.10",
  "syn 1.0.80",
 ]
@@ -875,6 +921,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "derive_builder"
+version = "0.10.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d13202debe11181040ae9063d739fa32cfcaaebe2275fe387703460ae2365b30"
+dependencies = [
+ "derive_builder_macro",
+]
+
+[[package]]
 name = "derive_builder_core"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -895,6 +950,28 @@ dependencies = [
  "darling 0.10.2",
  "proc-macro2 1.0.30",
  "quote 1.0.10",
+ "syn 1.0.80",
+]
+
+[[package]]
+name = "derive_builder_core"
+version = "0.10.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "66e616858f6187ed828df7c64a6d71720d83767a7f19740b2d1b6fe6327b36e5"
+dependencies = [
+ "darling 0.12.4",
+ "proc-macro2 1.0.30",
+ "quote 1.0.10",
+ "syn 1.0.80",
+]
+
+[[package]]
+name = "derive_builder_macro"
+version = "0.10.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "58a94ace95092c5acb1e97a7e846b310cfbd499652f72297da7493f618a98d73"
+dependencies = [
+ "derive_builder_core 0.10.2",
  "syn 1.0.80",
 ]
 
@@ -943,7 +1020,7 @@ checksum = "fea41bba32d969b513997752735605054bc0dfa92b4c56bf1189f2e174be7a10"
 [[package]]
 name = "druid"
 version = "0.7.0"
-source = "git+https://github.com/linebender/druid.git?rev=1801164629800938ba1316e5b58c5383641fdea6#1801164629800938ba1316e5b58c5383641fdea6"
+source = "git+https://github.com/linebender/druid.git?rev=2f5beb8faba648c170a485b8d6a00d0d991a1737#2f5beb8faba648c170a485b8d6a00d0d991a1737"
 dependencies = [
  "console_error_panic_hook",
  "druid-derive",
@@ -955,7 +1032,7 @@ dependencies = [
  "im",
  "instant",
  "tracing",
- "tracing-subscriber",
+ "tracing-subscriber 0.3.6",
  "tracing-wasm",
  "unic-langid",
  "unicode-segmentation",
@@ -966,7 +1043,7 @@ dependencies = [
 [[package]]
 name = "druid-derive"
 version = "0.4.0"
-source = "git+https://github.com/linebender/druid.git?rev=1801164629800938ba1316e5b58c5383641fdea6#1801164629800938ba1316e5b58c5383641fdea6"
+source = "git+https://github.com/linebender/druid.git?rev=2f5beb8faba648c170a485b8d6a00d0d991a1737#2f5beb8faba648c170a485b8d6a00d0d991a1737"
 dependencies = [
  "proc-macro2 1.0.30",
  "quote 1.0.10",
@@ -976,7 +1053,7 @@ dependencies = [
 [[package]]
 name = "druid-shell"
 version = "0.7.0"
-source = "git+https://github.com/linebender/druid.git?rev=1801164629800938ba1316e5b58c5383641fdea6#1801164629800938ba1316e5b58c5383641fdea6"
+source = "git+https://github.com/linebender/druid.git?rev=2f5beb8faba648c170a485b8d6a00d0d991a1737#2f5beb8faba648c170a485b8d6a00d0d991a1737"
 dependencies = [
  "anyhow",
  "bitflags",
@@ -1009,7 +1086,7 @@ dependencies = [
 [[package]]
 name = "druid-widget-nursery"
 version = "0.1.0"
-source = "git+https://github.com/linebender/druid-widget-nursery#3add7114a4e429205099b43023d8aa9bf5c21103"
+source = "git+https://github.com/linebender/druid-widget-nursery?rev=6d5dfc548603a45f307cfc1fde9b9d5f49863b49#6d5dfc548603a45f307cfc1fde9b9d5f49863b49"
 dependencies = [
  "druid",
  "log",
@@ -1066,6 +1143,20 @@ name = "event-listener"
 version = "2.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f7531096570974c3a9dcf9e4b8e1cede1ec26cf5046219fb3b9d897503b9be59"
+
+[[package]]
+name = "ews-calendar"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-std",
+ "base64 0.13.0",
+ "chrono",
+ "derive_builder 0.10.2",
+ "surf",
+ "tracing",
+ "xml-rs",
+]
 
 [[package]]
 name = "failure"
@@ -2021,9 +2112,9 @@ dependencies = [
 
 [[package]]
 name = "keyboard-types"
-version = "0.5.0"
+version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a989afac88279b0482f402d234b5fbd405bf1ad051308595b58de4e6de22346b"
+checksum = "0b7668b7cff6a51fe61cdde64cd27c8a220786f399501b57ebe36f7d8112fd68"
 dependencies = [
  "bitflags",
 ]
@@ -2492,9 +2583,9 @@ checksum = "db8bcd96cb740d03149cbad5518db9fd87126a10ab519c011893b1754134c468"
 
 [[package]]
 name = "piet"
-version = "0.5.0-pre1"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9e2a9423cf762dd366a7cc1fafe9eacc66e2cca12564f231e5740022fe3e9bd0"
+checksum = "c14a2944b6da638045428a9a7901b77bea62bf430d2b9d4d7146acce96e14a15"
 dependencies = [
  "kurbo",
  "unic-bidi",
@@ -2502,9 +2593,9 @@ dependencies = [
 
 [[package]]
 name = "piet-cairo"
-version = "0.5.0-pre1"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "67c27f6ffb9c0406643b863df837b8525c0b95303664cc56916f7271a0641586"
+checksum = "aecdd587016b022cbe2ee290d7641a362337b244adf1bfe156a35d85855a5221"
 dependencies = [
  "cairo-rs",
  "glib",
@@ -2518,9 +2609,9 @@ dependencies = [
 
 [[package]]
 name = "piet-common"
-version = "0.5.0-pre1"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "da3691d842e911f82f491ca8179031afba11dacf482674edc05eb84a3e117eac"
+checksum = "c5b2fc8550e18e3ea1dd552f48291acc31996712dccfeb15404977f6350abf63"
 dependencies = [
  "cairo-rs",
  "cairo-sys-rs",
@@ -2537,9 +2628,9 @@ dependencies = [
 
 [[package]]
 name = "piet-coregraphics"
-version = "0.5.0-pre1"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "16d6529ba5b7c89fb4e8fd53783dfa679031f398d1a463cf2533fa6543be7e14"
+checksum = "803509526b882838db55ae8f6cae276a08aca6b64819c8f371fe9505d37e9d72"
 dependencies = [
  "core-foundation",
  "core-foundation-sys",
@@ -2551,9 +2642,9 @@ dependencies = [
 
 [[package]]
 name = "piet-direct2d"
-version = "0.5.0-pre1"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bb06801806103d6d0bafaf89ac285129da1b5783530f4e83162ac079b199dd07"
+checksum = "46e2d4f9108976e6166d3de76afa238ab837ba5d5f52fd2a3f2e2c959be2b9a4"
 dependencies = [
  "associative-cache",
  "dwrote",
@@ -2565,9 +2656,9 @@ dependencies = [
 
 [[package]]
 name = "piet-web"
-version = "0.5.0-pre1"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "57790afb197978c66f454a3eac6d5bf36d41bb28ae85fbb9132ef8b042e6d6e7"
+checksum = "81bee71a4d0c2b00e51807d381a6ced49c792f0b0a2e42135f9f4547111bf2bb"
 dependencies = [
  "js-sys",
  "piet",
@@ -3333,10 +3424,12 @@ dependencies = [
  "anyhow",
  "async-compat",
  "base64 0.13.0",
+ "chrono",
  "directories-next",
  "druid",
  "druid-widget-nursery",
  "enum_dispatch",
+ "ews-calendar",
  "futures",
  "gitlab",
  "im",
@@ -3543,6 +3636,12 @@ name = "strsim"
 version = "0.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6446ced80d6c486436db5c078dde11a9f73d42b57fb273121e160b84f63d894c"
+
+[[package]]
+name = "strsim"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "73473c0e59e6d5812c5dfe2a064a6444949f089e20eec9a2e5506596494e4623"
 
 [[package]]
 name = "strum"
@@ -3918,6 +4017,17 @@ version = "0.2.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0e0d2eaa99c3c2e41547cfa109e910a68ea03823cccad4a0525dcbc9b01e8c71"
 dependencies = [
+ "sharded-slab",
+ "thread_local",
+ "tracing-core",
+]
+
+[[package]]
+name = "tracing-subscriber"
+version = "0.3.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "77be66445c4eeebb934a7340f227bfe7b338173d3f8c00a60a5a58005c9faecf"
+dependencies = [
  "ansi_term",
  "sharded-slab",
  "thread_local",
@@ -3931,7 +4041,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8ae741706df70547fca8715f74a8569677666e7be3454313af70f6e158034485"
 dependencies = [
  "tracing",
- "tracing-subscriber",
+ "tracing-subscriber 0.2.25",
  "wasm-bindgen",
 ]
 
@@ -4400,6 +4510,12 @@ name = "xi-unicode"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a67300977d3dc3f8034dae89778f502b6ba20b269527b3223ba59c0cf393bb8a"
+
+[[package]]
+name = "xml-rs"
+version = "0.8.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d2d7d3948613f75c98fd9328cfdcc45acc4d360655289d0a7d4ec931392200a3"
 
 [[package]]
 name = "xmlparser"
