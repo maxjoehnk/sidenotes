@@ -62,8 +62,11 @@ impl SyncThread {
             })
             .collect();
 
-        let calendar_provider: Option<CalendarProvider> =
-            config.calendar_config.map(|config| config.build());
+        let calendar_provider: Option<CalendarProvider> = config
+            .calendar_config
+            .into_iter()
+            .next()
+            .map(|config| config.build());
 
         self.event_sink.submit_command(
             commands::PROVIDERS_CONFIGURED,

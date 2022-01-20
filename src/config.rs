@@ -13,8 +13,8 @@ pub struct Config {
     pub sync_timeout: u64,
     #[serde(flatten)]
     pub ui: UiConfig,
-    #[serde(rename = "calendar")]
-    pub calendar_config: Option<CalendarConfig>,
+    #[serde(rename = "calendar", default)]
+    pub calendar_config: Vec<CalendarConfig>,
 }
 
 #[derive(Debug, Clone, Copy, Deserialize, druid::Data)]
