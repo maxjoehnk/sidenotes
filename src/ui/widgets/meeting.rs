@@ -5,7 +5,9 @@ use druid_widget_nursery::prism::DisablePrismWrap;
 use crate::{CARD_COLOR, MEETING_TIME_COLOR};
 use crate::calendar::TZ;
 use crate::models::{Appointment, AppState};
+use crate::ui::lens::TimeUntilNextAppointment;
 use crate::ui::prism::NextAppointment;
+use crate::ui::widgets::timer::TimerController;
 
 const CALENDAR_ICON: &str = include_str!("../../../assets/icons/calendar.svg");
 
@@ -15,15 +17,12 @@ fn meeting_body() -> Flex<Appointment> {
         .main_axis_alignment(MainAxisAlignment::Start)
         .with_child(Label::new(|appointment: &Appointment, _: &_| appointment.title.clone()).align_left())
         .with_child(
-            Label::new(|appointment: &Appointment, _: &_| {
-                let now = TZ::now();
-                let time_until = appointment.start_time - now;
-
-                format!("In {} minutes", time_until.num_minutes())
-            })
+            Label::new(|time_until: &String, _: &_| time_until.clone())
                 .with_font(time_font)
                 .with_text_color(MEETING_TIME_COLOR)
-                .align_left(),
+                .align_left()
+                .lens(TimeUntilNextAppointment)
+                .controller(TimerController::default())
         )
 }
 
