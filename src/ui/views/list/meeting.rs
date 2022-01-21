@@ -1,5 +1,5 @@
-use druid::widget::{Flex, Label, MainAxisAlignment, Maybe};
-use druid::{FontDescriptor, FontFamily, Widget, WidgetExt};
+use druid::widget::{Flex, Label, LineBreaking, MainAxisAlignment, Maybe};
+use druid::{FontDescriptor, FontFamily, Insets, Widget, WidgetExt};
 
 use crate::models::Appointment;
 use crate::ui::lazy_icon::*;
@@ -18,7 +18,10 @@ fn meeting_body() -> Flex<Appointment> {
     Flex::column()
         .main_axis_alignment(MainAxisAlignment::Start)
         .with_child(
-            Label::new(|appointment: &Appointment, _: &_| appointment.title.clone()).align_left(),
+            Label::new(|appointment: &Appointment, _: &_| appointment.title.clone())
+                .with_line_break_mode(LineBreaking::WordWrap)
+                .align_left()
+                .padding(Insets::new(0., 0., 8., 0.)),
         )
         .with_child(
             Label::new(|time_until: &String, _: &_| time_until.clone())
