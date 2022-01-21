@@ -4,6 +4,8 @@ use druid::Data;
 use futures::future::BoxFuture;
 use serde::Deserialize;
 
+#[cfg(feature = "confluence")]
+mod confluence;
 #[cfg(feature = "github")]
 mod github;
 #[cfg(feature = "gitlab")]
@@ -44,6 +46,8 @@ pub enum ProviderConfig {
     Gitlab(gitlab::GitlabConfig),
     #[cfg(feature = "jira")]
     Jira(jira::JiraConfig),
+    #[cfg(feature = "confluence")]
+    Confluence(confluence::ConfluenceConfig),
     #[cfg(feature = "joplin")]
     Joplin(joplin::JoplinConfig),
     #[cfg(feature = "taskwarrior")]
@@ -67,6 +71,8 @@ impl ProviderConfig {
             }
             #[cfg(feature = "jira")]
             Self::Jira(config) => Box::new(jira::JiraProvider::new(config)?),
+            #[cfg(feature = "jira")]
+            Self::Confluence(config) => Box::new(confluence::ConfluenceProvider::new(config)?),
             #[cfg(feature = "joplin")]
             Self::Joplin(config) => Box::new(joplin::JoplinProvider::new(config)?),
             #[cfg(feature = "taskwarrior")]

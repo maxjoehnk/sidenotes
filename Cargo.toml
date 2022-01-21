@@ -12,9 +12,10 @@ edition = "2018"
 license = "GPL-3.0"
 
 [features]
-default = ["github", "jira", "joplin", "gitlab", "taskwarrior", "upsource", "nextcloud", "ews-calendar"]
+default = ["github", "jira", "joplin", "gitlab", "taskwarrior", "upsource", "nextcloud", "confluence", "ews-calendar"]
 github = ["octorust", "async-compat"]
 jira = ["surf", "base64", "jira-parser"]
+confluence = ["surf", "base64"]
 joplin = ["surf"]
 taskwarrior = ["task-hookrs"]
 upsource = ["surf", "serde_repr"]

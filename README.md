@@ -22,6 +22,7 @@ Available:
 * taskwarrior
 * joplin
 * upsource
+* confluence
 
 ## Installation
 
@@ -70,4 +71,10 @@ url = "https://your-upsource-instance"
 token = "auth token"
 # optional, default is "state: open"
 query = "an upsource query"
+
+[[provider]]
+type = "confluence"
+username = "your-usernamee"
+password = "your-password"
+url = "https://your.confluence.url"
 ```
