@@ -35,19 +35,25 @@ impl SyncThread {
         let config = crate::config::load()?;
         self.event_sink
             .submit_command(commands::UI_CONFIG_LOADED, config.ui, Target::Auto)?;
-        let providers: Vec<(ProviderSettings, Box<dyn Provider>)> =
+        let providers: Vec<Option<(ProviderSettings, Box<dyn Provider>)>> =
             smol::block_on(futures::future::try_join_all(
                 config.providers.into_iter().map::<BoxFuture<
-                    anyhow::Result<(ProviderSettings, Box<dyn Provider>)>,
+                    anyhow::Result<Option<(ProviderSettings, Box<dyn Provider>)>>,
                 >, _>(|provider_config| {
                     async {
-                        let provider = provider_config.provider.create().await?;
-
-                        Ok((provider_config.settings, provider))
+                        match provider_config.provider.create().await {
+                            Ok(provider) => Ok(Some((provider_config.settings, provider))),
+                            Err(err) => {
+                                tracing::error!("Error setting up provider: {:?}", err);
+                                Ok(None)
+                            }
+                        }
                     }
                     .boxed()
                 }),
             ))?;
+
+        let providers = providers.into_iter().flatten().collect::<Vec<_>>();
 
         let todo_providers: Vector<TodoProvider> = providers
             .iter()
