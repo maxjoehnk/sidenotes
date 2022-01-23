@@ -12,14 +12,16 @@ edition = "2018"
 license = "GPL-3.0"
 
 [features]
-default = ["github", "jira", "joplin", "gitlab", "taskwarrior", "upsource", "nextcloud", "confluence", "ews-calendar"]
-github = ["octorust", "async-compat"]
-jira = ["surf", "base64", "jira-parser"]
-confluence = ["surf", "base64"]
-joplin = ["surf"]
-taskwarrior = ["task-hookrs"]
-upsource = ["surf", "serde_repr"]
-nextcloud = ["surf", "base64"]
+default = ["p_github", "p_jira", "p_joplin", "p_gitlab", "p_taskwarrior", "p_upsource", "p_nextcloud", "p_confluence", "c_ews"]
+p_github = ["octorust", "async-compat"]
+p_gitlab = ["gitlab", "async-compat"]
+p_jira = ["surf", "base64", "jira-parser"]
+p_confluence = ["surf", "base64"]
+p_joplin = ["surf"]
+p_taskwarrior = ["task-hookrs"]
+p_upsource = ["surf", "serde_repr"]
+p_nextcloud = ["surf", "base64"]
+c_ews = ["ews-calendar"]
 
 [dependencies]
 directories-next = "2.0.0"
@@ -46,3 +48,6 @@ im = { version = "15", features = ["serde"] }
 ews-calendar = { path = "ews-calendar", optional = true }
 chrono = "0.4.19"
 once_cell = "1.9"
+
+[package.metadata.cargo-all-features]
+skip_optional_dependencies = true

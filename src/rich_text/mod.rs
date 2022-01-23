@@ -2,11 +2,11 @@ use druid::text::{RichText, RichTextBuilder};
 use druid::Data;
 use enum_dispatch::enum_dispatch;
 
-#[cfg(feature = "jira")]
+#[cfg(feature = "p_jira")]
 pub use self::jira_markup::*;
 pub use self::markdown::*;
 
-#[cfg(feature = "jira")]
+#[cfg(feature = "p_jira")]
 mod jira_markup;
 mod markdown;
 
@@ -28,7 +28,7 @@ impl IntoRichText for String {
 #[derive(Clone, Debug, Data)]
 pub enum RawRichText {
     Markdown,
-    #[cfg(feature = "jira")]
+    #[cfg(feature = "p_jira")]
     Jira(JiraMarkup),
 }
 

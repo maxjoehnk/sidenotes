@@ -4,21 +4,21 @@ use druid::Data;
 use futures::future::BoxFuture;
 use serde::Deserialize;
 
-#[cfg(feature = "confluence")]
+#[cfg(feature = "p_confluence")]
 mod confluence;
-#[cfg(feature = "github")]
+#[cfg(feature = "p_github")]
 mod github;
-#[cfg(feature = "gitlab")]
+#[cfg(feature = "p_gitlab")]
 mod gitlab;
-#[cfg(feature = "jira")]
+#[cfg(feature = "p_jira")]
 mod jira;
-#[cfg(feature = "joplin")]
+#[cfg(feature = "p_joplin")]
 mod joplin;
-#[cfg(feature = "nextcloud")]
+#[cfg(feature = "p_nextcloud")]
 mod nextcloud;
-#[cfg(feature = "taskwarrior")]
+#[cfg(feature = "p_taskwarrior")]
 mod taskwarrior;
-#[cfg(feature = "upsource")]
+#[cfg(feature = "p_upsource")]
 mod upsource;
 
 #[derive(Debug, Clone, Deserialize)]
@@ -40,46 +40,46 @@ pub struct ProviderSettings {
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase", tag = "type")]
 pub enum ProviderConfig {
-    #[cfg(feature = "github")]
+    #[cfg(feature = "p_github")]
     Github(github::GithubConfig),
-    #[cfg(feature = "gitlab")]
+    #[cfg(feature = "p_gitlab")]
     Gitlab(gitlab::GitlabConfig),
-    #[cfg(feature = "jira")]
+    #[cfg(feature = "p_jira")]
     Jira(jira::JiraConfig),
-    #[cfg(feature = "confluence")]
+    #[cfg(feature = "p_confluence")]
     Confluence(confluence::ConfluenceConfig),
-    #[cfg(feature = "joplin")]
+    #[cfg(feature = "p_joplin")]
     Joplin(joplin::JoplinConfig),
-    #[cfg(feature = "taskwarrior")]
+    #[cfg(feature = "p_taskwarrior")]
     Taskwarrior(taskwarrior::TaskwarriorConfig),
-    #[cfg(feature = "upsource")]
+    #[cfg(feature = "p_upsource")]
     Upsource(upsource::UpsourceConfig),
-    #[cfg(feature = "nextcloud")]
+    #[cfg(feature = "p_nextcloud")]
     NextcloudDeck(nextcloud::deck::NextcloudDeckProviderConfig),
 }
 
 impl ProviderConfig {
     pub async fn create(self) -> anyhow::Result<Box<dyn Provider>> {
         let provider = match self {
-            #[cfg(feature = "github")]
+            #[cfg(feature = "p_github")]
             Self::Github(config) => {
                 Box::new(github::GithubProvider::new(config)?) as Box<dyn Provider>
             }
-            #[cfg(feature = "gitlab")]
+            #[cfg(feature = "p_gitlab")]
             Self::Gitlab(config) => {
                 Box::new(gitlab::GitlabProvider::new(config).await?) as Box<dyn Provider>
             }
-            #[cfg(feature = "jira")]
+            #[cfg(feature = "p_jira")]
             Self::Jira(config) => Box::new(jira::JiraProvider::new(config)?),
-            #[cfg(feature = "jira")]
+            #[cfg(feature = "p_confluence")]
             Self::Confluence(config) => Box::new(confluence::ConfluenceProvider::new(config)?),
-            #[cfg(feature = "joplin")]
+            #[cfg(feature = "p_joplin")]
             Self::Joplin(config) => Box::new(joplin::JoplinProvider::new(config)?),
-            #[cfg(feature = "taskwarrior")]
+            #[cfg(feature = "p_taskwarrior")]
             Self::Taskwarrior(config) => Box::new(taskwarrior::TaskwarriorProvider::new(config)?),
-            #[cfg(feature = "upsource")]
+            #[cfg(feature = "p_upsource")]
             Self::Upsource(config) => Box::new(upsource::UpsourceProvider::new(config)?),
-            #[cfg(feature = "nextcloud")]
+            #[cfg(feature = "p_nextcloud")]
             Self::NextcloudDeck(config) => {
                 Box::new(nextcloud::deck::NextcloudDeckProvider::new(config))
             }
