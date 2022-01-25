@@ -55,7 +55,7 @@ impl TimeUntilNextAppointment {
         let time_until = time - now;
         let minutes_until = time_until.num_minutes().abs();
         if minutes_until >= 60 {
-            return format!("At {}:{}", time.hour(), time.minute());
+            return format!("At {}:{:0<2}", time.hour(), time.minute());
         }
         let time = format!("{} minutes", minutes_until);
 
