@@ -30,6 +30,10 @@ impl TaskwarriorProvider {
                 todos.push_back(Todo {
                     title: task.description().into(),
                     state: Some(task.status().to_string()),
+                    tags: task
+                        .tags()
+                        .map(|tags| tags.iter().cloned().collect())
+                        .unwrap_or_default(),
                     author: None,
                     body: None,
                     link: None,

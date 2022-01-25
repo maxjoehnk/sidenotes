@@ -18,9 +18,16 @@ pub struct IssueFields {
     pub summary: String,
     pub description: Option<JiraMarkup>,
     pub status: Status,
+    pub components: Vec<Component>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Status {
+    pub name: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct Component {
+    pub id: String,
     pub name: String,
 }

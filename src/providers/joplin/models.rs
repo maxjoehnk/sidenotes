@@ -28,3 +28,10 @@ pub struct JoplinResponse<T> {
     pub items: Vec<T>,
     pub has_more: bool,
 }
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct Tag {
+    pub id: String,
+    pub parent_id: Option<String>,
+    pub title: String,
+}

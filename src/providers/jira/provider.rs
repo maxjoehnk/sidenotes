@@ -44,6 +44,12 @@ impl JiraProvider {
         Todo {
             title: format!("{} - {}", issue.key, issue.fields.summary),
             state: Some(issue.fields.status.name),
+            tags: issue
+                .fields
+                .components
+                .into_iter()
+                .map(|component| component.name)
+                .collect(),
             body: issue.fields.description.map(|desc| desc.into()),
             author: None,
             link: Some(format!("{}/browse/{}", self.api.url, issue.key)),

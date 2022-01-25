@@ -1,6 +1,7 @@
-use super::models::Note;
+use super::models::*;
 use crate::providers::joplin::models::JoplinResponse;
 use serde::Serialize;
+use surf::Response;
 
 pub struct JoplinApi {
     token: String,
@@ -30,17 +31,7 @@ impl JoplinApi {
                 .await
                 .map_err(surf::Error::into_inner)?;
 
-            #[cfg(debug_assertions)]
-            if !res.status().is_success() {
-                let body = res.body_string().await.map_err(surf::Error::into_inner)?;
-                tracing::error!("{:?}", res.status());
-                tracing::error!("{:?}", body);
-                anyhow::bail!("Joplin api failure");
-            }
-            anyhow::ensure!(
-                res.status().is_success(),
-                "Joplin api returned non success status code"
-            );
+            Self::assert_response_status(&mut res).await?;
 
             let res: JoplinResponse<Note> =
                 res.body_json().await.map_err(surf::Error::into_inner)?;
@@ -58,6 +49,39 @@ impl JoplinApi {
 
         Ok(todos)
     }
+
+    pub async fn get_note_tags(&self, note_id: &str) -> anyhow::Result<Vec<Tag>> {
+        let query = BaseQuery { token: &self.token };
+        let mut res = surf::get(format!("{}/notes/{}/tags", &self.url, note_id))
+            .content_type("application/json")
+            .query(&query)
+            .map_err(surf::Error::into_inner)?
+            .await
+            .map_err(surf::Error::into_inner)?;
+
+        Self::assert_response_status(&mut res).await?;
+
+        let res: JoplinResponse<Tag> = res.body_json().await.map_err(surf::Error::into_inner)?;
+        tracing::trace!("{:?}", res);
+
+        Ok(res.items)
+    }
+
+    async fn assert_response_status(res: &mut Response) -> anyhow::Result<()> {
+        #[cfg(debug_assertions)]
+        if !res.status().is_success() {
+            let body = res.body_string().await.map_err(surf::Error::into_inner)?;
+            tracing::error!("{:?}", res.status());
+            tracing::error!("{:?}", body);
+            anyhow::bail!("Joplin api failure");
+        }
+        anyhow::ensure!(
+            res.status().is_success(),
+            "Joplin api returned non success status code"
+        );
+
+        Ok(())
+    }
 }
 
 #[derive(Debug, Serialize)]
@@ -65,4 +89,9 @@ struct GetNotesQuery<'a> {
     token: &'a str,
     fields: &'a str,
     page: usize,
+}
+
+#[derive(Debug, Serialize)]
+struct BaseQuery<'a> {
+    token: &'a str,
 }

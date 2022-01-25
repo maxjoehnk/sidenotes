@@ -42,6 +42,7 @@ impl ConfluenceProvider {
         Todo {
             title: task.item.title,
             state: None,
+            tags: Default::default(),
             body: None,
             author: None,
             link: Some(format!("{}{}", self.api.url, task.item.url)),

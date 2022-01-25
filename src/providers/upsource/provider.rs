@@ -70,7 +70,8 @@ impl From<(&str, models::ReviewDescriptor)> for Todo {
             title: format!("{} - {}", review.review_id.review_id, review.title),
             state: Some(review.state()),
             body: review.description.map(|desc| Markdown(desc).into()),
-            author: None,
+            tags: review.labels.into_iter().map(|label| label.name).collect(),
+            author: review.created_by,
             link: Some(format!(
                 "{}/{}/review/{}",
                 url, review.review_id.project_id, review.review_id.review_id

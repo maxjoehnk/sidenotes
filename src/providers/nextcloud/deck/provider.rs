@@ -83,6 +83,7 @@ impl From<(String, CardModel)> for Todo {
             title: card.title,
             body: Some(RawRichText::Markdown(card.description.into())),
             state: Some(stack),
+            tags: Default::default(),
             author: None,
             link: None,
         }

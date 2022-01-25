@@ -12,14 +12,18 @@ pub fn todo_builder() -> impl Widget<Todo> {
         .padding(2.0)
         .background(STATUS_COLOR)
         .rounded(2.0);
+    let tags = List::new(tag_builder).lens(Todo::tags);
+    let row = Flex::row().with_child(with_state).with_child(tags);
     let with_state = Flex::column()
         .cross_axis_alignment(CrossAxisAlignment::Start)
         .with_child(todo_title_builder())
         .with_spacer(4.0)
-        .with_child(with_state);
+        .with_child(row);
     let without_state = Flex::column()
         .cross_axis_alignment(CrossAxisAlignment::Start)
-        .with_child(todo_title_builder());
+        .with_child(todo_title_builder())
+        .with_spacer(4.0)
+        .with_child(List::new(tag_builder).lens(Todo::tags));
 
     let state = Either::new(
         |todo: &Todo, _: &_| todo.state.is_some(),
@@ -41,6 +45,14 @@ pub fn todo_builder() -> impl Widget<Todo> {
                 Target::Auto,
             ))
         })
+}
+
+fn tag_builder() -> impl Widget<String> {
+    Label::new(|tag: &String, _env: &_| tag.clone())
+        .with_text_color(Color::BLACK)
+        .padding(2.0)
+        .background(STATUS_COLOR)
+        .rounded(2.0)
 }
 
 fn todo_title_builder() -> impl Widget<Todo> {

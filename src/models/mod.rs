@@ -73,6 +73,7 @@ pub struct TodoProvider {
 pub struct Todo {
     pub title: String,
     pub state: Option<String>,
+    pub tags: Vector<String>,
     pub author: Option<String>,
     pub body: Option<RawRichText>,
     pub link: Option<String>,

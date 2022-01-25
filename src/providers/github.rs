@@ -90,6 +90,7 @@ impl GithubProvider {
                 todos.push_back(Todo {
                     title: format!("#{} - {}", pr.number, pr.title),
                     state: Some(Self::get_pr_state(&pr, &reviews)),
+                    tags: pr.labels.into_iter().map(|label| label.name).collect(),
                     author: pr.user.map(|user| user.name),
                     body: Some(Markdown(pr.body).into()),
                     link: pr.html_url.map(|url| url.to_string()),
@@ -140,6 +141,7 @@ impl GithubProvider {
                 todos.push_back(Todo {
                     title: format!("#{} - {}", item.number, item.title),
                     state,
+                    tags: item.labels.into_iter().map(|label| label.name).collect(),
                     author: item.user.map(|user| user.name),
                     body: Some(Markdown(item.body).into()),
                     link: item.html_url.map(|url| url.to_string()),

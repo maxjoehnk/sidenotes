@@ -31,9 +31,14 @@ impl JoplinProvider {
     async fn fetch_notes(&self) -> anyhow::Result<Vector<Todo>> {
         tracing::info!("Fetching Joplin notes...");
         let notes = self.api.get_todo_notes().await?;
-        let todos: Vector<_> = notes
+        let mut notes_with_tags = Vec::new();
+        for note in notes {
+            let tags = self.api.get_note_tags(&note.id).await?;
+            notes_with_tags.push((note, tags));
+        }
+        let todos: Vector<_> = notes_with_tags
             .into_iter()
-            .filter(|note| {
+            .filter(|(note, _)| {
                 if let Some(notebooks) = self.notebooks.as_ref() {
                     notebooks.contains(&note.notebook_id)
                 } else {
@@ -58,11 +63,12 @@ impl Provider for JoplinProvider {
     }
 }
 
-impl From<models::Note> for Todo {
-    fn from(note: Note) -> Self {
+impl From<(models::Note, Vec<models::Tag>)> for Todo {
+    fn from((note, tags): (Note, Vec<models::Tag>)) -> Self {
         Self {
             title: note.title,
             state: None,
+            tags: tags.into_iter().map(|tag| tag.title).collect(),
             author: None,
             body: Some(note.body.into()),
             link: None,

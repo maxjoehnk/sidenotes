@@ -103,6 +103,7 @@ impl From<MergeRequest> for Todo {
         Self {
             title: format!("#{} - {}", mr.iid, mr.title),
             state: Some(format!("{:?}", mr.state)),
+            tags: mr.labels.into(),
             body: mr.description.map(|desc| Markdown(desc).into()),
             author: Some(mr.author.name),
             link: Some(mr.web_url),
