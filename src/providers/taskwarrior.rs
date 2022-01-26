@@ -1,5 +1,6 @@
 use super::Provider;
 use crate::models::Todo;
+use crate::providers::ProviderConfig;
 use crate::providers::ProviderId;
 use druid::im::Vector;
 use druid::{Data, Lens};
@@ -58,6 +59,13 @@ impl TaskwarriorProvider {
 }
 
 impl Provider for TaskwarriorProvider {
+    fn to_config(&self) -> ProviderConfig {
+        TaskwarriorConfig {
+            query: self.query.clone(),
+        }
+        .into()
+    }
+
     fn name(&self) -> &'static str {
         "TaskWarrior"
     }

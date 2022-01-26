@@ -1,7 +1,7 @@
 use super::api;
 use crate::models::{Todo, TodoId};
 use crate::providers::joplin::models::{Notebook, TodoNote};
-use crate::providers::{Provider, ProviderId, TodoAction};
+use crate::providers::{Provider, ProviderConfig, ProviderId, TodoAction};
 use druid::{Data, Lens};
 use futures::future::BoxFuture;
 use futures::FutureExt;
@@ -89,6 +89,18 @@ impl JoplinProvider {
 }
 
 impl Provider for JoplinProvider {
+    fn to_config(&self) -> ProviderConfig {
+        JoplinConfig {
+            token: self.api.token.clone(),
+            notebooks: self
+                .notebooks
+                .as_ref()
+                .map(|notebooks| notebooks.iter().cloned().collect()),
+            show_notebook_names: self.show_notebook_names,
+        }
+        .into()
+    }
+
     fn name(&self) -> &'static str {
         "Joplin"
     }

@@ -1,7 +1,7 @@
 use super::{api, models};
 use crate::models::Todo;
 use crate::providers::upsource::models::{ReviewDescriptor, ReviewState};
-use crate::providers::{Provider, ProviderId};
+use crate::providers::{Provider, ProviderConfig, ProviderId};
 use crate::rich_text::Markdown;
 use druid::im::Vector;
 use druid::{Data, Lens};
@@ -15,6 +15,24 @@ pub struct UpsourceConfig {
     #[serde(default)]
     #[lens(ignore)]
     query: UpsourceQuery,
+}
+
+impl UpsourceConfig {
+    #[allow(non_upper_case_globals)]
+    pub const query: UpsourceQueryLens = UpsourceQueryLens;
+}
+
+#[derive(Clone, Copy)]
+pub struct UpsourceQueryLens;
+
+impl Lens<UpsourceConfig, String> for UpsourceQueryLens {
+    fn with<V, F: FnOnce(&String) -> V>(&self, data: &UpsourceConfig, f: F) -> V {
+        f(&data.query.0)
+    }
+
+    fn with_mut<V, F: FnOnce(&mut String) -> V>(&self, data: &mut UpsourceConfig, f: F) -> V {
+        f(&mut data.query.0)
+    }
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Data)]
@@ -60,6 +78,15 @@ impl UpsourceProvider {
 }
 
 impl Provider for UpsourceProvider {
+    fn to_config(&self) -> ProviderConfig {
+        UpsourceConfig {
+            query: UpsourceQuery(self.query.clone()),
+            url: self.api.url.clone(),
+            token: self.api.token.clone(),
+        }
+        .into()
+    }
+
     fn name(&self) -> &'static str {
         "Upsource"
     }

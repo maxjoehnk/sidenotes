@@ -1,3 +1,4 @@
+use crate::providers::ProviderConfig;
 use async_compat::CompatExt;
 use druid::{Data, Lens};
 use futures::future::BoxFuture;
@@ -30,17 +31,20 @@ pub struct GithubConfig {
 pub struct GithubProvider {
     id: ProviderId,
     client: Client,
+    token: String,
     repos: Vec<(String, String)>,
     query: Option<String>,
 }
 
 impl GithubProvider {
     pub fn new(id: ProviderId, config: GithubConfig) -> anyhow::Result<Self> {
+        let token = config.token.clone();
         let client = Client::new("sidenotes", Credentials::Token(config.token))?;
 
         Ok(Self {
             id,
             client,
+            token,
             repos: config
                 .repos
                 .into_iter()
@@ -195,6 +199,19 @@ impl GithubProvider {
 }
 
 impl Provider for GithubProvider {
+    fn to_config(&self) -> ProviderConfig {
+        GithubConfig {
+            query: self.query.clone(),
+            token: self.token.clone(),
+            repos: self
+                .repos
+                .iter()
+                .map(|(owner, repo)| format!("{}/{}", owner, repo))
+                .collect(),
+        }
+        .into()
+    }
+
     fn name(&self) -> &'static str {
         "Github"
     }

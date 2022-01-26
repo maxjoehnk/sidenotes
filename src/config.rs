@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use directories_next::ProjectDirs;
 use serde::{Deserialize, Serialize};
@@ -37,20 +37,27 @@ impl Default for UiConfig {
     }
 }
 
-pub fn load() -> anyhow::Result<Config> {
+pub fn load() -> anyhow::Result<(Config, PathBuf)> {
     let workspace = PathBuf::from("settings.toml");
     let xdg_home = ProjectDirs::from("me", "maxjoehnk", "sidenotes")
         .expect("Home directory could not be detected")
         .config_dir()
         .join("settings.toml");
 
-    let file = if workspace.exists() {
-        std::fs::read_to_string(workspace)?
+    let (file, path) = if workspace.exists() {
+        (std::fs::read_to_string(&workspace)?, workspace)
     } else {
-        std::fs::read_to_string(xdg_home)?
+        (std::fs::read_to_string(&xdg_home)?, xdg_home)
     };
 
     let config = toml::from_str(&file)?;
 
-    Ok(config)
+    Ok((config, path))
+}
+
+pub fn save(path: &Path, config: &Config) -> anyhow::Result<()> {
+    let config = toml::to_string(config)?;
+    std::fs::write(path, config)?;
+
+    Ok(())
 }

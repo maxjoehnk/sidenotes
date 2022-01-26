@@ -6,8 +6,8 @@ use std::fmt::Debug;
 #[derive(Clone)]
 pub struct JiraApi {
     pub(super) url: String,
-    username: String,
-    password: String,
+    pub(super) username: String,
+    pub(super) password: String,
 }
 
 #[derive(Serialize)]
