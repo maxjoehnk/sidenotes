@@ -1,3 +1,4 @@
+use crate::config::save;
 use crate::jobs::{
     ConfigureProvidersJob, FetchAppointmentsJob, FetchCommentsJob, FetchTodosJob, ProviderActionJob,
 };
@@ -24,8 +25,9 @@ impl AppDelegate<AppState> for SidenotesDelegate {
         _: &Env,
     ) -> Handled {
         tracing::debug!("Handling command {:?}", cmd);
-        if let Some(config) = cmd.get(commands::CONFIG_LOADED) {
+        if let Some((config, path)) = cmd.get(commands::CONFIG_LOADED) {
             data.config = config.clone();
+            data.config_path = path.clone();
             ConfigureProvidersJob::new(config.clone(), ctx.get_external_handle()).run();
         } else if let Some(providers) = cmd.get(commands::PROVIDERS_CONFIGURED) {
             data.providers = Self::map_providers(providers.values());
@@ -59,7 +61,14 @@ impl AppDelegate<AppState> for SidenotesDelegate {
             }
             data.navigation = navigation.clone();
         } else if cmd.get(commands::NAVIGATE_BACK).is_some() {
-            data.navigation = Navigation::List;
+            let next = match data.navigation {
+                Navigation::EditProvider(_) | Navigation::NewProvider => {
+                    Navigation::ProviderSettings
+                }
+                Navigation::ProviderSettings | Navigation::CalendarSettings => Navigation::Settings,
+                _ => Navigation::List,
+            };
+            data.navigation = next;
         } else if let Some(link) = cmd.get(commands::OPEN_LINK) {
             open::that_in_background(link);
         } else if let Some(appointment) = cmd.get(commands::NEXT_APPOINTMENT_FETCHED) {
@@ -67,6 +76,17 @@ impl AppDelegate<AppState> for SidenotesDelegate {
         } else if let Some(provider) = cmd.get(commands::TOGGLE_PROVIDER) {
             if let Some(index) = data.providers.iter().position(|p| p.name == provider.name) {
                 data.providers[index].collapsed = !data.providers[index].collapsed;
+            }
+        } else if cmd.get(commands::SAVE_PROVIDER).is_some() {
+            let mut navigation = Navigation::ProviderSettings;
+            std::mem::swap(&mut navigation, &mut data.navigation);
+            if let Navigation::EditProvider((id, config)) = navigation {
+                if let Some(provider) = data.config.providers.iter_mut().find(|p| p.id == id) {
+                    provider.provider = config;
+                }
+            }
+            if let Err(err) = save(&data.config_path, &data.config) {
+                tracing::error!("Saving config failed {:?}", err);
             }
         } else {
             return Handled::No;

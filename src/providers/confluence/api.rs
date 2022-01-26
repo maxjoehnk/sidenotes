@@ -3,8 +3,8 @@ use super::models::*;
 #[derive(Clone)]
 pub struct ConfluenceApi {
     pub(super) url: String,
-    username: String,
-    password: String,
+    pub(super) username: String,
+    pub(super) password: String,
 }
 
 impl ConfluenceApi {
