@@ -98,6 +98,7 @@ impl IntoTodo for (String, CardModel) {
             author: None,
             link: None,
             actions: Default::default(),
+            comments: Default::default(),
         }
     }
 }

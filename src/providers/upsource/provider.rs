@@ -84,6 +84,7 @@ impl From<(ProviderId, &str, models::ReviewDescriptor)> for Todo {
             author: review.created_by,
             id: review.review_id.review_id.into(), // TODO: this should be a combination of review and project id
             actions: Default::default(),
+            comments: Default::default(),
         }
     }
 }

@@ -53,6 +53,7 @@ impl ConfluenceProvider {
             author: None,
             link: Some(format!("{}{}", self.api.url, task.item.url)),
             actions: Default::default(),
+            comments: Default::default(),
         }
     }
 }

@@ -131,6 +131,7 @@ impl TodoNote {
                 label: "Done",
             }]
             .into(),
+            comments: Default::default(),
         }
     }
 }

@@ -1,4 +1,6 @@
-use crate::jobs::{ConfigureProvidersJob, FetchAppointmentsJob, FetchTodosJob, ProviderActionJob};
+use crate::jobs::{
+    ConfigureProvidersJob, FetchAppointmentsJob, FetchCommentsJob, FetchTodosJob, ProviderActionJob,
+};
 use druid::{AppDelegate, Command, DelegateCtx, Env, ExtEventSink, Handled, Target};
 use im::Vector;
 use std::collections::HashMap;
@@ -45,8 +47,15 @@ impl AppDelegate<AppState> for SidenotesDelegate {
             }
         } else if let Some((provider, todos)) = cmd.get(commands::TODOS_FETCHED) {
             data.providers[*provider].items = todos.clone();
+        } else if let Some((todo_id, comments)) = cmd.get(commands::COMMENTS_FETCHED) {
+            if let Navigation::Selected(todo) = &mut data.navigation {
+                if &todo.id == todo_id {
+                    todo.comments = comments.clone();
+                }
+            }
         } else if let Some(todo) = cmd.get(commands::OPEN_TODO) {
             data.navigation = Navigation::Selected(todo.clone());
+            self.fetch_comments(todo, ctx.get_external_handle());
         } else if cmd.get(commands::CLOSE_TODO).is_some() {
             data.navigation = Navigation::List;
         } else if let Some(link) = cmd.get(commands::OPEN_LINK) {
@@ -68,6 +77,12 @@ impl SidenotesDelegate {
     fn run_provider_action(&self, todo: &Todo, action: &TodoAction, event_sink: ExtEventSink) {
         if let Some((_, provider)) = self.providers.get(&todo.provider) {
             ProviderActionJob::new(event_sink, provider.clone(), todo.id.clone(), *action).run();
+        }
+    }
+
+    fn fetch_comments(&self, todo: &Todo, event_sink: ExtEventSink) {
+        if let Some((_, provider)) = self.providers.get(&todo.provider) {
+            FetchCommentsJob::new(event_sink, provider.clone(), todo.id.clone()).run();
         }
     }
 

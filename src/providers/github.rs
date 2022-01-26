@@ -102,6 +102,7 @@ impl GithubProvider {
                     body: Some(Markdown(pr.body).into()),
                     link: pr.html_url.map(|url| url.to_string()),
                     actions: Default::default(),
+                    comments: Default::default(),
                 })
             }
         }
@@ -156,6 +157,7 @@ impl GithubProvider {
                     body: Some(Markdown(item.body).into()),
                     link: item.html_url.map(|url| url.to_string()),
                     actions: Default::default(),
+                    comments: Default::default(),
                 });
             }
 

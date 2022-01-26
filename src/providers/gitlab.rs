@@ -114,6 +114,7 @@ impl IntoTodo for MergeRequest {
             author: Some(self.author.name),
             link: Some(self.web_url),
             actions: Default::default(),
+            comments: Default::default(),
         }
     }
 }

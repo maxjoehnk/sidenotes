@@ -12,6 +12,8 @@ pub const PROVIDERS_CONFIGURED: Selector<HashMap<ProviderId, (ProviderSettings, 
 pub const FETCH_TODOS: Selector<()> = Selector::new("sidenotes.fetch-todos");
 pub const TODOS_FETCHED: Selector<(usize, Vector<Todo>)> =
     Selector::new("event-sidenotes.todos-fetched");
+pub const COMMENTS_FETCHED: Selector<(TodoId, Vector<TodoComment>)> =
+    Selector::new("event-sidenotes.comments-fetched");
 pub const CONFIG_LOADED: Selector<Config> = Selector::new("event-sidenotes.config-loaded");
 pub const OPEN_TODO: Selector<Todo> = Selector::new("event-sidenotes.open-todo");
 pub const CLOSE_TODO: Selector<()> = Selector::new("event-sidenotes.close-todo");

@@ -1,12 +1,15 @@
 use crate::CARD_COLOR;
 use druid::widget::*;
-use druid::{Command, Env, Event, EventCtx, Insets, KbKey, Target, TextAlignment, Widget};
+use druid::{
+    Command, Env, Event, EventCtx, FontDescriptor, FontFamily, FontWeight, Insets, KbKey, Target,
+    TextAlignment, Widget,
+};
 use druid_widget_nursery::prism;
 
 use crate::models::*;
 use crate::ui::commands;
 use crate::ui::commands::PROVIDER_ACTION;
-use crate::ui::lens::Link;
+use crate::ui::lens::{Link, TodoCommentBody};
 use crate::ui::prism::{TodoBody, TodoLink};
 use crate::ui::widgets::{header_builder, ClickableArea};
 
@@ -37,10 +40,13 @@ pub fn detail_builder() -> impl Widget<Todo> {
         |item: &Todo, _env: &_| item.title.clone(),
         Command::new(commands::CLOSE_TODO, (), Target::Auto),
     );
+    let link = prism::PrismWrap::new(link_builder(), TodoLink);
     let body = RawLabel::new().with_line_break_mode(LineBreaking::WordWrap);
     let body = prism::PrismWrap::new(body, TodoBody);
+    let body = Flex::column()
+        .with_child(body)
+        .with_child(comments_builder());
     let body = Scroll::new(body).vertical().expand_height();
-    let link = prism::PrismWrap::new(link_builder(), TodoLink);
     let actions = List::new(action_builder).lens(Todo::actions);
 
     Flex::column()
@@ -71,4 +77,39 @@ fn action_builder() -> impl Widget<TodoAction> {
         .on_click(|ctx, action: &mut TodoAction, _| {
             ctx.submit_command(Command::new(PROVIDER_ACTION, *action, Target::Auto))
         })
+}
+
+fn comments_builder() -> impl Widget<Todo> {
+    let font = FontDescriptor::new(FontFamily::SYSTEM_UI)
+        .with_size(16.0)
+        .with_weight(FontWeight::BOLD);
+    let label = Label::dynamic(|todo: &Todo, _| format!("Comments ({})", todo.comments.len()))
+        .with_font(font);
+    let comments = Flex::column()
+        .with_spacer(16.0)
+        .with_child(label)
+        .with_child(List::new(comment_builder).lens(Todo::comments));
+
+    Either::new(|todo, _| todo.comments.is_empty(), Flex::row(), comments)
+}
+
+fn comment_builder() -> impl Widget<TodoComment> {
+    let font = FontDescriptor::new(FontFamily::SYSTEM_UI).with_weight(FontWeight::BOLD);
+    let author = Label::new(|item: &TodoComment, _env: &_| item.author.clone().unwrap_or_default())
+        .with_font(font)
+        .with_line_break_mode(LineBreaking::WordWrap);
+    let body = RawLabel::new()
+        .with_line_break_mode(LineBreaking::WordWrap)
+        .lens(TodoCommentBody);
+
+    Flex::column()
+        .cross_axis_alignment(CrossAxisAlignment::Start)
+        .with_child(author)
+        .with_spacer(4.0)
+        .with_child(body)
+        .padding(4.0)
+        .background(CARD_COLOR)
+        .rounded(2.0)
+        .padding(Insets::new(0., 2., 8., 2.))
+        .expand_width()
 }

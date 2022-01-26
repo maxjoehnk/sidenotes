@@ -1,6 +1,7 @@
 use super::api;
 use super::models;
-use crate::models::Todo;
+use crate::models::{Todo, TodoComment, TodoId};
+use crate::providers::jira::models::Comment;
 use crate::providers::{Provider, ProviderId};
 use druid::im::Vector;
 use druid::{Data, Lens};
@@ -44,6 +45,18 @@ impl JiraProvider {
         Ok(todos)
     }
 
+    async fn fetch_issue_comments(&self, cursor: TodoId) -> anyhow::Result<Vector<TodoComment>> {
+        tracing::info!("Fetching Jira comments for {:?}...", cursor);
+        if let TodoId::String(jira_id) = cursor {
+            let comments = self.api.comments(&jira_id).await?;
+            let comments = comments.into_iter().map(TodoComment::from).collect();
+
+            Ok(comments)
+        } else {
+            Ok(Vector::new())
+        }
+    }
+
     fn issue_to_todo(&self, issue: models::Issue) -> Todo {
         Todo {
             provider: self.id,
@@ -60,16 +73,30 @@ impl JiraProvider {
             author: None,
             link: Some(format!("{}/browse/{}", self.api.url, issue.key)),
             actions: Default::default(),
+            comments: Default::default(),
         }
     }
 }
 
 impl Provider for JiraProvider {
+    fn fetch_comments(&self, id: TodoId) -> BoxFuture<anyhow::Result<Vector<TodoComment>>> {
+        self.fetch_issue_comments(id).boxed()
+    }
+
     fn name(&self) -> &'static str {
         "Jira"
     }
 
     fn fetch_todos(&self) -> BoxFuture<anyhow::Result<Vector<Todo>>> {
         self.fetch_issues().boxed()
+    }
+}
+
+impl From<Comment> for TodoComment {
+    fn from(comment: Comment) -> Self {
+        Self {
+            text: comment.body.into(),
+            author: Some(comment.author.display_name),
+        }
     }
 }

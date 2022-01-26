@@ -1,8 +1,9 @@
-use crate::models::{Todo, TodoAction, TodoId};
+use crate::models::{Todo, TodoAction, TodoComment, TodoId};
 use druid::im::Vector;
 use druid::{Data, Lens};
 use enum_dispatch::enum_dispatch;
-use futures::future::BoxFuture;
+use futures::future::{ok, BoxFuture};
+use futures::FutureExt;
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "confluence")]
@@ -128,6 +129,9 @@ pub enum ProviderImpl {
 
 #[enum_dispatch(ProviderImpl)]
 pub trait Provider: Sync + Send {
+    fn fetch_comments(&self, _: TodoId) -> BoxFuture<anyhow::Result<Vector<TodoComment>>> {
+        ok(Default::default()).boxed()
+    }
     fn name(&self) -> &'static str;
     fn fetch_todos(&self) -> BoxFuture<anyhow::Result<Vector<Todo>>>;
 

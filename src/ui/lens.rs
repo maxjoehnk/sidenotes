@@ -1,5 +1,6 @@
 use crate::calendar::TZ;
-use crate::models::Appointment;
+use crate::models::{Appointment, TodoComment};
+use crate::rich_text::IntoRichText;
 use chrono::{DateTime, Timelike};
 use druid::text::{RichText, RichTextBuilder};
 use druid::Lens;
@@ -94,5 +95,17 @@ impl Lens<Appointment, f64> for AppointmentProgress {
         let mut progress = passed / duration;
 
         f(&mut progress)
+    }
+}
+
+pub struct TodoCommentBody;
+
+impl Lens<TodoComment, RichText> for TodoCommentBody {
+    fn with<V, F: FnOnce(&RichText) -> V>(&self, comment: &TodoComment, f: F) -> V {
+        f(&comment.text.clone().into_rich_text())
+    }
+
+    fn with_mut<V, F: FnOnce(&mut RichText) -> V>(&self, comment: &mut TodoComment, f: F) -> V {
+        f(&mut comment.text.clone().into_rich_text())
     }
 }

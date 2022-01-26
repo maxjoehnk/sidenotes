@@ -14,6 +14,7 @@ pub struct AppState {
     pub next_appointment: Option<Appointment>,
     pub navigation: Navigation,
     pub config: Config,
+    pub comments: Vector<TodoComment>,
 }
 
 impl AppState {
@@ -80,6 +81,7 @@ pub struct Todo {
     pub body: Option<RawRichText>,
     pub link: Option<String>,
     pub actions: Vector<TodoAction>,
+    pub comments: Vector<TodoComment>,
 }
 
 #[derive(Debug, Clone, Copy, Data)]
@@ -88,7 +90,7 @@ pub struct TodoAction {
     pub label: &'static str,
 }
 
-#[derive(Debug, Clone, Data)]
+#[derive(Debug, Clone, Data, PartialEq, Eq)]
 pub enum TodoId {
     String(String),
     Int(u64),
@@ -110,6 +112,12 @@ impl From<u32> for TodoId {
     fn from(id: u32) -> Self {
         Self::Int(id as u64)
     }
+}
+
+#[derive(Debug, Clone, Data, Lens)]
+pub struct TodoComment {
+    pub text: RawRichText,
+    pub author: Option<String>,
 }
 
 #[derive(Debug, Clone, Data, Lens)]
