@@ -12,8 +12,11 @@ pub fn todo_builder() -> impl Widget<Todo> {
         .padding(2.0)
         .background(STATUS_COLOR)
         .rounded(2.0);
-    let tags = List::new(tag_builder).lens(Todo::tags);
-    let row = Flex::row().with_child(with_state).with_child(tags);
+    let tags = List::new(tag_builder).with_spacing(4.).lens(Todo::tags);
+    let row = Flex::row()
+        .with_child(with_state)
+        .with_spacer(4.)
+        .with_child(tags);
     let with_state = Flex::column()
         .cross_axis_alignment(CrossAxisAlignment::Start)
         .with_child(todo_title_builder())
