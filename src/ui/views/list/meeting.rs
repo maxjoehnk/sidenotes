@@ -1,9 +1,10 @@
-use druid::widget::{Flex, Label, LineBreaking, MainAxisAlignment, Maybe};
+use crate::calendar::TZ;
+use druid::widget::{Either, Flex, Label, LineBreaking, MainAxisAlignment, Maybe, Slider};
 use druid::{FontDescriptor, FontFamily, Insets, Widget, WidgetExt};
 
 use crate::models::Appointment;
 use crate::ui::lazy_icon::*;
-use crate::ui::lens::TimeUntilNextAppointment;
+use crate::ui::lens::{AppointmentProgress, TimeUntilNextAppointment};
 use crate::ui::views::list::timer::TimerController;
 use crate::CARD_COLOR;
 
@@ -13,8 +14,35 @@ thread_local! {
     });
 }
 
-fn meeting_body() -> Flex<Appointment> {
+fn meeting_progress_indicator() -> impl Widget<Appointment> {
+    Slider::new()
+        .expand_width()
+        .disabled_if(|_, _| true)
+        .lens(AppointmentProgress)
+}
+
+fn meeting_time_indicator() -> impl Widget<Appointment> {
     let time_font = FontDescriptor::new(FontFamily::SYSTEM_UI).with_size(14.0);
+    let time_until = Label::new(|time_until: &String, _: &_| time_until.clone())
+        .with_font(time_font)
+        .with_text_color(druid::theme::PLACEHOLDER_COLOR)
+        .align_left()
+        .lens(TimeUntilNextAppointment);
+
+    Either::new(
+        |appointment, _| {
+            let now = TZ::now();
+            let time_until = appointment.start_time - now;
+
+            time_until.num_minutes() > 0
+        },
+        time_until,
+        meeting_progress_indicator(),
+    )
+    .controller(TimerController::default())
+}
+
+fn meeting_body() -> Flex<Appointment> {
     Flex::column()
         .main_axis_alignment(MainAxisAlignment::Start)
         .with_child(
@@ -23,14 +51,7 @@ fn meeting_body() -> Flex<Appointment> {
                 .align_left()
                 .padding(Insets::new(0., 0., 8., 0.)),
         )
-        .with_child(
-            Label::new(|time_until: &String, _: &_| time_until.clone())
-                .with_font(time_font)
-                .with_text_color(druid::theme::PLACEHOLDER_COLOR)
-                .align_left()
-                .lens(TimeUntilNextAppointment)
-                .controller(TimerController::default()),
-        )
+        .with_child(meeting_time_indicator())
 }
 
 fn meeting_card() -> impl Widget<Appointment> {

@@ -66,3 +66,33 @@ impl TimeUntilNextAppointment {
         }
     }
 }
+
+pub struct AppointmentProgress;
+
+impl Lens<Appointment, f64> for AppointmentProgress {
+    fn with<V, F: FnOnce(&f64) -> V>(&self, data: &Appointment, f: F) -> V {
+        let start_time = data.start_time;
+        let end_time = data.end_time;
+        let now = TZ::now();
+        let duration = end_time - start_time;
+        let duration = duration.num_minutes() as f64;
+        let passed = now - start_time;
+        let passed = passed.num_minutes() as f64;
+        let progress = passed / duration;
+
+        f(&progress)
+    }
+
+    fn with_mut<V, F: FnOnce(&mut f64) -> V>(&self, data: &mut Appointment, f: F) -> V {
+        let start_time = data.start_time;
+        let end_time = data.end_time;
+        let now = TZ::now();
+        let duration = end_time - start_time;
+        let duration = duration.num_minutes() as f64;
+        let passed = now - start_time;
+        let passed = passed.num_minutes() as f64;
+        let mut progress = passed / duration;
+
+        f(&mut progress)
+    }
+}
