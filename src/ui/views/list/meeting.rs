@@ -19,6 +19,7 @@ fn meeting_progress_indicator() -> impl Widget<Appointment> {
         .expand_width()
         .disabled_if(|_, _| true)
         .lens(AppointmentProgress)
+        .controller(TimerController::default())
 }
 
 fn meeting_time_indicator() -> impl Widget<Appointment> {
@@ -27,7 +28,8 @@ fn meeting_time_indicator() -> impl Widget<Appointment> {
         .with_font(time_font)
         .with_text_color(druid::theme::PLACEHOLDER_COLOR)
         .align_left()
-        .lens(TimeUntilNextAppointment);
+        .lens(TimeUntilNextAppointment)
+        .controller(TimerController::default());
 
     Either::new(
         |appointment, _| {
