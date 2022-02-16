@@ -1,6 +1,22 @@
 use crate::rich_text::Markdown;
 use serde::Deserialize;
 
+#[derive(Debug, Clone)]
+pub struct TodoNote {
+    pub id: String,
+    pub title: String,
+    pub body: Markdown,
+    pub notebook: Notebook,
+    pub tags: Vec<Tag>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct Notebook {
+    pub id: String,
+    pub title: String,
+    pub parent_id: Option<String>,
+}
+
 #[derive(Debug, Clone, Deserialize)]
 pub struct Note {
     pub id: String,

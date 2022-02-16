@@ -1,6 +1,8 @@
 use super::models::*;
 use crate::providers::joplin::models::JoplinResponse;
+use serde::de::DeserializeOwned;
 use serde::Serialize;
+use std::fmt::Debug;
 use surf::Response;
 
 pub struct JoplinApi {
@@ -16,38 +18,35 @@ impl JoplinApi {
         }
     }
 
-    pub async fn get_todo_notes(&self) -> anyhow::Result<Vec<Note>> {
-        let mut query = GetNotesQuery {
+    pub async fn get_todo_notes_for_notebook(
+        &self,
+        notebook_id: &str,
+    ) -> anyhow::Result<Vec<Note>> {
+        let url = format!("{}/folders/{}/notes", &self.url, notebook_id);
+        let query = PagedQuery {
             token: &self.token,
             fields: "id,parent_id,title,body,is_todo,todo_due,todo_completed",
-            page: 0,
+            page: 1,
         };
-        let mut todos = Vec::new();
-        loop {
-            let mut res = surf::get(format!("{}/notes", &self.url))
-                .content_type("application/json")
-                .query(&query)
-                .map_err(surf::Error::into_inner)?
-                .await
-                .map_err(surf::Error::into_inner)?;
-
-            Self::assert_response_status(&mut res).await?;
-
-            let res: JoplinResponse<Note> =
-                res.body_json().await.map_err(surf::Error::into_inner)?;
-            tracing::trace!("{:?}", res);
-            for note in res.items {
-                if note.is_todo() && !note.is_completed() {
-                    todos.push(note);
-                }
-            }
-            if !res.has_more {
-                break;
-            }
-            query.page += 1;
-        }
+        let todos = self.get_paged::<Note>(url, query).await?;
+        let todos = todos
+            .into_iter()
+            .filter(|note| note.is_todo() && !note.is_completed())
+            .collect();
 
         Ok(todos)
+    }
+
+    pub async fn get_notebooks(&self) -> anyhow::Result<Vec<Notebook>> {
+        let url = format!("{}/folders", &self.url);
+        let query = PagedQuery {
+            token: &self.token,
+            fields: "id,parent_id,title",
+            page: 1,
+        };
+        let notebooks = self.get_paged(url, query).await?;
+
+        Ok(notebooks)
     }
 
     pub async fn get_note_tags(&self, note_id: &str) -> anyhow::Result<Vec<Tag>> {
@@ -65,6 +64,34 @@ impl JoplinApi {
         tracing::trace!("{:?}", res);
 
         Ok(res.items)
+    }
+
+    async fn get_paged<T: DeserializeOwned + Debug>(
+        &self,
+        url: String,
+        mut query: PagedQuery<'_>,
+    ) -> anyhow::Result<Vec<T>> {
+        let mut items = Vec::new();
+        loop {
+            tracing::trace!("GET {} {:?}", &url, &query);
+            let mut res = surf::get(&url)
+                .content_type("application/json")
+                .query(&query)
+                .map_err(surf::Error::into_inner)?
+                .await
+                .map_err(surf::Error::into_inner)?;
+
+            Self::assert_response_status(&mut res).await?;
+
+            let res: JoplinResponse<T> = res.body_json().await.map_err(surf::Error::into_inner)?;
+            tracing::trace!("{:?}", res);
+            items.extend(res.items.into_iter());
+            if !res.has_more {
+                break;
+            }
+            query.page += 1;
+        }
+        Ok(items)
     }
 
     async fn assert_response_status(res: &mut Response) -> anyhow::Result<()> {
@@ -85,7 +112,7 @@ impl JoplinApi {
 }
 
 #[derive(Debug, Serialize)]
-struct GetNotesQuery<'a> {
+struct PagedQuery<'a> {
     token: &'a str,
     fields: &'a str,
     page: usize,
