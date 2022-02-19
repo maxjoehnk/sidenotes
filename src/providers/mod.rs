@@ -1,8 +1,9 @@
 use crate::models::Todo;
 use druid::im::Vector;
-use druid::Data;
+use druid::{Data, Lens};
+use enum_dispatch::enum_dispatch;
 use futures::future::BoxFuture;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "confluence")]
 mod confluence;
@@ -21,7 +22,7 @@ mod taskwarrior;
 #[cfg(feature = "upsource")]
 mod upsource;
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, Data, Lens)]
 pub struct ProviderConfigEntry {
     #[serde(flatten)]
     pub provider: ProviderConfig,
@@ -29,7 +30,7 @@ pub struct ProviderConfigEntry {
     pub settings: ProviderSettings,
 }
 
-#[derive(Default, Debug, Clone, Deserialize, Data)]
+#[derive(Default, Debug, Clone, Deserialize, Serialize, Data)]
 pub struct ProviderSettings {
     #[serde(default)]
     pub name: Option<String>,
@@ -37,7 +38,7 @@ pub struct ProviderSettings {
     pub exclude_status: Vector<String>,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Data)]
 #[serde(rename_all = "camelCase", tag = "type")]
 pub enum ProviderConfig {
     #[cfg(feature = "github")]
@@ -59,29 +60,25 @@ pub enum ProviderConfig {
 }
 
 impl ProviderConfig {
-    pub async fn create(self) -> anyhow::Result<Box<dyn Provider>> {
+    pub async fn create(self) -> anyhow::Result<ProviderImpl> {
         let provider = match self {
             #[cfg(feature = "github")]
-            Self::Github(config) => {
-                Box::new(github::GithubProvider::new(config)?) as Box<dyn Provider>
-            }
+            Self::Github(config) => github::GithubProvider::new(config)?.into(),
             #[cfg(feature = "gitlab")]
-            Self::Gitlab(config) => {
-                Box::new(gitlab::GitlabProvider::new(config).await?) as Box<dyn Provider>
-            }
+            Self::Gitlab(config) => gitlab::GitlabProvider::new(config).await?.into(),
             #[cfg(feature = "jira")]
-            Self::Jira(config) => Box::new(jira::JiraProvider::new(config)?),
+            Self::Jira(config) => jira::JiraProvider::new(config)?.into(),
             #[cfg(feature = "jira")]
-            Self::Confluence(config) => Box::new(confluence::ConfluenceProvider::new(config)?),
+            Self::Confluence(config) => confluence::ConfluenceProvider::new(config)?.into(),
             #[cfg(feature = "joplin")]
-            Self::Joplin(config) => Box::new(joplin::JoplinProvider::new(config)?),
+            Self::Joplin(config) => joplin::JoplinProvider::new(config)?.into(),
             #[cfg(feature = "taskwarrior")]
-            Self::Taskwarrior(config) => Box::new(taskwarrior::TaskwarriorProvider::new(config)?),
+            Self::Taskwarrior(config) => taskwarrior::TaskwarriorProvider::new(config)?.into(),
             #[cfg(feature = "upsource")]
-            Self::Upsource(config) => Box::new(upsource::UpsourceProvider::new(config)?),
+            Self::Upsource(config) => upsource::UpsourceProvider::new(config)?.into(),
             #[cfg(feature = "nextcloud")]
             Self::NextcloudDeck(config) => {
-                Box::new(nextcloud::deck::NextcloudDeckProvider::new(config))
+                nextcloud::deck::NextcloudDeckProvider::new(config).into()
             }
         };
 
@@ -89,7 +86,29 @@ impl ProviderConfig {
     }
 }
 
-pub trait Provider {
+#[enum_dispatch]
+#[derive(Clone)]
+pub enum ProviderImpl {
+    #[cfg(feature = "confluence")]
+    Confluence(confluence::ConfluenceProvider),
+    #[cfg(feature = "github")]
+    Github(github::GithubProvider),
+    #[cfg(feature = "gitlab")]
+    Gitlab(gitlab::GitlabProvider),
+    #[cfg(feature = "jira")]
+    Jira(jira::JiraProvider),
+    #[cfg(feature = "joplin")]
+    Joplin(joplin::JoplinProvider),
+    #[cfg(feature = "nextcloud")]
+    NextcloudDeck(nextcloud::deck::NextcloudDeckProvider),
+    #[cfg(feature = "taskwarrior")]
+    Taskwarrior(taskwarrior::TaskwarriorProvider),
+    #[cfg(feature = "upsource")]
+    Upsource(upsource::UpsourceProvider),
+}
+
+#[enum_dispatch(ProviderImpl)]
+pub trait Provider: Sync + Send {
     fn name(&self) -> &'static str;
     fn fetch_todos(&self) -> BoxFuture<anyhow::Result<Vector<Todo>>>;
 }

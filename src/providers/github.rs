@@ -1,29 +1,31 @@
 use async_compat::CompatExt;
-use druid::im::Vector;
+use druid::{Data, Lens};
 use futures::future::BoxFuture;
 use futures::FutureExt;
+use im::Vector;
 use octorust::auth::Credentials;
 use octorust::types::{
     IssueSearchResultItem, IssuesListState, Order, PullRequestReviewData, PullRequestSimple,
     PullsListSort, SearchIssuesPullRequestsSort, SimpleUser,
 };
 use octorust::Client;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::models::Todo;
 use crate::rich_text::Markdown;
 
 use super::Provider;
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, Data, Lens)]
 pub struct GithubConfig {
     token: String,
     #[serde(default)]
-    repos: Vec<String>,
+    repos: Vector<String>,
     #[serde(default)]
     query: Option<String>,
 }
 
+#[derive(Clone)]
 pub struct GithubProvider {
     client: Client,
     repos: Vec<(String, String)>,

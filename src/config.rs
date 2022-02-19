@@ -1,23 +1,25 @@
 use std::path::PathBuf;
 
 use directories_next::ProjectDirs;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::calendar::CalendarConfig;
 use crate::providers::ProviderConfigEntry;
+use im::Vector;
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Default, Debug, Clone, Deserialize, Serialize, druid::Data, druid::Lens)]
 pub struct Config {
-    #[serde(default, rename = "provider")]
-    pub providers: Vec<ProviderConfigEntry>,
     pub sync_timeout: u64,
     #[serde(flatten)]
     pub ui: UiConfig,
+    #[serde(default, rename = "provider")]
+    pub providers: Vector<ProviderConfigEntry>,
     #[serde(rename = "calendar", default)]
+    #[data(ignore)]
     pub calendar_config: Vec<CalendarConfig>,
 }
 
-#[derive(Debug, Clone, Copy, Deserialize, druid::Data)]
+#[derive(Debug, Clone, Copy, Deserialize, Serialize, druid::Data, druid::Lens)]
 pub struct UiConfig {
     #[serde(default = "default_hide_empty_providers")]
     pub hide_empty_providers: bool,

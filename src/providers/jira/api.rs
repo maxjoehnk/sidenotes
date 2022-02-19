@@ -1,6 +1,7 @@
 use super::models::*;
 use serde::Serialize;
 
+#[derive(Clone)]
 pub struct JiraApi {
     pub(super) url: String,
     username: String,

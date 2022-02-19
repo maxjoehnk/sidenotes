@@ -1,5 +1,6 @@
 use super::models::*;
 
+#[derive(Clone)]
 pub struct ConfluenceApi {
     pub(super) url: String,
     username: String,

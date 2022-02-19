@@ -4,18 +4,20 @@ use crate::providers::upsource::models::{ReviewDescriptor, ReviewState};
 use crate::providers::Provider;
 use crate::rich_text::Markdown;
 use druid::im::Vector;
+use druid::{Data, Lens};
 use futures::future::{BoxFuture, FutureExt};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Default, Debug, Clone, Deserialize, Serialize, PartialEq, Data, Lens)]
 pub struct UpsourceConfig {
     url: String,
     token: String,
     #[serde(default)]
+    #[lens(ignore)]
     query: UpsourceQuery,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Data)]
 #[repr(transparent)]
 #[serde(transparent)]
 struct UpsourceQuery(String);
@@ -26,6 +28,7 @@ impl Default for UpsourceQuery {
     }
 }
 
+#[derive(Clone)]
 pub struct UpsourceProvider {
     base_url: String,
     api: api::UpsourceApi,

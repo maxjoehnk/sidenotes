@@ -1,16 +1,18 @@
 use super::Provider;
 use crate::models::Todo;
 use druid::im::Vector;
+use druid::{Data, Lens};
 use futures::future::BoxFuture;
 use futures::FutureExt;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use task_hookrs::tw::query;
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, Data, Lens)]
 pub struct TaskwarriorConfig {
     query: String,
 }
 
+#[derive(Clone)]
 pub struct TaskwarriorProvider {
     query: String,
 }

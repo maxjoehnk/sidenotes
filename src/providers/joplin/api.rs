@@ -5,6 +5,7 @@ use serde::Serialize;
 use std::fmt::Debug;
 use surf::Response;
 
+#[derive(Clone)]
 pub struct JoplinApi {
     token: String,
     url: String,

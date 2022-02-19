@@ -3,7 +3,7 @@ use chrono::DateTime;
 use druid::im::Vector;
 use druid::{lens, Data, Lens};
 
-use crate::config::UiConfig;
+use crate::config::Config;
 use crate::providers::ProviderSettings;
 use crate::rich_text::RawRichText;
 
@@ -13,7 +13,7 @@ pub struct AppState {
     pub providers: Vector<TodoProvider>,
     pub next_appointment: Option<Appointment>,
     pub navigation: Navigation,
-    pub ui_config: UiConfig,
+    pub config: Config,
 }
 
 impl AppState {
@@ -23,7 +23,7 @@ impl AppState {
                 data.providers
                     .iter()
                     .filter(|provider| {
-                        !provider.items.is_empty() || !data.ui_config.hide_empty_providers
+                        !provider.items.is_empty() || !data.config.ui.hide_empty_providers
                     })
                     .cloned()
                     .collect()

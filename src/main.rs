@@ -1,21 +1,21 @@
+use crate::jobs::{ConfigLoadJob, SyncTimerJob};
 use druid::{AppLauncher, Color, WindowDesc};
 
-use crate::sync::SyncThread;
 use crate::ui::theme::*;
 use crate::ui::SidenotesDelegate;
 
 mod calendar;
 pub mod config;
+mod jobs;
 mod models;
 mod providers;
 pub(crate) mod rich_text;
-mod sync;
 mod ui;
 
 fn main() -> anyhow::Result<()> {
     let window = WindowDesc::new(ui::ui_builder()).title("Sidenotes");
     let launcher = AppLauncher::with_window(window)
-        .delegate(SidenotesDelegate)
+        .delegate(SidenotesDelegate::default())
         .log_to_console()
         .configure_env(|env, _| {
             env.set(LINK_COLOR, Color::rgb8(94, 129, 172));
@@ -25,7 +25,8 @@ fn main() -> anyhow::Result<()> {
 
     let event_sink = launcher.get_external_handle();
 
-    SyncThread::new(event_sink).start();
+    ConfigLoadJob::new(event_sink.clone()).run();
+    SyncTimerJob::new(event_sink).run();
 
     launcher.launch(Default::default())?;
 

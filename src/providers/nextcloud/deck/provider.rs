@@ -4,24 +4,26 @@ use crate::providers::nextcloud::deck::models::CardModel;
 use crate::providers::Provider;
 use crate::rich_text::RawRichText;
 use druid::im::Vector;
+use druid::{Data, Lens};
 use futures::future::BoxFuture;
 use futures::FutureExt;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, Data, Lens)]
 pub struct NextcloudDeckProviderConfig {
     pub host: String,
     pub username: String,
     pub password: String,
-    pub boards: Vec<BoardConfig>,
+    pub boards: Vector<BoardConfig>,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Data, Lens)]
 pub struct BoardConfig {
     title: String,
-    stacks: Vec<String>,
+    stacks: Vector<String>,
 }
 
+#[derive(Clone)]
 pub struct NextcloudDeckProvider {
     api: NextcloudApi,
     boards: Vec<BoardConfig>,
@@ -31,7 +33,7 @@ impl NextcloudDeckProvider {
     pub fn new(config: NextcloudDeckProviderConfig) -> Self {
         Self {
             api: NextcloudApi::new(config.host, config.username, config.password),
-            boards: config.boards,
+            boards: config.boards.into_iter().collect(),
         }
     }
 

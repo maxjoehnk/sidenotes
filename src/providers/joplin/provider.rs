@@ -2,20 +2,22 @@ use super::api;
 use crate::models::Todo;
 use crate::providers::joplin::models::{Notebook, TodoNote};
 use crate::providers::Provider;
-use druid::im::Vector;
+use druid::{Data, Lens};
 use futures::future::BoxFuture;
 use futures::FutureExt;
-use serde::Deserialize;
+use im::Vector;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, Data, Lens)]
 pub struct JoplinConfig {
     token: String,
     #[serde(default)]
-    notebooks: Option<Vec<String>>,
+    notebooks: Option<Vector<String>>,
     #[serde(default)]
     show_notebook_names: bool,
 }
 
+#[derive(Clone)]
 pub struct JoplinProvider {
     api: api::JoplinApi,
     notebooks: Option<Vec<String>>,
@@ -26,7 +28,9 @@ impl JoplinProvider {
     pub fn new(config: JoplinConfig) -> anyhow::Result<Self> {
         Ok(Self {
             api: api::JoplinApi::new(config.token),
-            notebooks: config.notebooks,
+            notebooks: config
+                .notebooks
+                .map(|notebooks| notebooks.into_iter().collect()),
             show_notebook_names: config.show_notebook_names,
         })
     }

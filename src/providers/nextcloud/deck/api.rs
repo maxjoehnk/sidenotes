@@ -2,6 +2,7 @@ use crate::providers::nextcloud::deck::models::*;
 use serde::de::DeserializeOwned;
 use std::fmt::Debug;
 
+#[derive(Clone)]
 pub struct NextcloudApi {
     url: String,
     username: String,

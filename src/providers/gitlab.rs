@@ -2,23 +2,25 @@ use crate::models::Todo;
 use crate::providers::Provider;
 use crate::rich_text::Markdown;
 use async_compat::CompatExt;
-use druid::im::Vector;
+use druid::{Data, Lens};
 use futures::future::BoxFuture;
 use futures::FutureExt;
 use gitlab::api::projects::{self, merge_requests};
 use gitlab::{api, api::AsyncQuery, AsyncGitlab, GitlabBuilder, MergeRequest, Project};
-use serde::Deserialize;
+use im::Vector;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, Data, Lens)]
 pub struct GitlabConfig {
     url: String,
     token: String,
     #[serde(default)]
-    repos: Option<Vec<String>>,
+    repos: Option<Vector<String>>,
     #[serde(default)]
     show_drafts: bool,
 }
 
+#[derive(Clone)]
 pub struct GitlabProvider {
     client: AsyncGitlab,
     repos: Option<Vec<String>>,
@@ -35,7 +37,7 @@ impl GitlabProvider {
 
         Ok(Self {
             client,
-            repos: config.repos,
+            repos: config.repos.map(|repos| repos.into_iter().collect()),
             show_drafts: config.show_drafts,
         })
     }

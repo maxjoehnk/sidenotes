@@ -3,11 +3,12 @@ use super::models;
 use crate::models::Todo;
 use crate::providers::Provider;
 use druid::im::Vector;
+use druid::{Data, Lens};
 use futures::future::BoxFuture;
 use futures::FutureExt;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, Data, Lens)]
 pub struct JiraConfig {
     url: String,
     username: String,
@@ -15,6 +16,7 @@ pub struct JiraConfig {
     jql: String,
 }
 
+#[derive(Clone)]
 pub struct JiraProvider {
     api: api::JiraApi,
     jql: String,
