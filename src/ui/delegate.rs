@@ -1,14 +1,15 @@
-use crate::jobs::{ConfigureProvidersJob, FetchAppointmentsJob, FetchTodosJob};
-use druid::{AppDelegate, Command, DelegateCtx, Env, Handled, Target};
+use crate::jobs::{ConfigureProvidersJob, FetchAppointmentsJob, FetchTodosJob, ProviderActionJob};
+use druid::{AppDelegate, Command, DelegateCtx, Env, ExtEventSink, Handled, Target};
 use im::Vector;
+use std::collections::HashMap;
 
-use crate::models::{AppState, Navigation, TodoProvider};
-use crate::providers::{Provider, ProviderImpl, ProviderSettings};
+use crate::models::{AppState, Navigation, Todo, TodoAction, TodoProvider};
+use crate::providers::{Provider, ProviderId, ProviderImpl, ProviderSettings};
 use crate::ui::commands;
 
 #[derive(Default)]
 pub(crate) struct SidenotesDelegate {
-    providers: Vec<(ProviderSettings, ProviderImpl)>,
+    providers: HashMap<ProviderId, (ProviderSettings, ProviderImpl)>,
 }
 
 impl AppDelegate<AppState> for SidenotesDelegate {
@@ -25,15 +26,23 @@ impl AppDelegate<AppState> for SidenotesDelegate {
             data.config = config.clone();
             ConfigureProvidersJob::new(config.clone(), ctx.get_external_handle()).run();
         } else if let Some(providers) = cmd.get(commands::PROVIDERS_CONFIGURED) {
-            data.providers = Self::map_providers(providers);
+            data.providers = Self::map_providers(providers.values());
             self.providers = providers.clone();
             ctx.submit_command(Command::new(commands::FETCH_TODOS, (), Target::Auto));
             ctx.submit_command(Command::new(commands::FETCH_APPOINTMENTS, (), Target::Auto));
         } else if cmd.is(commands::FETCH_TODOS) {
-            FetchTodosJob::new(ctx.get_external_handle(), self.providers.clone()).run();
+            FetchTodosJob::new(
+                ctx.get_external_handle(),
+                self.providers.values().cloned().collect(),
+            )
+            .run();
         } else if cmd.is(commands::FETCH_APPOINTMENTS) {
             FetchAppointmentsJob::new(ctx.get_external_handle(), &data.config.calendar_config)
                 .run();
+        } else if let Some(action) = cmd.get(commands::PROVIDER_ACTION) {
+            if let Navigation::Selected(ref todo) = data.navigation {
+                self.run_provider_action(todo, action, ctx.get_external_handle());
+            }
         } else if let Some((provider, todos)) = cmd.get(commands::TODOS_FETCHED) {
             data.providers[*provider].items = todos.clone();
         } else if let Some(todo) = cmd.get(commands::OPEN_TODO) {
@@ -56,9 +65,16 @@ impl AppDelegate<AppState> for SidenotesDelegate {
 }
 
 impl SidenotesDelegate {
-    fn map_providers(providers: &[(ProviderSettings, ProviderImpl)]) -> Vector<TodoProvider> {
+    fn run_provider_action(&self, todo: &Todo, action: &TodoAction, event_sink: ExtEventSink) {
+        if let Some((_, provider)) = self.providers.get(&todo.provider) {
+            ProviderActionJob::new(event_sink, provider.clone(), todo.id.clone(), *action).run();
+        }
+    }
+
+    fn map_providers<'a>(
+        providers: impl Iterator<Item = &'a (ProviderSettings, ProviderImpl)>,
+    ) -> Vector<TodoProvider> {
         providers
-            .iter()
             .map(|(settings, provider)| TodoProvider {
                 name: settings
                     .name

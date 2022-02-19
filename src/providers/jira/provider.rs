@@ -1,7 +1,7 @@
 use super::api;
 use super::models;
 use crate::models::Todo;
-use crate::providers::Provider;
+use crate::providers::{Provider, ProviderId};
 use druid::im::Vector;
 use druid::{Data, Lens};
 use futures::future::BoxFuture;
@@ -18,13 +18,15 @@ pub struct JiraConfig {
 
 #[derive(Clone)]
 pub struct JiraProvider {
+    id: ProviderId,
     api: api::JiraApi,
     jql: String,
 }
 
 impl JiraProvider {
-    pub fn new(config: JiraConfig) -> anyhow::Result<Self> {
+    pub fn new(id: ProviderId, config: JiraConfig) -> anyhow::Result<Self> {
         Ok(Self {
+            id,
             api: api::JiraApi::new(config.url, config.username, config.password),
             jql: config.jql,
         })
@@ -44,6 +46,8 @@ impl JiraProvider {
 
     fn issue_to_todo(&self, issue: models::Issue) -> Todo {
         Todo {
+            provider: self.id,
+            id: issue.id.into(),
             title: format!("{} - {}", issue.key, issue.fields.summary),
             state: Some(issue.fields.status.name),
             tags: issue
@@ -55,6 +59,7 @@ impl JiraProvider {
             body: issue.fields.description.map(|desc| desc.into()),
             author: None,
             link: Some(format!("{}/browse/{}", self.api.url, issue.key)),
+            actions: Default::default(),
         }
     }
 }

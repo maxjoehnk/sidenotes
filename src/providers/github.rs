@@ -12,6 +12,7 @@ use octorust::Client;
 use serde::{Deserialize, Serialize};
 
 use crate::models::Todo;
+use crate::providers::ProviderId;
 use crate::rich_text::Markdown;
 
 use super::Provider;
@@ -27,16 +28,18 @@ pub struct GithubConfig {
 
 #[derive(Clone)]
 pub struct GithubProvider {
+    id: ProviderId,
     client: Client,
     repos: Vec<(String, String)>,
     query: Option<String>,
 }
 
 impl GithubProvider {
-    pub fn new(config: GithubConfig) -> anyhow::Result<Self> {
+    pub fn new(id: ProviderId, config: GithubConfig) -> anyhow::Result<Self> {
         let client = Client::new("sidenotes", Credentials::Token(config.token))?;
 
         Ok(Self {
+            id,
             client,
             repos: config
                 .repos
@@ -90,12 +93,15 @@ impl GithubProvider {
                     .list_all_reviews(owner, repo, pr.number)
                     .await?;
                 todos.push_back(Todo {
+                    provider: self.id,
+                    id: (pr.id as u64).into(),
                     title: format!("#{} - {}", pr.number, pr.title),
                     state: Some(Self::get_pr_state(&pr, &reviews)),
                     tags: pr.labels.into_iter().map(|label| label.name).collect(),
                     author: pr.user.map(|user| user.name),
                     body: Some(Markdown(pr.body).into()),
                     link: pr.html_url.map(|url| url.to_string()),
+                    actions: Default::default(),
                 })
             }
         }
@@ -141,12 +147,15 @@ impl GithubProvider {
                     Some(item.state)
                 };
                 todos.push_back(Todo {
+                    provider: self.id,
+                    id: (item.id as u64).into(),
                     title: format!("#{} - {}", item.number, item.title),
                     state,
                     tags: item.labels.into_iter().map(|label| label.name).collect(),
                     author: item.user.map(|user| user.name),
                     body: Some(Markdown(item.body).into()),
                     link: item.html_url.map(|url| url.to_string()),
+                    actions: Default::default(),
                 });
             }
 

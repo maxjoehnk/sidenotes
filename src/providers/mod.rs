@@ -1,4 +1,4 @@
-use crate::models::Todo;
+use crate::models::{Todo, TodoAction, TodoId};
 use druid::im::Vector;
 use druid::{Data, Lens};
 use enum_dispatch::enum_dispatch;
@@ -24,10 +24,29 @@ mod upsource;
 
 #[derive(Debug, Clone, Deserialize, Serialize, Data, Lens)]
 pub struct ProviderConfigEntry {
+    #[serde(skip, default)]
+    #[data(ignore)]
+    pub id: ProviderId,
     #[serde(flatten)]
     pub provider: ProviderConfig,
     #[serde(flatten, default)]
     pub settings: ProviderSettings,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[repr(transparent)]
+pub struct ProviderId(uuid::Uuid);
+
+impl Default for ProviderId {
+    fn default() -> Self {
+        Self(uuid::Uuid::new_v4())
+    }
+}
+
+impl Data for ProviderId {
+    fn same(&self, other: &Self) -> bool {
+        self.0 == other.0
+    }
 }
 
 #[derive(Default, Debug, Clone, Deserialize, Serialize, Data)]
@@ -60,25 +79,25 @@ pub enum ProviderConfig {
 }
 
 impl ProviderConfig {
-    pub async fn create(self) -> anyhow::Result<ProviderImpl> {
+    pub async fn create(self, id: ProviderId) -> anyhow::Result<ProviderImpl> {
         let provider = match self {
             #[cfg(feature = "github")]
-            Self::Github(config) => github::GithubProvider::new(config)?.into(),
+            Self::Github(config) => github::GithubProvider::new(id, config)?.into(),
             #[cfg(feature = "gitlab")]
-            Self::Gitlab(config) => gitlab::GitlabProvider::new(config).await?.into(),
+            Self::Gitlab(config) => gitlab::GitlabProvider::new(id, config).await?.into(),
             #[cfg(feature = "jira")]
-            Self::Jira(config) => jira::JiraProvider::new(config)?.into(),
+            Self::Jira(config) => jira::JiraProvider::new(id, config)?.into(),
             #[cfg(feature = "jira")]
-            Self::Confluence(config) => confluence::ConfluenceProvider::new(config)?.into(),
+            Self::Confluence(config) => confluence::ConfluenceProvider::new(id, config)?.into(),
             #[cfg(feature = "joplin")]
-            Self::Joplin(config) => joplin::JoplinProvider::new(config)?.into(),
+            Self::Joplin(config) => joplin::JoplinProvider::new(id, config)?.into(),
             #[cfg(feature = "taskwarrior")]
-            Self::Taskwarrior(config) => taskwarrior::TaskwarriorProvider::new(config)?.into(),
+            Self::Taskwarrior(config) => taskwarrior::TaskwarriorProvider::new(id, config)?.into(),
             #[cfg(feature = "upsource")]
-            Self::Upsource(config) => upsource::UpsourceProvider::new(config)?.into(),
+            Self::Upsource(config) => upsource::UpsourceProvider::new(id, config)?.into(),
             #[cfg(feature = "nextcloud")]
             Self::NextcloudDeck(config) => {
-                nextcloud::deck::NextcloudDeckProvider::new(config).into()
+                nextcloud::deck::NextcloudDeckProvider::new(id, config).into()
             }
         };
 
@@ -111,4 +130,12 @@ pub enum ProviderImpl {
 pub trait Provider: Sync + Send {
     fn name(&self) -> &'static str;
     fn fetch_todos(&self) -> BoxFuture<anyhow::Result<Vector<Todo>>>;
+
+    fn run_action(&self, _: TodoId, _: TodoAction) -> BoxFuture<anyhow::Result<()>> {
+        unimplemented!()
+    }
+}
+
+pub(self) trait IntoTodo {
+    fn into_todo(self, provider_id: ProviderId) -> Todo;
 }

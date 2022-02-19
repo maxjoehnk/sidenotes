@@ -4,7 +4,7 @@ use druid::im::Vector;
 use druid::{lens, Data, Lens};
 
 use crate::config::Config;
-use crate::providers::ProviderSettings;
+use crate::providers::{ProviderId, ProviderSettings};
 use crate::rich_text::RawRichText;
 
 #[derive(Default, Debug, Clone, Data, Lens)]
@@ -71,12 +71,45 @@ pub struct TodoProvider {
 
 #[derive(Debug, Clone, Data, Lens)]
 pub struct Todo {
+    pub provider: ProviderId,
+    pub id: TodoId,
     pub title: String,
     pub state: Option<String>,
     pub tags: Vector<String>,
     pub author: Option<String>,
     pub body: Option<RawRichText>,
     pub link: Option<String>,
+    pub actions: Vector<TodoAction>,
+}
+
+#[derive(Debug, Clone, Copy, Data)]
+pub struct TodoAction {
+    pub id: &'static str,
+    pub label: &'static str,
+}
+
+#[derive(Debug, Clone, Data)]
+pub enum TodoId {
+    String(String),
+    Int(u64),
+}
+
+impl From<String> for TodoId {
+    fn from(id: String) -> Self {
+        Self::String(id)
+    }
+}
+
+impl From<u64> for TodoId {
+    fn from(id: u64) -> Self {
+        Self::Int(id)
+    }
+}
+
+impl From<u32> for TodoId {
+    fn from(id: u32) -> Self {
+        Self::Int(id as u64)
+    }
 }
 
 #[derive(Debug, Clone, Data, Lens)]

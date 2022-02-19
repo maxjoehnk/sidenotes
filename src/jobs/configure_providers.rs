@@ -1,9 +1,10 @@
 use crate::config::Config;
-use crate::providers::{ProviderImpl, ProviderSettings};
+use crate::providers::{ProviderId, ProviderImpl, ProviderSettings};
 use crate::ui::commands;
 use druid::{ExtEventSink, Target};
 use futures::future::BoxFuture;
 use futures::FutureExt;
+use std::collections::HashMap;
 use std::thread;
 
 pub struct ConfigureProvidersJob {
@@ -23,25 +24,27 @@ impl ConfigureProvidersJob {
     }
 
     fn configure_providers(self) -> anyhow::Result<()> {
-        let providers: Vec<Option<(ProviderSettings, ProviderImpl)>> =
-            smol::block_on(futures::future::try_join_all(
+        let providers: Vec<Option<(ProviderId, (ProviderSettings, ProviderImpl))>> =
+            smol::block_on(futures::future::join_all(
                 self.config.providers.into_iter().map::<BoxFuture<
-                    anyhow::Result<Option<(ProviderSettings, ProviderImpl)>>,
+                    Option<(ProviderId, (ProviderSettings, ProviderImpl))>,
                 >, _>(|provider_config| {
                     async {
-                        match provider_config.provider.create().await {
-                            Ok(provider) => Ok(Some((provider_config.settings, provider))),
+                        match provider_config.provider.create(provider_config.id).await {
+                            Ok(provider) => {
+                                Some((provider_config.id, (provider_config.settings, provider)))
+                            }
                             Err(err) => {
                                 tracing::error!("Error setting up provider: {:?}", err);
-                                Ok(None)
+                                None
                             }
                         }
                     }
                     .boxed()
                 }),
-            ))?;
+            ));
 
-        let providers = providers.into_iter().flatten().collect::<Vec<_>>();
+        let providers = providers.into_iter().flatten().collect::<HashMap<_, _>>();
 
         self.event_sink
             .submit_command(commands::PROVIDERS_CONFIGURED, providers, Target::Auto)?;

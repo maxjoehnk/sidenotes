@@ -1,5 +1,5 @@
 use crate::models::Todo;
-use crate::providers::Provider;
+use crate::providers::{IntoTodo, Provider, ProviderId};
 use crate::rich_text::Markdown;
 use async_compat::CompatExt;
 use druid::{Data, Lens};
@@ -22,13 +22,14 @@ pub struct GitlabConfig {
 
 #[derive(Clone)]
 pub struct GitlabProvider {
+    id: ProviderId,
     client: AsyncGitlab,
     repos: Option<Vec<String>>,
     show_drafts: bool,
 }
 
 impl GitlabProvider {
-    pub async fn new(config: GitlabConfig) -> anyhow::Result<Self> {
+    pub async fn new(id: ProviderId, config: GitlabConfig) -> anyhow::Result<Self> {
         let client = GitlabBuilder::new(config.url, config.token)
             .insecure()
             .build_async()
@@ -36,6 +37,7 @@ impl GitlabProvider {
             .await?;
 
         Ok(Self {
+            id,
             client,
             repos: config.repos.map(|repos| repos.into_iter().collect()),
             show_drafts: config.show_drafts,
@@ -60,7 +62,7 @@ impl GitlabProvider {
             tracing::debug!("{:?}", requests);
 
             for request in requests {
-                todos.push_back(request.into());
+                todos.push_back(request.into_todo(self.id));
             }
         }
         tracing::info!("Fetched {} Gitlab MRs", todos.len());
@@ -100,15 +102,18 @@ impl Provider for GitlabProvider {
     }
 }
 
-impl From<MergeRequest> for Todo {
-    fn from(mr: MergeRequest) -> Self {
-        Self {
-            title: format!("#{} - {}", mr.iid, mr.title),
-            state: Some(format!("{:?}", mr.state)),
-            tags: mr.labels.into(),
-            body: mr.description.map(|desc| Markdown(desc).into()),
-            author: Some(mr.author.name),
-            link: Some(mr.web_url),
+impl IntoTodo for MergeRequest {
+    fn into_todo(self, id: ProviderId) -> Todo {
+        Todo {
+            provider: id,
+            id: self.id.value().into(),
+            title: format!("#{} - {}", self.iid, self.title),
+            state: Some(format!("{:?}", self.state)),
+            tags: self.labels.into(),
+            body: self.description.map(|desc| Markdown(desc).into()),
+            author: Some(self.author.name),
+            link: Some(self.web_url),
+            actions: Default::default(),
         }
     }
 }

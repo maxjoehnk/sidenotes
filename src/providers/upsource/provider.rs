@@ -1,7 +1,7 @@
 use super::{api, models};
 use crate::models::Todo;
 use crate::providers::upsource::models::{ReviewDescriptor, ReviewState};
-use crate::providers::Provider;
+use crate::providers::{Provider, ProviderId};
 use crate::rich_text::Markdown;
 use druid::im::Vector;
 use druid::{Data, Lens};
@@ -30,14 +30,16 @@ impl Default for UpsourceQuery {
 
 #[derive(Clone)]
 pub struct UpsourceProvider {
+    id: ProviderId,
     base_url: String,
     api: api::UpsourceApi,
     query: String,
 }
 
 impl UpsourceProvider {
-    pub fn new(config: UpsourceConfig) -> anyhow::Result<Self> {
+    pub fn new(id: ProviderId, config: UpsourceConfig) -> anyhow::Result<Self> {
         Ok(Self {
+            id,
             base_url: config.url.clone(),
             api: api::UpsourceApi::new(config.url, config.token),
             query: config.query.0,
@@ -49,7 +51,7 @@ impl UpsourceProvider {
         let issues = self.api.get_reviews(&self.query).await?;
         let todos: Vector<_> = issues
             .into_iter()
-            .map(|review| Todo::from((self.base_url.as_str(), review)))
+            .map(|review| Todo::from((self.id, self.base_url.as_str(), review)))
             .collect();
         tracing::info!("Fetched {} Upsource notes", todos.len());
 
@@ -67,18 +69,21 @@ impl Provider for UpsourceProvider {
     }
 }
 
-impl From<(&str, models::ReviewDescriptor)> for Todo {
-    fn from((url, review): (&str, ReviewDescriptor)) -> Self {
+impl From<(ProviderId, &str, models::ReviewDescriptor)> for Todo {
+    fn from((provider_id, url, review): (ProviderId, &str, ReviewDescriptor)) -> Self {
         Self {
+            provider: provider_id,
             title: format!("{} - {}", review.review_id.review_id, review.title),
-            state: Some(review.state()),
-            body: review.description.map(|desc| Markdown(desc).into()),
-            tags: review.labels.into_iter().map(|label| label.name).collect(),
-            author: review.created_by,
             link: Some(format!(
                 "{}/{}/review/{}",
                 url, review.review_id.project_id, review.review_id.review_id
             )),
+            state: Some(review.state()),
+            body: review.description.map(|desc| Markdown(desc).into()),
+            tags: review.labels.into_iter().map(|label| label.name).collect(),
+            author: review.created_by,
+            id: review.review_id.review_id.into(), // TODO: this should be a combination of review and project id
+            actions: Default::default(),
         }
     }
 }

@@ -3,6 +3,7 @@ use crate::providers::joplin::models::JoplinResponse;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use std::fmt::Debug;
+use std::time::{SystemTime, UNIX_EPOCH};
 use surf::Response;
 
 #[derive(Clone)]
@@ -95,6 +96,27 @@ impl JoplinApi {
         Ok(items)
     }
 
+    pub async fn mark_as_done(&self, todo_id: String) -> anyhow::Result<()> {
+        let query = BaseQuery { token: &self.token };
+        let mut res = surf::put(format!("{}/notes/{}", &self.url, todo_id))
+            .content_type("application/json")
+            .query(&query)
+            .map_err(surf::Error::into_inner)?
+            .body_json(&UpdateTodo {
+                todo_completed: SystemTime::now()
+                    .duration_since(UNIX_EPOCH)
+                    .unwrap_or_default()
+                    .as_millis() as u64,
+            })
+            .map_err(surf::Error::into_inner)?
+            .await
+            .map_err(surf::Error::into_inner)?;
+
+        Self::assert_response_status(&mut res).await?;
+
+        Ok(())
+    }
+
     async fn assert_response_status(res: &mut Response) -> anyhow::Result<()> {
         #[cfg(debug_assertions)]
         if !res.status().is_success() {
@@ -122,4 +144,9 @@ struct PagedQuery<'a> {
 #[derive(Debug, Serialize)]
 struct BaseQuery<'a> {
     token: &'a str,
+}
+
+#[derive(Debug, Serialize)]
+struct UpdateTodo {
+    todo_completed: u64,
 }

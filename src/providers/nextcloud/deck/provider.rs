@@ -1,7 +1,7 @@
 use crate::models::Todo;
 use crate::providers::nextcloud::deck::api::NextcloudApi;
 use crate::providers::nextcloud::deck::models::CardModel;
-use crate::providers::Provider;
+use crate::providers::{IntoTodo, Provider, ProviderId};
 use crate::rich_text::RawRichText;
 use druid::im::Vector;
 use druid::{Data, Lens};
@@ -25,13 +25,15 @@ pub struct BoardConfig {
 
 #[derive(Clone)]
 pub struct NextcloudDeckProvider {
+    id: ProviderId,
     api: NextcloudApi,
     boards: Vec<BoardConfig>,
 }
 
 impl NextcloudDeckProvider {
-    pub fn new(config: NextcloudDeckProviderConfig) -> Self {
+    pub fn new(id: ProviderId, config: NextcloudDeckProviderConfig) -> Self {
         Self {
+            id,
             api: NextcloudApi::new(config.host, config.username, config.password),
             boards: config.boards.into_iter().collect(),
         }
@@ -62,7 +64,10 @@ impl NextcloudDeckProvider {
                 }
             }
         }
-        let todos: Vector<_> = cards.into_iter().map(Todo::from).collect();
+        let todos: Vector<_> = cards
+            .into_iter()
+            .map(|card| card.into_todo(self.id))
+            .collect();
         tracing::info!("Fetched {} Nextcloud Deck cards", todos.len());
 
         Ok(todos)
@@ -79,15 +84,20 @@ impl Provider for NextcloudDeckProvider {
     }
 }
 
-impl From<(String, CardModel)> for Todo {
-    fn from((stack, card): (String, CardModel)) -> Self {
-        Self {
+impl IntoTodo for (String, CardModel) {
+    fn into_todo(self, id: ProviderId) -> Todo {
+        let (stack, card) = self;
+
+        Todo {
+            provider: id,
+            id: card.id.into(),
             title: card.title,
             body: Some(RawRichText::Markdown(card.description.into())),
             state: Some(stack),
             tags: Default::default(),
             author: None,
             link: None,
+            actions: Default::default(),
         }
     }
 }

@@ -1,5 +1,6 @@
 use super::Provider;
 use crate::models::Todo;
+use crate::providers::ProviderId;
 use druid::im::Vector;
 use druid::{Data, Lens};
 use futures::future::BoxFuture;
@@ -14,12 +15,14 @@ pub struct TaskwarriorConfig {
 
 #[derive(Clone)]
 pub struct TaskwarriorProvider {
+    id: ProviderId,
     query: String,
 }
 
 impl TaskwarriorProvider {
-    pub fn new(config: TaskwarriorConfig) -> anyhow::Result<Self> {
+    pub fn new(id: ProviderId, config: TaskwarriorConfig) -> anyhow::Result<Self> {
         Ok(Self {
+            id,
             query: config.query,
         })
     }
@@ -30,6 +33,8 @@ impl TaskwarriorProvider {
         if let Ok(tasks) = query(&self.query) {
             for task in tasks {
                 todos.push_back(Todo {
+                    provider: self.id,
+                    id: task.id().unwrap_or_default().into(),
                     title: task.description().into(),
                     state: Some(task.status().to_string()),
                     tags: task
@@ -39,6 +44,7 @@ impl TaskwarriorProvider {
                     author: None,
                     body: None,
                     link: None,
+                    actions: Default::default(),
                 })
             }
             tracing::info!("Fetched {} TaskWarrior tasks", todos.len());

@@ -1,7 +1,7 @@
 use super::api;
 use super::models;
 use crate::models::Todo;
-use crate::providers::Provider;
+use crate::providers::{Provider, ProviderId};
 use druid::im::Vector;
 use druid::{Data, Lens};
 use futures::future::BoxFuture;
@@ -17,12 +17,14 @@ pub struct ConfluenceConfig {
 
 #[derive(Clone)]
 pub struct ConfluenceProvider {
+    id: ProviderId,
     api: api::ConfluenceApi,
 }
 
 impl ConfluenceProvider {
-    pub fn new(config: ConfluenceConfig) -> anyhow::Result<Self> {
+    pub fn new(id: ProviderId, config: ConfluenceConfig) -> anyhow::Result<Self> {
         Ok(Self {
+            id,
             api: api::ConfluenceApi::new(config.url, config.username, config.password),
         })
     }
@@ -42,12 +44,15 @@ impl ConfluenceProvider {
 
     fn task_to_todo(&self, task: models::Task) -> Todo {
         Todo {
+            provider: self.id,
+            id: task.id.into(),
             title: task.item.title,
             state: None,
             tags: Default::default(),
             body: None,
             author: None,
             link: Some(format!("{}{}", self.api.url, task.item.url)),
+            actions: Default::default(),
         }
     }
 }
