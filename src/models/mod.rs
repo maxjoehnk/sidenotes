@@ -14,7 +14,6 @@ pub struct AppState {
     pub next_appointment: Option<Appointment>,
     pub navigation: Navigation,
     pub config: Config,
-    pub comments: Vector<TodoComment>,
 }
 
 impl AppState {
