@@ -92,6 +92,12 @@ impl AppDelegate<AppState> for SidenotesDelegate {
             if let Navigation::EditProvider((id, config)) = navigation {
                 if let Some(provider) = data.config.providers.iter_mut().find(|p| p.id == id) {
                     provider.provider = config;
+                } else {
+                    data.config.providers.push_back(ProviderConfigEntry {
+                        id,
+                        provider: config,
+                        settings: ProviderSettings::default(),
+                    });
                 }
             }
             if let Err(err) = save(&data.config_path, &data.config) {
