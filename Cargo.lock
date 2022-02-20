@@ -2193,6 +2193,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "51b9bbe6c47d51fc3e1a9b945965946b4c44142ab8792c50835a980d362c2710"
 dependencies = [
  "cfg-if",
+ "serde",
  "value-bag",
 ]
 
@@ -2387,9 +2388,8 @@ dependencies = [
 
 [[package]]
 name = "octorust"
-version = "0.1.33"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d71ff16872b9dc26b903229ca6665f0383fd1f4947c6ce5309c6c262832c2caa"
+version = "0.1.34"
+source = "git+https://github.com/maxjoehnk/third-party-api-clients.git?branch=feature/run-on-stable#64418492d5d159a832b9e340a5f83fb3e9ca708c"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -2397,6 +2397,7 @@ dependencies = [
  "http",
  "hyperx",
  "jsonwebtoken",
+ "log",
  "mime",
  "percent-encoding",
  "reqwest",
@@ -3122,6 +3123,7 @@ dependencies = [
  "lazy_static",
  "log",
  "mime",
+ "mime_guess",
  "native-tls",
  "percent-encoding",
  "pin-project-lite",
