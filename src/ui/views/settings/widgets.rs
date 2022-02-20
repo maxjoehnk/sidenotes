@@ -82,16 +82,12 @@ impl<'a> SettingsFieldConfig<'a> {
 
     fn build(&self) -> impl Widget<String> {
         let widget = if self.edit {
-            if self.password {
-                Label::new("******").boxed()
+            let text_box = if self.multiline {
+                TextBox::multiline()
             } else {
-                let text_box = if self.multiline {
-                    TextBox::multiline()
-                } else {
-                    TextBox::new()
-                };
-                text_box.with_placeholder(self.text).boxed()
-            }
+                TextBox::new()
+            };
+            text_box.with_placeholder(self.text).boxed()
         } else {
             self.build_view().boxed()
         };
