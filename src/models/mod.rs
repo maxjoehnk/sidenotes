@@ -42,6 +42,7 @@ pub enum Navigation {
     List,
     Selected(Todo),
     Settings,
+    GlobalSettings(Config),
     ProviderSettings,
     CalendarSettings,
     NewProvider,

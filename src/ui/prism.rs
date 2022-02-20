@@ -1,3 +1,4 @@
+use crate::config::Config;
 use druid::text::RichText;
 use druid_widget_nursery::prism::Prism;
 
@@ -95,6 +96,23 @@ impl Prism<AppState, AppState> for NavigationProviderSettingsPrism {
     fn put(&self, data: &mut AppState, inner: AppState) {
         if matches!(data.navigation, Navigation::ProviderSettings) {
             *data = inner;
+        }
+    }
+}
+
+pub struct NavigationGlobalSettingsPrism;
+impl Prism<AppState, Config> for NavigationGlobalSettingsPrism {
+    fn get(&self, data: &AppState) -> Option<Config> {
+        if let Navigation::GlobalSettings(config) = &data.navigation {
+            Some(config.clone())
+        } else {
+            None
+        }
+    }
+
+    fn put(&self, data: &mut AppState, inner: Config) {
+        if let Navigation::GlobalSettings(config) = &mut data.navigation {
+            *config = inner;
         }
     }
 }
