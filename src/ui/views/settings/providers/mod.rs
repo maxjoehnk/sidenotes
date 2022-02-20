@@ -54,6 +54,9 @@ pub fn edit_provider() -> impl Widget<ProviderConfig> {
     let confirm_btn = button_builder("Save").on_click(|event_ctx, _, _: &_| {
         event_ctx.submit_command(Command::new(commands::SAVE_PROVIDER, (), Target::Auto))
     });
+    let delete_btn = button_builder("Delete").on_click(|event_ctx, _, _: &_| {
+        event_ctx.submit_command(Command::new(commands::DELETE_PROVIDER, (), Target::Auto))
+    });
 
     let actions = Flex::row()
         .with_flex_child(cancel_btn, 1.0)
@@ -63,6 +66,7 @@ pub fn edit_provider() -> impl Widget<ProviderConfig> {
 
     Flex::column()
         .with_child(edit_provider_builder())
+        .with_child(delete_btn)
         .with_child(actions)
 }
 
