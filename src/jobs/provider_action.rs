@@ -35,9 +35,9 @@ impl ProviderActionJob {
     async fn run_action(self) -> anyhow::Result<()> {
         self.provider.run_action(self.todo_id, self.action).await?;
         self.event_sink
-            .submit_command(commands::CLOSE_TODO, (), Target::Auto);
+            .submit_command(commands::NAVIGATE_BACK, (), Target::Auto)?;
         self.event_sink
-            .submit_command(commands::FETCH_TODOS, (), Target::Auto);
+            .submit_command(commands::FETCH_TODOS, (), Target::Auto)?;
 
         Ok(())
     }

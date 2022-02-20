@@ -27,7 +27,7 @@ impl<W: Widget<Todo>> Controller<Todo, W> for DetailController {
         if let Event::KeyDown(event) = event {
             println!("{:?}", event.key);
             if event.key == KbKey::BrowserBack {
-                ctx.submit_command(Command::new(commands::CLOSE_TODO, (), Target::Auto));
+                ctx.submit_command(Command::new(commands::NAVIGATE_BACK, (), Target::Auto));
                 return;
             }
         }
@@ -36,10 +36,7 @@ impl<W: Widget<Todo>> Controller<Todo, W> for DetailController {
 }
 
 pub fn detail_builder() -> impl Widget<Todo> {
-    let header = header_builder(
-        |item: &Todo, _env: &_| item.title.clone(),
-        Command::new(commands::CLOSE_TODO, (), Target::Auto),
-    );
+    let header = header_builder(|item: &Todo, _env: &_| item.title.clone());
     let link = prism::PrismWrap::new(link_builder(), TodoLink);
     let body = RawLabel::new().with_line_break_mode(LineBreaking::WordWrap);
     let body = prism::PrismWrap::new(body, TodoBody);

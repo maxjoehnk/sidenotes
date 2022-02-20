@@ -53,10 +53,12 @@ impl AppDelegate<AppState> for SidenotesDelegate {
                     todo.comments = comments.clone();
                 }
             }
-        } else if let Some(todo) = cmd.get(commands::OPEN_TODO) {
-            data.navigation = Navigation::Selected(todo.clone());
-            self.fetch_comments(todo, ctx.get_external_handle());
-        } else if cmd.get(commands::CLOSE_TODO).is_some() {
+        } else if let Some(navigation) = cmd.get(commands::NAVIGATE) {
+            if let Navigation::Selected(todo) = navigation {
+                self.fetch_comments(todo, ctx.get_external_handle());
+            }
+            data.navigation = navigation.clone();
+        } else if cmd.get(commands::NAVIGATE_BACK).is_some() {
             data.navigation = Navigation::List;
         } else if let Some(link) = cmd.get(commands::OPEN_LINK) {
             open::that_in_background(link);

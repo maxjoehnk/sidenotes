@@ -43,8 +43,8 @@ pub fn todo_builder() -> impl Widget<Todo> {
         .controller(ClickableArea)
         .on_click(|event_ctx, todo: &mut Todo, _: &_| {
             event_ctx.submit_command(Command::new(
-                commands::OPEN_TODO,
-                todo.clone(),
+                commands::NAVIGATE,
+                Navigation::Selected(todo.clone()),
                 Target::Auto,
             ))
         })
