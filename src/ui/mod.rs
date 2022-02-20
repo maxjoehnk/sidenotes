@@ -11,6 +11,7 @@ use views::settings::settings_builder;
 pub(crate) use self::delegate::SidenotesDelegate;
 use crate::models::*;
 use crate::ui::prism::*;
+use crate::ui::views::settings::calendar::{edit_calendar, new_calendar_selector};
 
 pub mod commands;
 mod delegate;
@@ -28,7 +29,9 @@ pub fn ui_builder() -> impl Widget<AppState> {
         .with_variant(NavigationSettingsPrism, settings_builder())
         .with_variant(NavigationGlobalSettingsPrism, global_settings_builder())
         .with_variant(NavigationProviderSettingsPrism, provider_settings_builder())
-        .with_variant(NavigationCalendarSettingsPrism, calendar_settings_builder())
         .with_variant(NavigationEditProviderPrism, edit_provider())
         .with_variant(NavigationNewProviderPrism, new_provider_selector())
+        .with_variant(NavigationCalendarSettingsPrism, calendar_settings_builder())
+        .with_variant(NavigationEditCalendarPrism, edit_calendar())
+        .with_variant(NavigationNewCalendarPrism, new_calendar_selector())
 }

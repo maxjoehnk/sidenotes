@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 use directories_next::ProjectDirs;
 use serde::{Deserialize, Serialize};
 
-use crate::calendar::CalendarConfig;
+use crate::calendar::CalendarConfigEntry;
 use crate::providers::ProviderConfigEntry;
 use im::Vector;
 
@@ -14,9 +14,8 @@ pub struct Config {
     pub ui: UiConfig,
     #[serde(default, rename = "provider")]
     pub providers: Vector<ProviderConfigEntry>,
-    #[serde(rename = "calendar", default)]
-    #[data(ignore)]
-    pub calendar_config: Vec<CalendarConfig>,
+    #[serde(default, rename = "calendar")]
+    pub calendar_config: Vector<CalendarConfigEntry>,
 }
 
 #[derive(Debug, Clone, Copy, Deserialize, Serialize, druid::Data, druid::Lens)]

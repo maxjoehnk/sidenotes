@@ -1,6 +1,7 @@
 use crate::config::Config;
 use druid::text::RichText;
 use druid_widget_nursery::prism::Prism;
+use crate::calendar::CalendarConfig;
 
 use crate::models::*;
 use crate::providers::ProviderConfig;
@@ -31,6 +32,7 @@ impl Prism<Todo, RichText> for TodoBody {
 }
 
 pub struct ProviderConfigPrism;
+pub struct CalendarConfigPrism;
 
 pub struct NavigationListPrism;
 impl Prism<AppState, AppState> for NavigationListPrism {
@@ -163,6 +165,40 @@ impl Prism<AppState, AppState> for NavigationNewProviderPrism {
 
     fn put(&self, data: &mut AppState, inner: AppState) {
         if matches!(data.navigation, Navigation::NewProvider) {
+            *data = inner;
+        }
+    }
+}
+
+pub struct NavigationEditCalendarPrism;
+impl Prism<AppState, CalendarConfig> for NavigationEditCalendarPrism {
+    fn get(&self, data: &AppState) -> Option<CalendarConfig> {
+        if let Navigation::EditCalendar((_, ref config)) = data.navigation {
+            Some(config.clone())
+        } else {
+            None
+        }
+    }
+
+    fn put(&self, data: &mut AppState, inner: CalendarConfig) {
+        if let Navigation::EditCalendar((_, ref mut config)) = data.navigation {
+            *config = inner;
+        }
+    }
+}
+
+pub struct NavigationNewCalendarPrism;
+impl Prism<AppState, AppState> for NavigationNewCalendarPrism {
+    fn get(&self, data: &AppState) -> Option<AppState> {
+        if matches!(data.navigation, Navigation::NewCalendar) {
+            Some(data.clone())
+        } else {
+            None
+        }
+    }
+
+    fn put(&self, data: &mut AppState, inner: AppState) {
+        if matches!(data.navigation, Navigation::NewCalendar) {
             *data = inner;
         }
     }

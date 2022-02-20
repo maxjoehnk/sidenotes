@@ -1,4 +1,4 @@
-use crate::calendar::{Calendar, CalendarConfig, CalendarProvider};
+use crate::calendar::{Calendar, CalendarConfigEntry, CalendarProvider};
 use crate::ui::commands;
 use druid::{ExtEventSink, Target};
 use std::thread;
@@ -9,9 +9,12 @@ pub struct FetchAppointmentsJob {
 }
 
 impl FetchAppointmentsJob {
-    pub fn new(event_sink: ExtEventSink, config: &[CalendarConfig]) -> Self {
+    pub fn new<'a>(
+        event_sink: ExtEventSink,
+        mut config: impl Iterator<Item = &'a CalendarConfigEntry>,
+    ) -> Self {
         let calendar_provider: Option<CalendarProvider> =
-            config.iter().next().map(|config| config.clone().build());
+            config.next().map(|config| config.config.clone().build());
 
         Self {
             event_sink,

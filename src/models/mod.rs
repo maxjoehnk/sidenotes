@@ -1,4 +1,4 @@
-use crate::calendar::TZ;
+use crate::calendar::{CalendarConfig, CalendarId, TZ};
 use chrono::DateTime;
 use druid::im::Vector;
 use druid::{lens, Data, Lens};
@@ -46,6 +46,8 @@ pub enum Navigation {
     CalendarSettings,
     NewProvider,
     EditProvider((ProviderId, ProviderConfig)),
+    NewCalendar,
+    EditCalendar((CalendarId, CalendarConfig)),
 }
 
 impl Default for Navigation {
