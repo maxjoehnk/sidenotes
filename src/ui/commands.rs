@@ -21,6 +21,7 @@ pub const NAVIGATE: Selector<Navigation> = Selector::new("sidenotes.navigate");
 pub const NAVIGATE_BACK: Selector<()> = Selector::new("sidenotes.navigate-back");
 pub const OPEN_LINK: Selector<String> = Selector::new("sidenotes.open-link");
 pub const SAVE_PROVIDER: Selector<()> = Selector::new("sidenotes.save-provider");
+pub const SAVE_GLOBAL_CONFIG: Selector<()> = Selector::new("sidenotes.save-config");
 pub const TOGGLE_PROVIDER: Selector<TodoProvider> = Selector::new("sidenotes.TOGGLE_PROVIDER");
 pub const PROVIDER_ACTION: Selector<TodoAction> = Selector::new("sidenotes.provider-action");
 

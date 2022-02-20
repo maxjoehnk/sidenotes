@@ -65,7 +65,9 @@ impl AppDelegate<AppState> for SidenotesDelegate {
                 Navigation::EditProvider(_) | Navigation::NewProvider => {
                     Navigation::ProviderSettings
                 }
-                Navigation::ProviderSettings | Navigation::CalendarSettings => Navigation::Settings,
+                Navigation::ProviderSettings
+                | Navigation::CalendarSettings
+                | Navigation::GlobalSettings(_) => Navigation::Settings,
                 _ => Navigation::List,
             };
             data.navigation = next;
@@ -84,6 +86,16 @@ impl AppDelegate<AppState> for SidenotesDelegate {
                 if let Some(provider) = data.config.providers.iter_mut().find(|p| p.id == id) {
                     provider.provider = config;
                 }
+            }
+            if let Err(err) = save(&data.config_path, &data.config) {
+                tracing::error!("Saving config failed {:?}", err);
+            }
+        } else if cmd.is(commands::SAVE_GLOBAL_CONFIG) {
+            let mut navigation = Navigation::Settings;
+            std::mem::swap(&mut navigation, &mut data.navigation);
+            if let Navigation::GlobalSettings(config) = navigation {
+                data.config.sync_timeout = config.sync_timeout;
+                data.config.ui = config.ui;
             }
             if let Err(err) = save(&data.config_path, &data.config) {
                 tracing::error!("Saving config failed {:?}", err);
