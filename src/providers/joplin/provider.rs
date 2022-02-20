@@ -57,7 +57,7 @@ impl JoplinProvider {
                 notes.push(note);
             }
         }
-        let todos: Vector<_> = notes.into_iter().map(|note| note.map(&self)).collect();
+        let todos: Vector<_> = notes.into_iter().map(|note| note.map(self)).collect();
         tracing::info!("Fetched {} Joplin notes", todos.len());
 
         Ok(todos)

@@ -23,7 +23,7 @@ impl ConfigLoadJob {
     fn load_config(&self) -> anyhow::Result<()> {
         let config = crate::config::load()?;
         self.0
-            .submit_command(commands::CONFIG_LOADED, config.clone(), Target::Auto)?;
+            .submit_command(commands::CONFIG_LOADED, config, Target::Auto)?;
 
         Ok(())
     }
