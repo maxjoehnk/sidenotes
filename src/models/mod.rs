@@ -16,7 +16,7 @@ pub struct AppState {
     pub navigation: Navigation,
     pub config: Config,
     #[data(ignore)]
-    pub config_path: PathBuf,
+    pub config_path: Option<PathBuf>,
 }
 
 impl AppState {

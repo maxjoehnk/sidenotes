@@ -1,5 +1,5 @@
 use crate::calendar::CalendarConfigEntry;
-use crate::config::{save, Config};
+use crate::config::{get_config_save_path, save, Config};
 use crate::jobs::{
     ConfigureProvidersJob, FetchAppointmentsJob, FetchCommentsJob, FetchTodosJob, ProviderActionJob,
 };
@@ -28,7 +28,7 @@ impl AppDelegate<AppState> for SidenotesDelegate {
         tracing::debug!("Handling command {:?}", cmd);
         if let Some((config, path)) = cmd.get(commands::CONFIG_LOADED) {
             data.config = config.clone();
-            data.config_path = path.clone();
+            data.config_path = Some(path.clone());
             Self::reconfigure_providers(ctx, config);
         } else if let Some(providers) = cmd.get(commands::PROVIDERS_CONFIGURED) {
             data.providers = Self::map_providers(providers.values());
@@ -101,9 +101,7 @@ impl AppDelegate<AppState> for SidenotesDelegate {
                 }
                 Self::reconfigure_providers(ctx, &data.config);
             }
-            if let Err(err) = save(&data.config_path, &data.config) {
-                tracing::error!("Saving config failed {:?}", err);
-            }
+            Self::save_config(data);
         } else if cmd.get(commands::DELETE_PROVIDER).is_some() {
             let mut navigation = Navigation::ProviderSettings;
             std::mem::swap(&mut navigation, &mut data.navigation);
@@ -113,9 +111,7 @@ impl AppDelegate<AppState> for SidenotesDelegate {
                     Self::reconfigure_providers(ctx, &data.config);
                 }
             }
-            if let Err(err) = save(&data.config_path, &data.config) {
-                tracing::error!("Saving config failed {:?}", err);
-            }
+            Self::save_config(data);
         } else if cmd.get(commands::SAVE_CALENDAR).is_some() {
             let mut navigation = Navigation::CalendarSettings;
             std::mem::swap(&mut navigation, &mut data.navigation);
@@ -129,9 +125,7 @@ impl AppDelegate<AppState> for SidenotesDelegate {
                         .push_back(CalendarConfigEntry { id, config });
                 }
             }
-            if let Err(err) = save(&data.config_path, &data.config) {
-                tracing::error!("Saving config failed {:?}", err);
-            }
+            Self::save_config(data);
         } else if cmd.get(commands::DELETE_CALENDAR).is_some() {
             let mut navigation = Navigation::CalendarSettings;
             std::mem::swap(&mut navigation, &mut data.navigation);
@@ -140,9 +134,7 @@ impl AppDelegate<AppState> for SidenotesDelegate {
                     data.config.calendar_config.remove(index);
                 }
             }
-            if let Err(err) = save(&data.config_path, &data.config) {
-                tracing::error!("Saving config failed {:?}", err);
-            }
+            Self::save_config(data);
         } else if cmd.is(commands::SAVE_GLOBAL_CONFIG) {
             let mut navigation = Navigation::Settings;
             std::mem::swap(&mut navigation, &mut data.navigation);
@@ -150,9 +142,7 @@ impl AppDelegate<AppState> for SidenotesDelegate {
                 data.config.sync_timeout = config.sync_timeout;
                 data.config.ui = config.ui;
             }
-            if let Err(err) = save(&data.config_path, &data.config) {
-                tracing::error!("Saving config failed {:?}", err);
-            }
+            Self::save_config(data);
         } else {
             return Handled::No;
         }
@@ -191,5 +181,16 @@ impl SidenotesDelegate {
 
     fn reconfigure_providers(ctx: &mut DelegateCtx, config: &Config) {
         ConfigureProvidersJob::new(config.clone(), ctx.get_external_handle()).run();
+    }
+
+    fn save_config(data: &mut AppState) {
+        if data.config_path.is_none() {
+            data.config_path = Some(get_config_save_path());
+        }
+        if let Some(path) = &data.config_path {
+            if let Err(err) = save(&path, &data.config) {
+                tracing::error!("Saving config failed {:?}", err);
+            }
+        }
     }
 }
