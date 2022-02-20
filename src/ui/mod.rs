@@ -1,11 +1,12 @@
-use druid::widget::ViewSwitcher;
-use druid::{LensExt, Widget, WidgetExt};
+use druid::Widget;
+use druid_widget_nursery::enum_switcher::Switcher;
 
 use views::detail::detail_builder;
 use views::list::list_builder;
 
 pub(crate) use self::delegate::SidenotesDelegate;
 use crate::models::*;
+use crate::ui::prism::{NavigationListPrism, NavigationSelectedPrism};
 
 pub mod commands;
 mod delegate;
@@ -17,13 +18,7 @@ mod views;
 mod widgets;
 
 pub fn ui_builder() -> impl Widget<AppState> {
-    ViewSwitcher::new(
-        |state: &AppState, _| state.navigation.clone(),
-        |nav: &Navigation, _: &AppState, _| match nav {
-            Navigation::List => list_builder().boxed(),
-            Navigation::Selected(_) => detail_builder()
-                .lens(AppState::navigation.then(Navigation::selected()))
-                .boxed(),
-        },
-    )
+    Switcher::new()
+        .with_variant(NavigationListPrism, list_builder())
+        .with_variant(NavigationSelectedPrism, detail_builder())
 }

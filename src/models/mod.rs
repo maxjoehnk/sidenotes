@@ -46,21 +46,6 @@ impl Default for Navigation {
     }
 }
 
-impl Navigation {
-    pub fn selected() -> impl Lens<Self, Todo> {
-        lens::Map::new::<Self, Todo>(
-            |data| {
-                if let Navigation::Selected(ref todo) = data {
-                    todo.clone()
-                } else {
-                    unreachable!()
-                }
-            },
-            |_, _| {},
-        )
-    }
-}
-
 #[derive(Debug, Clone, Data, Lens)]
 pub struct TodoProvider {
     pub name: String,
