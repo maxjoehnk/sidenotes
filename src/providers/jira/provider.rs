@@ -2,7 +2,7 @@ use super::api;
 use super::models;
 use crate::models::{Todo, TodoComment, TodoId};
 use crate::providers::jira::models::Comment;
-use crate::providers::{Provider, ProviderId};
+use crate::providers::{Provider, ProviderConfig, ProviderId};
 use druid::im::Vector;
 use druid::{Data, Lens};
 use futures::future::BoxFuture;
@@ -81,6 +81,16 @@ impl JiraProvider {
 impl Provider for JiraProvider {
     fn fetch_comments(&self, id: TodoId) -> BoxFuture<anyhow::Result<Vector<TodoComment>>> {
         self.fetch_issue_comments(id).boxed()
+    }
+
+    fn to_config(&self) -> ProviderConfig {
+        JiraConfig {
+            url: self.api.url.clone(),
+            username: self.api.username.clone(),
+            password: self.api.password.clone(),
+            jql: self.jql.clone(),
+        }
+        .into()
     }
 
     fn name(&self) -> &'static str {

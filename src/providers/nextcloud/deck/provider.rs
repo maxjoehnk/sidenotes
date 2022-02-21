@@ -1,7 +1,7 @@
 use crate::models::Todo;
 use crate::providers::nextcloud::deck::api::NextcloudApi;
 use crate::providers::nextcloud::deck::models::CardModel;
-use crate::providers::{IntoTodo, Provider, ProviderId};
+use crate::providers::{IntoTodo, Provider, ProviderConfig, ProviderId};
 use crate::rich_text::RawRichText;
 use druid::im::Vector;
 use druid::{Data, Lens};
@@ -75,6 +75,16 @@ impl NextcloudDeckProvider {
 }
 
 impl Provider for NextcloudDeckProvider {
+    fn to_config(&self) -> ProviderConfig {
+        NextcloudDeckProviderConfig {
+            username: self.api.username.clone(),
+            password: self.api.password.clone(),
+            host: self.api.host.clone(),
+            boards: self.boards.iter().cloned().collect(),
+        }
+        .into()
+    }
+
     fn name(&self) -> &'static str {
         "Nextcloud Deck"
     }

@@ -1,7 +1,7 @@
 use super::api;
 use super::models;
 use crate::models::Todo;
-use crate::providers::{Provider, ProviderId};
+use crate::providers::{Provider, ProviderConfig, ProviderId};
 use druid::im::Vector;
 use druid::{Data, Lens};
 use futures::future::BoxFuture;
@@ -59,6 +59,15 @@ impl ConfluenceProvider {
 }
 
 impl Provider for ConfluenceProvider {
+    fn to_config(&self) -> ProviderConfig {
+        ConfluenceConfig {
+            url: self.api.url.clone(),
+            username: self.api.username.clone(),
+            password: self.api.password.clone(),
+        }
+        .into()
+    }
+
     fn name(&self) -> &'static str {
         "Confluence"
     }

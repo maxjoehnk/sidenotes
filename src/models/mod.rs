@@ -1,10 +1,11 @@
-use crate::calendar::TZ;
+use crate::calendar::{CalendarConfig, CalendarId, TZ};
 use chrono::DateTime;
 use druid::im::Vector;
 use druid::{lens, Data, Lens};
+use std::path::PathBuf;
 
 use crate::config::Config;
-use crate::providers::{ProviderId, ProviderSettings};
+use crate::providers::{ProviderConfigEntry, ProviderId, ProviderSettings};
 use crate::rich_text::RawRichText;
 
 #[derive(Default, Debug, Clone, Data, Lens)]
@@ -14,6 +15,8 @@ pub struct AppState {
     pub next_appointment: Option<Appointment>,
     pub navigation: Navigation,
     pub config: Config,
+    #[data(ignore)]
+    pub config_path: Option<PathBuf>,
 }
 
 impl AppState {
@@ -38,6 +41,14 @@ impl AppState {
 pub enum Navigation {
     List,
     Selected(Todo),
+    Settings,
+    GlobalSettings(Config),
+    ProviderSettings,
+    CalendarSettings,
+    NewProvider,
+    EditProvider(ProviderConfigEntry),
+    NewCalendar,
+    EditCalendar((CalendarId, CalendarConfig)),
 }
 
 impl Default for Navigation {

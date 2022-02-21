@@ -1,4 +1,5 @@
 use crate::models::{Todo, TodoAction, TodoComment, TodoId};
+use derive_more::From;
 use druid::im::Vector;
 use druid::{Data, Lens};
 use enum_dispatch::enum_dispatch;
@@ -7,21 +8,21 @@ use futures::FutureExt;
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "confluence")]
-mod confluence;
+pub mod confluence;
 #[cfg(feature = "github")]
-mod github;
+pub mod github;
 #[cfg(feature = "gitlab")]
-mod gitlab;
+pub mod gitlab;
 #[cfg(feature = "jira")]
-mod jira;
+pub mod jira;
 #[cfg(feature = "joplin")]
-mod joplin;
+pub mod joplin;
 #[cfg(feature = "nextcloud")]
-mod nextcloud;
+pub mod nextcloud;
 #[cfg(feature = "taskwarrior")]
-mod taskwarrior;
+pub mod taskwarrior;
 #[cfg(feature = "upsource")]
-mod upsource;
+pub mod upsource;
 
 #[derive(Debug, Clone, Deserialize, Serialize, Data, Lens)]
 pub struct ProviderConfigEntry {
@@ -50,7 +51,7 @@ impl Data for ProviderId {
     }
 }
 
-#[derive(Default, Debug, Clone, Deserialize, Serialize, Data)]
+#[derive(Default, Debug, Clone, Deserialize, Serialize, Data, Lens)]
 pub struct ProviderSettings {
     #[serde(default)]
     pub name: Option<String>,
@@ -58,7 +59,7 @@ pub struct ProviderSettings {
     pub exclude_status: Vector<String>,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Data)]
+#[derive(Debug, Clone, Deserialize, Serialize, From, PartialEq, Data)]
 #[serde(rename_all = "camelCase", tag = "type")]
 pub enum ProviderConfig {
     #[cfg(feature = "github")]
@@ -132,6 +133,7 @@ pub trait Provider: Sync + Send {
     fn fetch_comments(&self, _: TodoId) -> BoxFuture<anyhow::Result<Vector<TodoComment>>> {
         ok(Default::default()).boxed()
     }
+    fn to_config(&self) -> ProviderConfig;
     fn name(&self) -> &'static str;
     fn fetch_todos(&self) -> BoxFuture<anyhow::Result<Vector<Todo>>>;
 

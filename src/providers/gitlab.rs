@@ -1,5 +1,5 @@
 use crate::models::Todo;
-use crate::providers::{IntoTodo, Provider, ProviderId};
+use crate::providers::{IntoTodo, Provider, ProviderConfig, ProviderId};
 use crate::rich_text::Markdown;
 use async_compat::CompatExt;
 use druid::{Data, Lens};
@@ -26,10 +26,14 @@ pub struct GitlabProvider {
     client: AsyncGitlab,
     repos: Option<Vec<String>>,
     show_drafts: bool,
+    url: String,
+    token: String,
 }
 
 impl GitlabProvider {
     pub async fn new(id: ProviderId, config: GitlabConfig) -> anyhow::Result<Self> {
+        let url = config.url.clone();
+        let token = config.token.clone();
         let client = GitlabBuilder::new(config.url, config.token)
             .insecure()
             .build_async()
@@ -41,6 +45,8 @@ impl GitlabProvider {
             client,
             repos: config.repos.map(|repos| repos.into_iter().collect()),
             show_drafts: config.show_drafts,
+            url,
+            token,
         })
     }
 
@@ -93,6 +99,19 @@ impl GitlabProvider {
 }
 
 impl Provider for GitlabProvider {
+    fn to_config(&self) -> ProviderConfig {
+        GitlabConfig {
+            repos: self
+                .repos
+                .as_ref()
+                .map(|repos| repos.iter().cloned().collect()),
+            url: self.url.clone(),
+            token: self.token.clone(),
+            show_drafts: self.show_drafts,
+        }
+        .into()
+    }
+
     fn name(&self) -> &'static str {
         "Gitlab"
     }

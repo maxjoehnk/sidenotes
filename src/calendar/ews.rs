@@ -23,7 +23,7 @@ impl Calendar for EwsClient {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Default, Debug, Clone, Deserialize, Serialize, druid::Data, druid::Lens)]
 pub struct EwsConfig {
     pub url: String,
     pub username: String,

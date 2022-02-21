@@ -8,7 +8,7 @@ use surf::Response;
 
 #[derive(Clone)]
 pub struct JoplinApi {
-    token: String,
+    pub(super) token: String,
     url: String,
 }
 
