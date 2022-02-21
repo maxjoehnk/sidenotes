@@ -186,7 +186,7 @@ impl SidenotesDelegate {
             data.config_path = Some(get_config_save_path());
         }
         if let Some(path) = &data.config_path {
-            if let Err(err) = save(&path, &data.config) {
+            if let Err(err) = save(path, &data.config) {
                 tracing::error!("Saving config failed {:?}", err);
             }
         }
