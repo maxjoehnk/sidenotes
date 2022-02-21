@@ -1,9 +1,9 @@
 use nom::branch::alt;
-use nom::bytes::complete::{is_a, is_not, tag, take_till1, take_until};
+use nom::bytes::complete::{is_not, tag, take, take_till, take_till1, take_until};
 use nom::character::complete::{char, multispace0, not_line_ending, one_of};
-use nom::combinator::{eof, map};
+use nom::combinator::{eof, map, opt};
 use nom::error::ParseError;
-use nom::multi::{many0, many1, separated_list1};
+use nom::multi::{many0, many1, separated_list0, separated_list1};
 use nom::sequence::{delimited, pair, preceded, separated_pair, tuple};
 use nom::IResult;
 use nom::Parser;
@@ -11,7 +11,7 @@ use nom::Parser;
 use crate::ast;
 
 pub fn parse(input: &str) -> IResult<&str, Vec<ast::Tag>> {
-    many0(parse_tag)(input)
+    map(many0(parse_tag), simplify)(input)
 }
 
 fn parse_tag(input: &str) -> IResult<&str, ast::Tag> {
@@ -38,6 +38,11 @@ fn parse_inline_tag(input: &str) -> IResult<&str, ast::Tag> {
         subscript,
         monospaced,
         inline_quote,
+        link,
+        image,
+        icon_builder("/", ast::Icon::CheckMark),
+        icon_builder("-", ast::Icon::Minus),
+        icon_builder("!", ast::Icon::Warning),
         plain_text,
     ))(input)
 }
@@ -105,11 +110,27 @@ fn inline_quote(input: &str) -> IResult<&str, ast::Tag> {
     )(input)
 }
 
+fn link(input: &str) -> IResult<&str, ast::Tag> {
+    map(
+        alt((
+            delimited(
+                tag("["),
+                separated_pair(is_not("|"), char('|'), is_not("]")),
+                tag("]"),
+            ),
+            map(delimited(tag("["), is_not("]"), tag("]")), |link| {
+                (link, link)
+            }),
+        )),
+        |(text, link): (&str, &str)| ast::Tag::Link(text.into(), link.into()),
+    )(input)
+}
+
 fn heading(input: &str) -> IResult<&str, ast::Tag> {
     map(
         pair(
             delimited(char('h'), heading_level, tag(". ")),
-            take_till1(|c| c == '\n').and_then(many1(parse_inline_tag)),
+            take_till1(|c| c == '\n').and_then(map(many1(parse_inline_tag), simplify)),
         ),
         |(level, content): (u8, Vec<ast::Tag>)| ast::Tag::Heading(level, content),
     )(input)
@@ -128,7 +149,7 @@ fn color(input: &str) -> IResult<&str, ast::Tag> {
 
 fn quote(input: &str) -> IResult<&str, ast::Tag> {
     map(
-        delimited(tag("{quote}"), ws(is_not("{")), tag("{quote}")),
+        delimited(tag("{quote}"), whitespace(is_not("{")), tag("{quote}")),
         |text: &str| ast::Tag::Quote(text.trim().into()),
     )(input)
 }
@@ -141,7 +162,7 @@ fn panel(input: &str) -> IResult<&str, ast::Tag> {
                 take_until("}").and_then(parse_panel_options),
                 pair(tag("}"), newline),
             ),
-            map(ws(take_until("{panel}")), |text| text.trim()).and_then(parse),
+            map(whitespace(take_until("{panel}")), |text| text.trim()).and_then(parse),
             pair(
                 tag("{panel}"),
                 alt((map(newline, |_| ()), map(eof, |_| ()))),
@@ -149,6 +170,45 @@ fn panel(input: &str) -> IResult<&str, ast::Tag> {
         )),
         |(options, content, _)| ast::Tag::Panel(ast::Panel { content, ..options }),
     )(input)
+}
+
+fn image(input: &str) -> IResult<&str, ast::Tag> {
+    map(
+        delimited(
+            char('!'),
+            take_until("!").and_then(parse_image_options),
+            char('!'),
+        ),
+        ast::Tag::Image,
+    )(input)
+}
+
+fn parse_image_options(input: &str) -> IResult<&str, ast::Image> {
+    map(
+        tuple((
+            take_till(|c| c == '|' || c == '!'),
+            opt(char('|')),
+            separated_list0(char('|'), parse_option),
+        )),
+        |(file, _, options)| {
+            let mut image = ast::Image {
+                filename: file.into(),
+                ..Default::default()
+            };
+            for (key, value) in options {
+                assign_image_option(&mut image, key, value);
+            }
+            image
+        },
+    )(input)
+}
+
+fn assign_image_option(image: &mut ast::Image, key: &str, value: &str) {
+    match key {
+        "width" => image.width = Some(value.trim().into()),
+        "height" => image.height = Some(value.trim().into()),
+        _ => {}
+    }
 }
 
 fn parse_panel_options(input: &str) -> IResult<&str, ast::Panel> {
@@ -200,16 +260,14 @@ fn heading_level(input: &str) -> IResult<&str, u8> {
 }
 
 fn plain_text(input: &str) -> IResult<&str, ast::Tag> {
-    map(take_till1(|c| c == '\n' || c == '\r'), |text: &str| {
-        ast::Tag::Text(text.into())
-    })(input)
+    map(take(1usize), |text: &str| ast::Tag::Text(text.into()))(input)
 }
 
 fn newline(input: &str) -> IResult<&str, ast::Tag> {
     map(alt((tag("\n"), tag("\r\n"))), |_| ast::Tag::Newline)(input)
 }
 
-fn ws<'a, F: 'a, O, E: ParseError<&'a str>>(
+fn whitespace<'a, F: 'a, O, E: ParseError<&'a str>>(
     inner: F,
 ) -> impl FnMut(&'a str) -> IResult<&'a str, O, E>
 where
@@ -232,20 +290,48 @@ fn list(separator: &'static str) -> impl FnMut(&str) -> IResult<&str, Vec<ast::L
             separated_list1(
                 nom::character::complete::newline,
                 separated_pair(
-                    is_a(separator),
+                    map(many1(tag(separator)), |level| level.len()),
                     char(' '),
-                    ws(take_till1(|c| c == '\n')).and_then(many1(parse_inline_tag)),
+                    whitespace(take_till1(|c| c == '\n'))
+                        .and_then(map(many1(parse_inline_tag), simplify)),
                 ),
             ),
-            |lines: Vec<(&str, Vec<ast::Tag>)>| {
+            |lines: Vec<(usize, Vec<ast::Tag>)>| {
                 lines
                     .into_iter()
                     .map(|(level, content)| ast::ListItem {
-                        level: level.len() as u8,
+                        level: level as u8,
                         content,
                     })
                     .collect()
             },
         )(input)
     }
+}
+
+fn icon_builder(icon: &str, icon_tag: ast::Icon) -> impl FnMut(&str) -> IResult<&str, ast::Tag> {
+    let detector = format!("({icon})");
+
+    move |input| map(tag(detector.as_str()), |_| ast::Tag::Icon(icon_tag))(input)
+}
+
+fn simplify(tags: Vec<ast::Tag>) -> Vec<ast::Tag> {
+    tags.into_iter().fold(Vec::new(), |mut tags, tag| {
+        match (tag, tags.pop()) {
+            (ast::Tag::Text(next), Some(ast::Tag::Text(last))) => {
+                tags.push(ast::Tag::Text(format!("{last}{next}")));
+            }
+            (ast::Tag::UnorderedList(mut next_items), Some(ast::Tag::UnorderedList(mut items))) => {
+                items.append(&mut next_items);
+                tags.push(ast::Tag::UnorderedList(items));
+            }
+            (next, Some(last)) => {
+                tags.push(last);
+                tags.push(next)
+            }
+            (next, None) => tags.push(next),
+        }
+
+        tags
+    })
 }

@@ -25,7 +25,7 @@ fn formatted_heading() {
             1,
             vec![
                 Tag::Strong("Important".into()),
-                Tag::Text(" something something".into()).into(),
+                Tag::Text(" something something".into()),
             ]
         )],
         tags
@@ -185,6 +185,58 @@ fn color_in_panel_ticket() {
         title: Some("Steps to reproduce".into()),
         ..Default::default()
     })];
+
+    let tags = parse(text).unwrap();
+
+    assert_eq!(expected, tags);
+}
+
+#[test]
+fn test_comment() {
+    let text = r#"||*Environment*|PR-1234|
+||*Timestamp*|01. Januar 2022 08:00|
+||*Hash*|123abc|
+
+* (/) Some acceptance criteria
+* (/) Another one"#;
+    let expected = vec![
+        Tag::Text("||".into()),
+        Tag::Strong("Environment".into()),
+        Tag::Text("|PR-1234|".into()),
+        Tag::Newline,
+        Tag::Text("||".into()),
+        Tag::Strong("Timestamp".into()),
+        Tag::Text("|01. Januar 2022 08:00|".into()),
+        Tag::Newline,
+        Tag::Text("||".into()),
+        Tag::Strong("Hash".into()),
+        Tag::Text("|123abc|".into()),
+        Tag::Newline,
+        Tag::Newline,
+        Tag::UnorderedList(vec![
+            ListItem {
+                content: vec![
+                    Tag::Icon(Icon::CheckMark),
+                    Tag::Text(" Some acceptance criteria".into()),
+                ],
+                level: 1,
+            },
+            ListItem {
+                content: vec![Tag::Icon(Icon::CheckMark), Tag::Text(" Another one".into())],
+                level: 1,
+            },
+        ]),
+    ];
+
+    let tags = parse(text).unwrap();
+
+    assert_eq!(expected, tags);
+}
+
+#[test]
+fn inline_bold() {
+    let text = "Inline *bold*";
+    let expected = vec![Tag::Text("Inline ".into()), Tag::Strong("bold".into())];
 
     let tags = parse(text).unwrap();
 

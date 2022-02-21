@@ -19,7 +19,20 @@ pub enum Tag {
     UnorderedList(Vec<ListItem>),
     OrderedList(Vec<ListItem>),
     Panel(Panel),
+    Icon(Icon),
+    /**
+     * (Text, Link)
+     */
+    Link(String, String),
+    Image(Image),
     Newline,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Icon {
+    CheckMark,
+    Minus,
+    Warning,
 }
 
 #[derive(PartialEq, Eq, Debug, Clone)]
@@ -35,6 +48,14 @@ impl ListItem {
             content: vec![Tag::Text(text.into())],
         }
     }
+}
+
+#[derive(PartialEq, Eq, Debug, Clone, Default)]
+pub struct Image {
+    pub filename: String,
+    pub width: Option<String>,
+    pub height: Option<String>,
+    pub thumbnail: Option<bool>,
 }
 
 #[derive(PartialEq, Eq, Debug, Clone, Default)]
