@@ -16,7 +16,6 @@ pub fn parse(input: &str) -> IResult<&str, Vec<ast::Tag>> {
 
 fn parse_tag(input: &str) -> IResult<&str, ast::Tag> {
     alt((
-        color,
         quote,
         panel,
         heading,
@@ -40,6 +39,7 @@ fn parse_inline_tag(input: &str) -> IResult<&str, ast::Tag> {
         inline_quote,
         link,
         image,
+        color,
         icon_builder("/", ast::Icon::CheckMark),
         icon_builder("-", ast::Icon::Minus),
         icon_builder("!", ast::Icon::Warning),

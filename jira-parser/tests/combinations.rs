@@ -242,3 +242,16 @@ fn inline_bold() {
 
     assert_eq!(expected, tags);
 }
+
+#[test]
+fn color_in_list() {
+    let text = "* {color:#FF0000}colorized{color}";
+    let expected = vec![Tag::UnorderedList(vec![ListItem {
+        content: vec![Tag::Color("#FF0000".into(), "colorized".into())],
+        level: 1,
+    }])];
+
+    let tags = parse(text).unwrap();
+
+    assert_eq!(expected, tags);
+}
