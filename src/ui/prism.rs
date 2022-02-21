@@ -1,10 +1,10 @@
+use crate::calendar::CalendarConfig;
 use crate::config::Config;
 use druid::text::RichText;
 use druid_widget_nursery::prism::Prism;
-use crate::calendar::CalendarConfig;
 
 use crate::models::*;
-use crate::providers::ProviderConfig;
+use crate::providers::ProviderConfigEntry;
 use crate::rich_text::IntoRichText;
 
 pub struct TodoLink;
@@ -137,18 +137,19 @@ impl Prism<AppState, AppState> for NavigationCalendarSettingsPrism {
 }
 
 pub struct NavigationEditProviderPrism;
-impl Prism<AppState, ProviderConfig> for NavigationEditProviderPrism {
-    fn get(&self, data: &AppState) -> Option<ProviderConfig> {
-        if let Navigation::EditProvider((_, ref config)) = data.navigation {
+impl Prism<AppState, ProviderConfigEntry> for NavigationEditProviderPrism {
+    fn get(&self, data: &AppState) -> Option<ProviderConfigEntry> {
+        if let Navigation::EditProvider(ref config) = data.navigation {
             Some(config.clone())
         } else {
             None
         }
     }
 
-    fn put(&self, data: &mut AppState, inner: ProviderConfig) {
-        if let Navigation::EditProvider((_, ref mut config)) = data.navigation {
-            *config = inner;
+    fn put(&self, data: &mut AppState, inner: ProviderConfigEntry) {
+        if let Navigation::EditProvider(ref mut config) = data.navigation {
+            config.provider = inner.provider;
+            config.settings = inner.settings
         }
     }
 }

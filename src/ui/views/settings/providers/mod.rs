@@ -1,6 +1,6 @@
 use crate::config::Config;
 use crate::models::{AppState, Navigation};
-use crate::providers::{ProviderConfig, ProviderConfigEntry, ProviderId};
+use crate::providers::{ProviderConfig, ProviderConfigEntry};
 use crate::ui::commands;
 use crate::ui::prism::ProviderConfigPrism;
 use crate::ui::widgets::{button_builder, header_builder};
@@ -47,7 +47,7 @@ pub fn provider_settings_builder() -> impl Widget<AppState> {
         .with_flex_child(provider_list, 1.0)
 }
 
-pub fn edit_provider() -> impl Widget<ProviderConfig> {
+pub fn edit_provider() -> impl Widget<ProviderConfigEntry> {
     let cancel_btn = button_builder("Cancel").on_click(|event_ctx, _, _: &_| {
         event_ctx.submit_command(Command::new(commands::NAVIGATE_BACK, (), Target::Auto))
     });
@@ -120,7 +120,11 @@ fn add_provider<C: Default + Into<ProviderConfig>, T: Data>(selector: &mut Flex<
     selector.add_child(button_builder(title).on_click(|event_ctx, _, _: &_| {
         event_ctx.submit_command(Command::new(
             commands::NAVIGATE,
-            Navigation::EditProvider((ProviderId::default(), C::default().into())),
+            Navigation::EditProvider(ProviderConfigEntry {
+                id: Default::default(),
+                settings: Default::default(),
+                provider: C::default().into(),
+            }),
             Target::Auto,
         ))
     }));
@@ -159,17 +163,16 @@ pub fn view_provider_builder() -> impl Widget<ProviderConfigEntry> {
         .rounded(2.0)
         .padding(Insets::uniform_xy(0., 2.))
         .expand_width()
-        .lens(ProviderConfigEntry::provider)
         .on_click(|event_ctx, provider: &mut ProviderConfigEntry, _: &_| {
             event_ctx.submit_command(Command::new(
                 commands::NAVIGATE,
-                Navigation::EditProvider((provider.id, provider.provider.clone())),
+                Navigation::EditProvider(provider.clone()),
                 Target::Auto,
             ))
         })
 }
 
-pub fn edit_provider_builder() -> impl Widget<ProviderConfig> {
+pub fn edit_provider_builder() -> impl Widget<ProviderConfigEntry> {
     let mut switcher = Switcher::new();
     if cfg!(feature = "github") {
         switcher = switcher.with_variant(ProviderConfigPrism, github::edit());

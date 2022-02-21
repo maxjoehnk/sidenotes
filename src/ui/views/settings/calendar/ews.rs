@@ -1,7 +1,9 @@
 use crate::calendar::ews::EwsConfig;
 use crate::calendar::CalendarConfig;
 use crate::ui::prism::CalendarConfigPrism;
-use crate::ui::views::settings::widgets::{ProviderSettingsRow, SettingsBuilder};
+use crate::ui::views::settings::widgets::{
+    CalendarSettingsBuilder, ProviderSettingsRow, SettingsBuilder,
+};
 use druid::Widget;
 use druid_widget_nursery::prism::Prism;
 

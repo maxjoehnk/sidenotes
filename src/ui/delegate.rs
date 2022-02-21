@@ -8,7 +8,7 @@ use im::Vector;
 use std::collections::HashMap;
 
 use crate::models::{AppState, Navigation, Todo, TodoAction, TodoProvider};
-use crate::providers::{Provider, ProviderConfigEntry, ProviderId, ProviderImpl, ProviderSettings};
+use crate::providers::{Provider, ProviderId, ProviderImpl, ProviderSettings};
 use crate::ui::commands;
 
 #[derive(Default)]
@@ -89,15 +89,13 @@ impl AppDelegate<AppState> for SidenotesDelegate {
         } else if cmd.get(commands::SAVE_PROVIDER).is_some() {
             let mut navigation = Navigation::ProviderSettings;
             std::mem::swap(&mut navigation, &mut data.navigation);
-            if let Navigation::EditProvider((id, config)) = navigation {
-                if let Some(provider) = data.config.providers.iter_mut().find(|p| p.id == id) {
-                    provider.provider = config;
+            if let Navigation::EditProvider(config) = navigation {
+                if let Some(provider) = data.config.providers.iter_mut().find(|p| p.id == config.id)
+                {
+                    provider.provider = config.provider;
+                    provider.settings = config.settings;
                 } else {
-                    data.config.providers.push_back(ProviderConfigEntry {
-                        id,
-                        provider: config,
-                        settings: ProviderSettings::default(),
-                    });
+                    data.config.providers.push_back(config);
                 }
                 Self::reconfigure_providers(ctx, &data.config);
             }
@@ -105,8 +103,8 @@ impl AppDelegate<AppState> for SidenotesDelegate {
         } else if cmd.get(commands::DELETE_PROVIDER).is_some() {
             let mut navigation = Navigation::ProviderSettings;
             std::mem::swap(&mut navigation, &mut data.navigation);
-            if let Navigation::EditProvider((id, config)) = navigation {
-                if let Some(index) = data.config.providers.iter().position(|p| p.id == id) {
+            if let Navigation::EditProvider(config) = navigation {
+                if let Some(index) = data.config.providers.iter().position(|p| p.id == config.id) {
                     data.config.providers.remove(index);
                     Self::reconfigure_providers(ctx, &data.config);
                 }
@@ -129,7 +127,7 @@ impl AppDelegate<AppState> for SidenotesDelegate {
         } else if cmd.get(commands::DELETE_CALENDAR).is_some() {
             let mut navigation = Navigation::CalendarSettings;
             std::mem::swap(&mut navigation, &mut data.navigation);
-            if let Navigation::EditCalendar((id, config)) = navigation {
+            if let Navigation::EditCalendar((id, _)) = navigation {
                 if let Some(index) = data.config.calendar_config.iter().position(|p| p.id == id) {
                     data.config.calendar_config.remove(index);
                 }

@@ -1,35 +1,36 @@
 use crate::providers::upsource::UpsourceConfig;
-use crate::providers::ProviderConfig;
+use crate::providers::{ProviderConfig, ProviderConfigEntry, ProviderSettings};
 use crate::ui::prism::ProviderConfigPrism;
 use crate::ui::views::settings::widgets::*;
 use druid::Widget;
 use druid_widget_nursery::prism::Prism;
 
-fn upsource_settings() -> SettingsBuilder<UpsourceConfig> {
+fn upsource_settings() -> impl ProviderSettingsBuilder<UpsourceConfig> {
     SettingsBuilder::new("Upsource")
         .add_field(ProviderSettingsRow::new("URL", UpsourceConfig::url))
         .add_field(ProviderSettingsRow::new("Query", UpsourceConfig::query).multiline())
         .add_field(ProviderSettingsRow::new("Token", UpsourceConfig::token).secret())
 }
 
-pub fn view() -> impl Widget<UpsourceConfig> {
+pub fn view() -> impl Widget<(UpsourceConfig, ProviderSettings)> {
     upsource_settings().build_view()
 }
 
-pub fn edit() -> impl Widget<UpsourceConfig> {
+pub fn edit() -> impl Widget<(UpsourceConfig, ProviderSettings)> {
     upsource_settings().build_edit()
 }
 
-impl Prism<ProviderConfig, UpsourceConfig> for ProviderConfigPrism {
-    fn get(&self, data: &ProviderConfig) -> Option<UpsourceConfig> {
-        if let ProviderConfig::Upsource(config) = data {
-            Some(config.clone())
+impl Prism<ProviderConfigEntry, (UpsourceConfig, ProviderSettings)> for ProviderConfigPrism {
+    fn get(&self, entry: &ProviderConfigEntry) -> Option<(UpsourceConfig, ProviderSettings)> {
+        if let ProviderConfig::Upsource(config) = &entry.provider {
+            Some((config.clone(), entry.settings.clone()))
         } else {
             None
         }
     }
 
-    fn put(&self, data: &mut ProviderConfig, inner: UpsourceConfig) {
-        *data = ProviderConfig::Upsource(inner);
+    fn put(&self, config: &mut ProviderConfigEntry, inner: (UpsourceConfig, ProviderSettings)) {
+        config.provider = ProviderConfig::Upsource(inner.0);
+        config.settings = inner.1;
     }
 }

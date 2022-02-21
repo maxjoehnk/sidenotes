@@ -1,11 +1,11 @@
 use crate::providers::nextcloud::deck::NextcloudDeckProviderConfig;
-use crate::providers::ProviderConfig;
+use crate::providers::{ProviderConfig, ProviderConfigEntry, ProviderSettings};
 use crate::ui::prism::ProviderConfigPrism;
 use crate::ui::views::settings::widgets::*;
 use druid::Widget;
 use druid_widget_nursery::prism::Prism;
 
-fn nextcloud_settings() -> SettingsBuilder<NextcloudDeckProviderConfig> {
+fn nextcloud_settings() -> impl ProviderSettingsBuilder<NextcloudDeckProviderConfig> {
     SettingsBuilder::new("Nextcloud Deck")
         .add_field(ProviderSettingsRow::new(
             "Host",
@@ -20,24 +20,34 @@ fn nextcloud_settings() -> SettingsBuilder<NextcloudDeckProviderConfig> {
         )
 }
 
-pub fn view() -> impl Widget<NextcloudDeckProviderConfig> {
+pub fn view() -> impl Widget<(NextcloudDeckProviderConfig, ProviderSettings)> {
     nextcloud_settings().build_view()
 }
 
-pub fn edit() -> impl Widget<NextcloudDeckProviderConfig> {
+pub fn edit() -> impl Widget<(NextcloudDeckProviderConfig, ProviderSettings)> {
     nextcloud_settings().build_edit()
 }
 
-impl Prism<ProviderConfig, NextcloudDeckProviderConfig> for ProviderConfigPrism {
-    fn get(&self, data: &ProviderConfig) -> Option<NextcloudDeckProviderConfig> {
-        if let ProviderConfig::NextcloudDeck(config) = data {
-            Some(config.clone())
+impl Prism<ProviderConfigEntry, (NextcloudDeckProviderConfig, ProviderSettings)>
+    for ProviderConfigPrism
+{
+    fn get(
+        &self,
+        entry: &ProviderConfigEntry,
+    ) -> Option<(NextcloudDeckProviderConfig, ProviderSettings)> {
+        if let ProviderConfig::NextcloudDeck(config) = &entry.provider {
+            Some((config.clone(), entry.settings.clone()))
         } else {
             None
         }
     }
 
-    fn put(&self, data: &mut ProviderConfig, inner: NextcloudDeckProviderConfig) {
-        *data = ProviderConfig::NextcloudDeck(inner);
+    fn put(
+        &self,
+        config: &mut ProviderConfigEntry,
+        inner: (NextcloudDeckProviderConfig, ProviderSettings),
+    ) {
+        config.provider = ProviderConfig::NextcloudDeck(inner.0);
+        config.settings = inner.1;
     }
 }

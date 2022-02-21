@@ -5,7 +5,7 @@ use druid::{lens, Data, Lens};
 use std::path::PathBuf;
 
 use crate::config::Config;
-use crate::providers::{ProviderConfig, ProviderId, ProviderSettings};
+use crate::providers::{ProviderConfigEntry, ProviderId, ProviderSettings};
 use crate::rich_text::RawRichText;
 
 #[derive(Default, Debug, Clone, Data, Lens)]
@@ -46,7 +46,7 @@ pub enum Navigation {
     ProviderSettings,
     CalendarSettings,
     NewProvider,
-    EditProvider((ProviderId, ProviderConfig)),
+    EditProvider(ProviderConfigEntry),
     NewCalendar,
     EditCalendar((CalendarId, CalendarConfig)),
 }

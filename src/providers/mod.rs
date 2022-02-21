@@ -51,7 +51,7 @@ impl Data for ProviderId {
     }
 }
 
-#[derive(Default, Debug, Clone, Deserialize, Serialize, Data)]
+#[derive(Default, Debug, Clone, Deserialize, Serialize, Data, Lens)]
 pub struct ProviderSettings {
     #[serde(default)]
     pub name: Option<String>,

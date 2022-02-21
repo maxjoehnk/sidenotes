@@ -1,33 +1,34 @@
 use crate::providers::joplin::JoplinConfig;
-use crate::providers::ProviderConfig;
+use crate::providers::{ProviderConfig, ProviderConfigEntry, ProviderSettings};
 use crate::ui::prism::ProviderConfigPrism;
 use crate::ui::views::settings::widgets::*;
 use druid::Widget;
 use druid_widget_nursery::prism::Prism;
 
-pub fn joplin_settings() -> SettingsBuilder<JoplinConfig> {
+pub fn joplin_settings() -> impl ProviderSettingsBuilder<JoplinConfig> {
     SettingsBuilder::new("Joplin")
         .add_field(ProviderSettingsRow::new("Token", JoplinConfig::token).secret())
 }
 
-pub fn view() -> impl Widget<JoplinConfig> {
+pub fn view() -> impl Widget<(JoplinConfig, ProviderSettings)> {
     joplin_settings().build_view()
 }
 
-pub fn edit() -> impl Widget<JoplinConfig> {
+pub fn edit() -> impl Widget<(JoplinConfig, ProviderSettings)> {
     joplin_settings().build_edit()
 }
 
-impl Prism<ProviderConfig, JoplinConfig> for ProviderConfigPrism {
-    fn get(&self, data: &ProviderConfig) -> Option<JoplinConfig> {
-        if let ProviderConfig::Joplin(config) = data {
-            Some(config.clone())
+impl Prism<ProviderConfigEntry, (JoplinConfig, ProviderSettings)> for ProviderConfigPrism {
+    fn get(&self, entry: &ProviderConfigEntry) -> Option<(JoplinConfig, ProviderSettings)> {
+        if let ProviderConfig::Joplin(config) = &entry.provider {
+            Some((config.clone(), entry.settings.clone()))
         } else {
             None
         }
     }
 
-    fn put(&self, data: &mut ProviderConfig, inner: JoplinConfig) {
-        *data = ProviderConfig::Joplin(inner);
+    fn put(&self, config: &mut ProviderConfigEntry, inner: (JoplinConfig, ProviderSettings)) {
+        config.provider = ProviderConfig::Joplin(inner.0);
+        config.settings = inner.1;
     }
 }
