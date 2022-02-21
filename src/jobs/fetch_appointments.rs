@@ -22,7 +22,9 @@ impl FetchAppointmentsJob {
     pub fn run(self) {
         thread::spawn(move || {
             if let Some(ref provider) = self.provider {
-                smol::block_on(self.sync_calendar(provider));
+                if let Err(err) = smol::block_on(self.sync_calendar(provider)) {
+                    tracing::error!("{err:?}");
+                }
             }
         });
     }

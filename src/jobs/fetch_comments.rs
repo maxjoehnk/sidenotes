@@ -21,7 +21,9 @@ impl FetchCommentsJob {
 
     pub fn run(self) {
         thread::spawn(move || {
-            smol::block_on(self.fetch_comments());
+            if let Err(err) = smol::block_on(self.fetch_comments()) {
+                tracing::error!("{err:?}");
+            }
         });
     }
 

@@ -20,13 +20,21 @@ impl SyncTimerJob {
         event_sink.add_idle_callback(move |state: &mut AppState| {
             let timeout = state.config.sync_timeout;
             thread::spawn(move || {
-                self.0
-                    .submit_command(commands::FETCH_TODOS, (), Target::Auto);
-                self.0
-                    .submit_command(commands::FETCH_APPOINTMENTS, (), Target::Auto);
+                if let Err(err) = self.run_timer() {
+                    tracing::error!("{err:?}");
+                }
                 thread::sleep(Duration::from_secs(timeout));
                 self.queue_job();
             });
         });
+    }
+
+    fn run_timer(&self) -> anyhow::Result<()> {
+        self.0
+            .submit_command(commands::FETCH_TODOS, (), Target::Auto)?;
+        self.0
+            .submit_command(commands::FETCH_APPOINTMENTS, (), Target::Auto)?;
+
+        Ok(())
     }
 }

@@ -34,6 +34,7 @@ impl AppState {
 }
 
 #[derive(Debug, Clone, Data)]
+#[allow(clippy::large_enum_variant)]
 pub enum Navigation {
     List,
     Selected(Todo),

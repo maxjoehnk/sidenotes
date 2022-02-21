@@ -12,7 +12,7 @@ impl ConfigLoadJob {
     pub fn run(self) {
         thread::spawn(move || {
             if let Err(err) = self.load_config() {
-                tracing::error!("{:?}", err);
+                tracing::error!("{err:?}");
                 self.0
                     .submit_command(commands::FATAL_ERROR, format!("{:?}", err), Target::Auto)
                     .unwrap();

@@ -19,7 +19,9 @@ impl ConfigureProvidersJob {
 
     pub fn run(self) {
         thread::spawn(move || {
-            self.configure_providers();
+            if let Err(err) = self.configure_providers() {
+                tracing::error!("{err:?}");
+            }
         });
     }
 

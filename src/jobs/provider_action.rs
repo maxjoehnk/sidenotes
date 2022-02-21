@@ -28,7 +28,9 @@ impl ProviderActionJob {
 
     pub fn run(self) {
         thread::spawn(move || {
-            smol::block_on(self.run_action());
+            if let Err(err) = smol::block_on(self.run_action()) {
+                tracing::error!("{err:?}");
+            }
         });
     }
 
