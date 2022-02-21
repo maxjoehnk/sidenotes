@@ -1,10 +1,15 @@
-use crate::rich_text::{get_font_size_for_heading, IntoRichText};
+use crate::rich_text::{
+    get_font_size_for_heading, IntoMarkup, MarkupItem, MarkupItemStyle, MarkupPart,
+};
 use crate::ui::commands::OPEN_LINK;
 use crate::LINK_COLOR;
-use druid::text::{Attribute, AttributesAdder, RichText, RichTextBuilder};
+use druid::text::{Attribute, AttributesAdder, RichTextBuilder};
 use druid::{Color, Data, FontFamily, FontStyle, FontWeight};
+use im::Vector;
 use jira_parser::ast::*;
+use palette::{RelativeContrast, Srgb};
 use serde::Deserialize;
+use std::str::FromStr;
 
 const BLOCKQUOTE_COLOR: Color = Color::grey8(0x88);
 const INSERTED_COLOR: Color = Color::rgb8(0, 255, 0);
@@ -20,94 +25,193 @@ impl From<String> for JiraMarkup {
     }
 }
 
-impl IntoRichText for JiraMarkup {
-    fn into_rich_text(self) -> RichText {
-        let mut builder = RichTextBuilder::new();
-        let tags = jira_parser::parse(&self.0).unwrap();
-        build_tags(&mut builder, tags, vec![]);
+impl IntoMarkup for JiraMarkup {
+    fn into_markup(self, disable_colorized_backgrounds: bool) -> Vector<MarkupItem> {
+        let tags = jira_parser::parse(&self.0).unwrap_or_default();
+        let attrs = vec![];
 
-        builder.build()
+        tags.into_iter()
+            .fold(Vec::<MarkupItemBuilder>::new(), |mut items, tag| {
+                match (items.pop(), tag) {
+                    (last_item, Tag::Panel(panel)) => {
+                        if let Some(last_item) = last_item {
+                            items.push(last_item);
+                        }
+                        items.push(build_panel_title(&panel, disable_colorized_backgrounds));
+                        items.push(build_panel_content(panel, disable_colorized_backgrounds));
+                    }
+                    (Some(MarkupItemBuilder::Text(mut builder, style)), tag) => {
+                        build_tag(&mut builder, &attrs, tag);
+                        items.push(MarkupItemBuilder::Text(builder, style));
+                    }
+                    (None, tag) => {
+                        let mut builder = RichTextBuilder::new();
+                        build_tag(&mut builder, &attrs, tag);
+                        items.push(MarkupItemBuilder::Text(builder, Default::default()));
+                    }
+                }
+
+                items
+            })
+            .into_iter()
+            .map(MarkupItem::from)
+            .collect()
+    }
+}
+
+fn build_panel_title(panel: &Panel, disable_colorized_backgrounds: bool) -> MarkupItemBuilder {
+    let style = MarkupItemStyle {
+        background: (!disable_colorized_backgrounds)
+            .then(|| ())
+            .and_then(|_| panel.title_background_color.clone()),
+    };
+    let mut text_builder = RichTextBuilder::new();
+    if let Some(ref title) = panel.title {
+        let mut title_builder = text_builder.push(title);
+        title_builder.size(26.);
+        if let Some(color) = get_high_contrast_text_color(&style) {
+            title_builder.text_color(color);
+        }
+    }
+
+    MarkupItemBuilder::Text(text_builder, style)
+}
+
+fn build_panel_content(panel: Panel, disable_colorized_backgrounds: bool) -> MarkupItemBuilder {
+    let mut attrs = vec![];
+    let style = MarkupItemStyle {
+        background: (!disable_colorized_backgrounds)
+            .then(|| ())
+            .and_then(|_| panel.background_color.clone()),
+    };
+    if let Some(color) = get_high_contrast_text_color(&style) {
+        attrs.push(Attribute::TextColor(color.into()));
+    }
+
+    let mut builder = RichTextBuilder::new();
+    for tag in panel.content.into_iter() {
+        build_tag(&mut builder, &attrs, tag);
+    }
+
+    MarkupItemBuilder::Text(builder, style)
+}
+
+fn get_high_contrast_text_color(style: &MarkupItemStyle) -> Option<Color> {
+    style
+        .background
+        .as_ref()
+        .and_then(|background| Srgb::from_str(background).ok())
+        .map(|background| {
+            let white = Srgb::new(1., 1., 1.);
+            if background
+                .into_format::<f64>()
+                .has_enhanced_contrast_text(&white)
+            {
+                Color::grey(1.)
+            } else {
+                Color::grey(0.)
+            }
+        })
+}
+
+enum MarkupItemBuilder {
+    Text(RichTextBuilder, MarkupItemStyle),
+}
+
+impl From<MarkupItemBuilder> for MarkupItem {
+    fn from(builder: MarkupItemBuilder) -> Self {
+        match builder {
+            MarkupItemBuilder::Text(text_builder, style) => MarkupItem {
+                part: MarkupPart::Text(text_builder.build()),
+                style,
+            },
+        }
     }
 }
 
 fn build_tags(builder: &mut RichTextBuilder, tags: Vec<Tag>, attr: Vec<Attribute>) {
     for tag in tags {
-        match tag {
-            Tag::Text(text) => builder.push(&text).add_attributes(&attr),
-            Tag::Strong(text) => builder
-                .push(&text)
-                .weight(FontWeight::BOLD)
-                .add_attributes(&attr),
-            Tag::Emphasis(text) => builder
-                .push(&text)
-                .style(FontStyle::Italic)
-                .add_attributes(&attr),
-            Tag::Panel(panel) => {
-                if let Some(title) = panel.title {
-                    builder.push(&title).size(26.);
-                    builder.push("\n");
-                }
-                build_tags(builder, panel.content, attr.clone());
-                builder.push("\n");
-            }
-            Tag::Newline => {
-                builder.push("\n");
-            }
-            Tag::InlineQuote(text) => builder
-                .push(&text)
-                .style(FontStyle::Italic)
-                .text_color(BLOCKQUOTE_COLOR)
-                .add_attributes(&attr),
-            Tag::Quote(text) => builder
-                .push(&text)
-                .style(FontStyle::Italic)
-                .text_color(BLOCKQUOTE_COLOR)
-                .add_attributes(&attr),
-            Tag::Monospaced(text) => builder
-                .push(&text)
-                .font_family(FontFamily::MONOSPACE)
-                .add_attributes(&attr),
-            Tag::Inserted(text) => builder
-                .push(&text)
-                .underline(true)
-                .text_color(INSERTED_COLOR)
-                .add_attributes(&attr),
-            Tag::Deleted(text) => builder
-                .push(&text)
-                .strikethrough(true)
-                .text_color(DELETED_COLOR)
-                .add_attributes(&attr),
-            Tag::Subscript(text) => builder.push(&text).add_attributes(&attr),
-            Tag::Superscript(text) => builder.push(&text).add_attributes(&attr),
-            Tag::Color(color, text) => builder
-                .push(&text)
-                .text_color(from_color(&color))
-                .add_attributes(&attr),
-            Tag::Heading(level, content) => build_tags(
-                builder,
-                content,
-                vec![Attribute::FontSize(
-                    get_font_size_for_heading(level as u32).into(),
-                )],
-            ),
-            Tag::UnorderedList(items) => {
-                for item in items {
-                    for _ in 0..item.level {
-                        builder.push("  ");
-                    }
-                    builder.push("* ");
-                    build_tags(builder, item.content, attr.clone());
-                    builder.push("\n");
-                }
-            }
-            Tag::Link(text, link) => builder
-                .push(&text)
-                .underline(true)
-                .text_color(LINK_COLOR)
-                .link(OPEN_LINK.with(link))
-                .add_attributes(&attr),
-            _ => {}
+        build_tag(builder, &attr, tag)
+    }
+}
+
+fn build_tag(builder: &mut RichTextBuilder, attr: &[Attribute], tag: Tag) {
+    match tag {
+        Tag::Text(text) => builder.push(&text).add_attributes(attr).close(),
+        Tag::Strong(text) => builder
+            .push(&text)
+            .add_attributes(attr)
+            .weight(FontWeight::BOLD)
+            .close(),
+        Tag::Emphasis(text) => builder
+            .push(&text)
+            .add_attributes(attr)
+            .style(FontStyle::Italic)
+            .close(),
+        Tag::Newline => {
+            builder.push("\n");
         }
+        Tag::InlineQuote(text) => builder
+            .push(&text)
+            .add_attributes(attr)
+            .style(FontStyle::Italic)
+            .text_color(BLOCKQUOTE_COLOR)
+            .close(),
+        Tag::Quote(text) => builder
+            .push(&text)
+            .add_attributes(attr)
+            .style(FontStyle::Italic)
+            .text_color(BLOCKQUOTE_COLOR)
+            .close(),
+        Tag::Monospaced(text) => builder
+            .push(&text)
+            .add_attributes(attr)
+            .font_family(FontFamily::MONOSPACE)
+            .close(),
+        Tag::Inserted(text) => builder
+            .push(&text)
+            .add_attributes(attr)
+            .underline(true)
+            .text_color(INSERTED_COLOR)
+            .close(),
+        Tag::Deleted(text) => builder
+            .push(&text)
+            .add_attributes(attr)
+            .strikethrough(true)
+            .text_color(DELETED_COLOR)
+            .close(),
+        Tag::Subscript(text) => builder.push(&text).add_attributes(attr).close(),
+        Tag::Superscript(text) => builder.push(&text).add_attributes(attr).close(),
+        Tag::Color(color, text) => builder
+            .push(&text)
+            .add_attributes(attr)
+            .text_color(from_color(&color))
+            .close(),
+        Tag::Heading(level, content) => build_tags(
+            builder,
+            content,
+            vec![Attribute::FontSize(
+                get_font_size_for_heading(level as u32).into(),
+            )],
+        ),
+        Tag::UnorderedList(items) => {
+            for item in items {
+                for _ in 0..item.level {
+                    builder.push("  ");
+                }
+                builder.push("* ");
+                build_tags(builder, item.content, attr.to_owned());
+                builder.push("\n");
+            }
+        }
+        Tag::Link(text, link) => builder
+            .push(&text)
+            .add_attributes(attr)
+            .underline(true)
+            .text_color(LINK_COLOR)
+            .link(OPEN_LINK.with(link))
+            .close(),
+        _ => {}
     }
 }
 
@@ -121,13 +225,17 @@ fn from_color(color: &str) -> Color {
 }
 
 trait AttributesAdderExt {
-    fn add_attributes(&mut self, attributes: &[Attribute]);
+    fn add_attributes(&mut self, attributes: &[Attribute]) -> &mut Self;
+    fn close(&mut self);
 }
 
 impl<'a> AttributesAdderExt for AttributesAdder<'a> {
-    fn add_attributes(&mut self, attributes: &[Attribute]) {
+    fn add_attributes(&mut self, attributes: &[Attribute]) -> &mut Self {
         for attr in attributes {
             self.add_attr(attr.clone());
         }
+        self
     }
+
+    fn close(&mut self) {}
 }

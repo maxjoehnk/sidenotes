@@ -9,9 +9,9 @@ use druid_widget_nursery::prism;
 use crate::models::*;
 use crate::ui::commands;
 use crate::ui::commands::PROVIDER_ACTION;
-use crate::ui::lens::{Link, TodoCommentBody};
+use crate::ui::lens::Link;
 use crate::ui::prism::{TodoBody, TodoLink};
-use crate::ui::widgets::{header_builder, ClickableArea};
+use crate::ui::widgets::{header_builder, markup_builder, ClickableArea};
 
 struct DetailController;
 
@@ -38,8 +38,7 @@ impl<W: Widget<Todo>> Controller<Todo, W> for DetailController {
 pub fn detail_builder() -> impl Widget<Todo> {
     let header = header_builder(|item: &Todo, _env: &_| item.title.clone());
     let link = prism::PrismWrap::new(link_builder(), TodoLink);
-    let body = RawLabel::new().with_line_break_mode(LineBreaking::WordWrap);
-    let body = prism::PrismWrap::new(body, TodoBody);
+    let body = prism::PrismWrap::new(markup_builder(), TodoBody);
     let body = Flex::column()
         .with_child(body)
         .with_child(comments_builder());
@@ -95,9 +94,7 @@ fn comment_builder() -> impl Widget<TodoComment> {
     let author = Label::new(|item: &TodoComment, _env: &_| item.author.clone().unwrap_or_default())
         .with_font(font)
         .with_line_break_mode(LineBreaking::WordWrap);
-    let body = RawLabel::new()
-        .with_line_break_mode(LineBreaking::WordWrap)
-        .lens(TodoCommentBody);
+    let body = markup_builder().lens(TodoComment::text);
 
     Flex::column()
         .cross_axis_alignment(CrossAxisAlignment::Start)

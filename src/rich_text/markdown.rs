@@ -1,8 +1,8 @@
-use druid::text::RichText;
 use druid::Data;
+use im::{vector, Vector};
 use serde::Deserialize;
 
-use crate::rich_text::IntoRichText;
+use crate::rich_text::{IntoMarkup, MarkupItem, MarkupItemStyle, MarkupPart};
 
 #[derive(Debug, Clone, Deserialize, Data)]
 #[repr(transparent)]
@@ -14,9 +14,12 @@ impl From<String> for Markdown {
     }
 }
 
-impl IntoRichText for Markdown {
-    fn into_rich_text(self) -> RichText {
-        self::converter::render_text(&self.0)
+impl IntoMarkup for Markdown {
+    fn into_markup(self, _: bool) -> Vector<MarkupItem> {
+        vector![MarkupItem {
+            part: MarkupPart::Text(self::converter::render_text(&self.0)),
+            style: MarkupItemStyle::default(),
+        }]
     }
 }
 

@@ -1,9 +1,10 @@
 use crate::calendar::TZ;
-use crate::models::{Appointment, TodoComment};
-use crate::rich_text::IntoRichText;
+use crate::models::Appointment;
+use crate::rich_text::{IntoMarkup, MarkupItem, RawRichText};
 use chrono::{DateTime, Timelike};
 use druid::text::{RichText, RichTextBuilder};
 use druid::Lens;
+use im::Vector;
 
 use crate::ui::commands::OPEN_LINK;
 use crate::ui::theme::LINK_COLOR;
@@ -98,14 +99,20 @@ impl Lens<Appointment, f64> for AppointmentProgress {
     }
 }
 
-pub struct TodoCommentBody;
+pub struct Markup;
 
-impl Lens<TodoComment, RichText> for TodoCommentBody {
-    fn with<V, F: FnOnce(&RichText) -> V>(&self, comment: &TodoComment, f: F) -> V {
-        f(&comment.text.clone().into_rich_text())
+impl Lens<(RawRichText, bool), Vector<MarkupItem>> for Markup {
+    fn with<V, F: FnOnce(&Vector<MarkupItem>) -> V>(&self, data: &(RawRichText, bool), f: F) -> V {
+        let markup = data.0.clone().into_markup(data.1);
+        f(&markup)
     }
 
-    fn with_mut<V, F: FnOnce(&mut RichText) -> V>(&self, comment: &mut TodoComment, f: F) -> V {
-        f(&mut comment.text.clone().into_rich_text())
+    fn with_mut<V, F: FnOnce(&mut Vector<MarkupItem>) -> V>(
+        &self,
+        data: &mut (RawRichText, bool),
+        f: F,
+    ) -> V {
+        let mut markup = data.0.clone().into_markup(data.1);
+        f(&mut markup)
     }
 }

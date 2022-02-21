@@ -19,12 +19,19 @@ pub fn global_settings_builder() -> impl Widget<Config> {
     let sync_interval = SettingsRow::new("Sync Interval", sync_interval);
     let hide_empty_providers = Switch::new().lens(Config::ui.then(UiConfig::hide_empty_providers));
     let hide_empty_providers = SettingsRow::new("Hide Empty Providers", hide_empty_providers);
+    let disable_colorized_backgrounds =
+        Switch::new().lens(Config::ui.then(UiConfig::disable_colorized_backgrounds));
+    let disable_colorized_backgrounds = SettingsRow::new(
+        "Disable Colorized Backgrounds",
+        disable_colorized_backgrounds,
+    );
 
     Flex::column()
         .cross_axis_alignment(CrossAxisAlignment::Fill)
         .with_child(header)
         .with_child(sync_interval)
         .with_child(hide_empty_providers)
+        .with_child(disable_colorized_backgrounds)
         .with_child(actions_builder())
 }
 

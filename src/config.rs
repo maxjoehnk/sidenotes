@@ -22,6 +22,8 @@ pub struct Config {
 pub struct UiConfig {
     #[serde(default = "default_hide_empty_providers")]
     pub hide_empty_providers: bool,
+    #[serde(default)]
+    pub disable_colorized_backgrounds: bool,
 }
 
 fn default_hide_empty_providers() -> bool {
@@ -32,6 +34,7 @@ impl Default for UiConfig {
     fn default() -> Self {
         Self {
             hide_empty_providers: default_hide_empty_providers(),
+            disable_colorized_backgrounds: false,
         }
     }
 }

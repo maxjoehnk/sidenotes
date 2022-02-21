@@ -1,6 +1,7 @@
-use druid::Widget;
+use druid::{Widget, WidgetExt};
 use druid_widget_nursery::enum_switcher::Switcher;
 
+use crate::DISABLE_COLORIZED_BACKGROUNDS;
 use views::detail::detail_builder;
 use views::list::list_builder;
 use views::settings::calendar::calendar_settings_builder;
@@ -34,4 +35,10 @@ pub fn ui_builder() -> impl Widget<AppState> {
         .with_variant(NavigationCalendarSettingsPrism, calendar_settings_builder())
         .with_variant(NavigationEditCalendarPrism, edit_calendar())
         .with_variant(NavigationNewCalendarPrism, new_calendar_selector())
+        .env_scope(|env, data| {
+            env.set(
+                DISABLE_COLORIZED_BACKGROUNDS,
+                data.config.ui.disable_colorized_backgrounds,
+            );
+        })
 }

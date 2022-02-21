@@ -5,7 +5,7 @@ use druid_widget_nursery::prism::Prism;
 
 use crate::models::*;
 use crate::providers::ProviderConfigEntry;
-use crate::rich_text::IntoRichText;
+use crate::rich_text::{MarkupPart, RawRichText};
 
 pub struct TodoLink;
 
@@ -21,13 +21,13 @@ impl Prism<Todo, String> for TodoLink {
 
 pub struct TodoBody;
 
-impl Prism<Todo, RichText> for TodoBody {
-    fn get(&self, data: &Todo) -> Option<RichText> {
-        data.body.clone().map(|body| body.into_rich_text())
+impl Prism<Todo, RawRichText> for TodoBody {
+    fn get(&self, data: &Todo) -> Option<RawRichText> {
+        data.body.clone()
     }
 
-    fn put(&self, _: &mut Todo, _: RichText) {
-        // Formatted body is readonly
+    fn put(&self, data: &mut Todo, text: RawRichText) {
+        data.body = Some(text)
     }
 }
 
@@ -202,5 +202,22 @@ impl Prism<AppState, AppState> for NavigationNewCalendarPrism {
         if matches!(data.navigation, Navigation::NewCalendar) {
             *data = inner;
         }
+    }
+}
+
+pub struct MarkupTextPrism;
+impl Prism<MarkupPart, RichText> for MarkupTextPrism {
+    fn get(&self, data: &MarkupPart) -> Option<RichText> {
+        // TODO: This can be removed once support for tables lands
+        #[allow(irrefutable_let_patterns)]
+        if let MarkupPart::Text(text) = data {
+            Some(text.clone())
+        } else {
+            None
+        }
+    }
+
+    fn put(&self, data: &mut MarkupPart, inner: RichText) {
+        *data = MarkupPart::Text(inner);
     }
 }
