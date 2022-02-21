@@ -1,4 +1,6 @@
 use crate::rich_text::{get_font_size_for_heading, IntoRichText};
+use crate::ui::commands::OPEN_LINK;
+use crate::LINK_COLOR;
 use druid::text::{Attribute, AttributesAdder, RichText, RichTextBuilder};
 use druid::{Color, Data, FontFamily, FontStyle, FontWeight};
 use jira_parser::ast::*;
@@ -98,6 +100,12 @@ fn build_tags(builder: &mut RichTextBuilder, tags: Vec<Tag>, attr: Vec<Attribute
                     builder.push("\n");
                 }
             }
+            Tag::Link(text, link) => builder
+                .push(&text)
+                .underline(true)
+                .text_color(LINK_COLOR)
+                .link(OPEN_LINK.with(link))
+                .add_attributes(&attr),
             _ => {}
         }
     }
