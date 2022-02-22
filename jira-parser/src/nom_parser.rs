@@ -165,7 +165,10 @@ fn panel(input: &str) -> IResult<&str, ast::Tag> {
             map(whitespace(take_until("{panel}")), |text| text.trim()).and_then(parse),
             pair(
                 tag("{panel}"),
-                alt((map(newline, |_| ()), map(eof, |_| ()))),
+                preceded(
+                    many0(one_of(" \t")),
+                    alt((map(newline, |_| ()), map(eof, |_| ()))),
+                ),
             ),
         )),
         |(options, content, _)| ast::Tag::Panel(ast::Panel { content, ..options }),
@@ -271,7 +274,7 @@ fn whitespace<'a, F: 'a, O, E: ParseError<&'a str>>(
     inner: F,
 ) -> impl FnMut(&'a str) -> IResult<&'a str, O, E>
 where
-    F: Fn(&'a str) -> IResult<&'a str, O, E>,
+    F: FnMut(&'a str) -> IResult<&'a str, O, E>,
 {
     delimited(multispace0, inner, multispace0)
 }

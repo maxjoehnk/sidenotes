@@ -165,7 +165,7 @@ h3. *Acceptance criteria*
 
     let tags = parse(text).unwrap();
 
-    assert_eq!(expected, tags);
+    assert_eq!(tags, expected);
 }
 
 #[test]
@@ -188,7 +188,7 @@ fn color_in_panel_ticket() {
 
     let tags = parse(text).unwrap();
 
-    assert_eq!(expected, tags);
+    assert_eq!(tags, expected);
 }
 
 #[test]
