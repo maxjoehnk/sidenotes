@@ -27,6 +27,7 @@ pub const DELETE_CALENDAR: Selector<()> = Selector::new("sidenotes.delete-calend
 pub const SAVE_GLOBAL_CONFIG: Selector<()> = Selector::new("sidenotes.save-config");
 pub const TOGGLE_PROVIDER: Selector<TodoProvider> = Selector::new("sidenotes.TOGGLE_PROVIDER");
 pub const PROVIDER_ACTION: Selector<TodoAction> = Selector::new("sidenotes.provider-action");
+pub const TRIGGER_SYNC: Selector<()> = Selector::new("sidenotes.trigger-sync");
 
 pub const FETCH_APPOINTMENTS: Selector<()> = Selector::new("sidenotes.fetch-appointments");
 pub const NEXT_APPOINTMENT_FETCHED: Selector<Option<Appointment>> =

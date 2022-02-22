@@ -10,6 +10,7 @@ use std::collections::HashMap;
 use crate::models::{AppState, Navigation, Todo, TodoAction, TodoProvider};
 use crate::providers::{Provider, ProviderId, ProviderImpl, ProviderSettings};
 use crate::ui::commands;
+use crate::SyncTimerJob;
 
 #[derive(Default)]
 pub(crate) struct SidenotesDelegate {
@@ -29,6 +30,7 @@ impl AppDelegate<AppState> for SidenotesDelegate {
         if let Some((config, path)) = cmd.get(commands::CONFIG_LOADED) {
             data.config = config.clone();
             data.config_path = Some(path.clone());
+            SyncTimerJob::new(ctx.get_external_handle(), config.sync_timeout).run();
             Self::reconfigure_providers(ctx, config);
         } else if let Some(providers) = cmd.get(commands::PROVIDERS_CONFIGURED) {
             data.providers = Self::map_providers(providers.values());
@@ -141,6 +143,8 @@ impl AppDelegate<AppState> for SidenotesDelegate {
                 data.config.ui = config.ui;
             }
             Self::save_config(data);
+        } else if cmd.is(commands::TRIGGER_SYNC) {
+            SyncTimerJob::new(ctx.get_external_handle(), data.config.sync_timeout).run();
         } else {
             return Handled::No;
         }

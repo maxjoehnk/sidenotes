@@ -1,31 +1,21 @@
-use crate::models::AppState;
 use crate::ui::commands;
 use druid::{ExtEventSink, Target};
 use std::thread;
 use std::time::Duration;
 
-pub struct SyncTimerJob(ExtEventSink);
+pub struct SyncTimerJob(ExtEventSink, u64);
 
 impl SyncTimerJob {
-    pub fn new(event_sink: ExtEventSink) -> Self {
-        Self(event_sink)
+    pub fn new(event_sink: ExtEventSink, timeout: u64) -> Self {
+        Self(event_sink, timeout)
     }
 
     pub fn run(self) {
-        self.queue_job()
-    }
-
-    fn queue_job(self) {
-        let event_sink = self.0.clone();
-        event_sink.add_idle_callback(move |state: &mut AppState| {
-            let timeout = state.config.sync_timeout;
-            thread::spawn(move || {
-                if let Err(err) = self.run_timer() {
-                    tracing::error!("{err:?}");
-                }
-                thread::sleep(Duration::from_secs(timeout));
-                self.queue_job();
-            });
+        thread::spawn(move || {
+            thread::sleep(Duration::from_secs(self.1));
+            if let Err(err) = self.run_timer() {
+                tracing::error!("{err:?}");
+            }
         });
     }
 
@@ -34,6 +24,8 @@ impl SyncTimerJob {
             .submit_command(commands::FETCH_TODOS, (), Target::Auto)?;
         self.0
             .submit_command(commands::FETCH_APPOINTMENTS, (), Target::Auto)?;
+        self.0
+            .submit_command(commands::TRIGGER_SYNC, (), Target::Auto)?;
 
         Ok(())
     }

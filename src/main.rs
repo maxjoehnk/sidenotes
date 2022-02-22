@@ -26,8 +26,7 @@ fn main() -> anyhow::Result<()> {
 
     let event_sink = launcher.get_external_handle();
 
-    ConfigLoadJob::new(event_sink.clone()).run();
-    SyncTimerJob::new(event_sink).run();
+    ConfigLoadJob::new(event_sink).run();
 
     launcher.launch(Default::default())?;
 
