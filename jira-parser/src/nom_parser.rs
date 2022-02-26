@@ -1,7 +1,7 @@
 use nom::branch::alt;
 use nom::bytes::complete::{is_not, tag, take, take_till, take_till1, take_until};
-use nom::character::complete::{char, multispace0, not_line_ending, one_of};
-use nom::combinator::{eof, map, opt};
+use nom::character::complete::{char, multispace0, multispace1, not_line_ending, one_of};
+use nom::combinator::{eof, map, opt, peek};
 use nom::error::ParseError;
 use nom::multi::{many0, many1, separated_list0, separated_list1};
 use nom::sequence::{delimited, pair, preceded, separated_pair, tuple};
@@ -48,17 +48,11 @@ fn parse_inline_tag(input: &str) -> IResult<&str, ast::Tag> {
 }
 
 fn strong(input: &str) -> IResult<&str, ast::Tag> {
-    map(
-        delimited(char('*'), is_not("*"), char('*')),
-        |text: &str| ast::Tag::Strong(text.into()),
-    )(input)
+    inline_style('*', ast::Tag::Strong)(input)
 }
 
 fn emphasis(input: &str) -> IResult<&str, ast::Tag> {
-    map(
-        delimited(char('_'), is_not("_"), char('_')),
-        |text: &str| ast::Tag::Emphasis(text.into()),
-    )(input)
+    inline_style('_', ast::Tag::Emphasis)(input)
 }
 
 fn citation(input: &str) -> IResult<&str, ast::Tag> {
@@ -69,31 +63,19 @@ fn citation(input: &str) -> IResult<&str, ast::Tag> {
 }
 
 fn deleted(input: &str) -> IResult<&str, ast::Tag> {
-    map(
-        delimited(char('-'), is_not("-"), char('-')),
-        |text: &str| ast::Tag::Deleted(text.into()),
-    )(input)
+    inline_style('-', ast::Tag::Deleted)(input)
 }
 
 fn inserted(input: &str) -> IResult<&str, ast::Tag> {
-    map(
-        delimited(char('+'), is_not("+"), char('+')),
-        |text: &str| ast::Tag::Inserted(text.into()),
-    )(input)
+    inline_style('+', ast::Tag::Inserted)(input)
 }
 
 fn superscript(input: &str) -> IResult<&str, ast::Tag> {
-    map(
-        delimited(char('^'), is_not("^"), char('^')),
-        |text: &str| ast::Tag::Superscript(text.into()),
-    )(input)
+    inline_style('^', ast::Tag::Superscript)(input)
 }
 
 fn subscript(input: &str) -> IResult<&str, ast::Tag> {
-    map(
-        delimited(char('~'), is_not("~"), char('~')),
-        |text: &str| ast::Tag::Subscript(text.into()),
-    )(input)
+    inline_style('~', ast::Tag::Subscript)(input)
 }
 
 fn monospaced(input: &str) -> IResult<&str, ast::Tag> {
@@ -101,6 +83,26 @@ fn monospaced(input: &str) -> IResult<&str, ast::Tag> {
         delimited(tag("{{"), is_not("}}"), tag("}}")),
         |text: &str| ast::Tag::Monospaced(text.into()),
     )(input)
+}
+
+fn inline_style(
+    delimiter: char,
+    tag: impl Fn(String) -> ast::Tag,
+) -> impl FnMut(&str) -> IResult<&str, ast::Tag> {
+    let abort_tokens = format!("{delimiter}\n");
+    move |input| {
+        map(
+            delimited(
+                char(delimiter),
+                is_not(abort_tokens.as_str()),
+                pair(
+                    char(delimiter),
+                    peek(alt((multispace1, newline_or_end_of_file))),
+                ),
+            ),
+            |text: &str| tag(text.into()),
+        )(input)
+    }
 }
 
 fn inline_quote(input: &str) -> IResult<&str, ast::Tag> {
@@ -277,6 +279,10 @@ where
     F: FnMut(&'a str) -> IResult<&'a str, O, E>,
 {
     delimited(multispace0, inner, multispace0)
+}
+
+fn newline_or_end_of_file(input: &str) -> IResult<&str, &str> {
+    alt((tag("\n"), tag("\r\n"), eof))(input)
 }
 
 fn unordered_list(input: &str) -> IResult<&str, ast::Tag> {

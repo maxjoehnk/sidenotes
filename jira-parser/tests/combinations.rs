@@ -3,13 +3,16 @@ use jira_parser::parse;
 
 #[test]
 fn combine_format() {
-    let tags = parse("*bold*_italic_-deleted-+inserted+").unwrap();
+    let tags = parse("*bold* _italic_ -deleted- +inserted+").unwrap();
 
     assert_eq!(
         vec![
             Tag::Strong("bold".into()),
+            Tag::Text(" ".into()),
             Tag::Emphasis("italic".into()),
+            Tag::Text(" ".into()),
             Tag::Deleted("deleted".into()),
+            Tag::Text(" ".into()),
             Tag::Inserted("inserted".into()),
         ],
         tags

@@ -58,6 +58,27 @@ fn text_effect_deleted() {
 }
 
 #[test]
+fn deleted_effect_should_not_apply_across_newlines() {
+    let tag = parse("-spaced\neffect-").unwrap();
+
+    assert_eq!(
+        vec![
+            Tag::Text("-spaced".into()),
+            Tag::Newline,
+            Tag::Text("effect-".into())
+        ],
+        tag
+    );
+}
+
+#[test]
+fn deleted_effect_should_not_apply_without_spaces() {
+    let tag = parse("please-delete-this").unwrap();
+
+    assert_eq!(vec![Tag::Text("please-delete-this".into()),], tag);
+}
+
+#[test]
 fn text_effect_inserted() {
     let tag = parse("+inserted+").unwrap();
 
