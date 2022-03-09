@@ -367,7 +367,7 @@ fn table_row(input: &str) -> IResult<&str, Vec<ast::TableField>> {
         take_while1(|c| c != '\n').and_then(map(many1(parse_inline_tag), |tags| {
             let mut columns = vec![];
             let len = tags.len();
-            let len = if tags.iter().nth(len - 2) == Some(&Tag::Text("|".into())) {
+            let len = if tags.get(len - 2) == Some(&Tag::Text("|".into())) {
                 len - 2
             } else {
                 len - 1
@@ -396,6 +396,8 @@ fn table_row(input: &str) -> IResult<&str, Vec<ast::TableField>> {
                         .flat_map(|tag| match tag {
                             Tag::Text(text) => {
                                 let x = text.clone();
+                                // This binding is necessary as the temporary `x` will be dropped while borrowed
+                                #[allow(clippy::let_and_return)]
                                 let tags = if let Ok(("", tags)) =
                                     map(many1(parse_inline_tag), simplify)(&x)
                                 {
@@ -427,23 +429,3 @@ fn table_row(input: &str) -> IResult<&str, Vec<ast::TableField>> {
 fn is_column_separator(tag: &ast::Tag) -> bool {
     &Tag::Text("|".to_string()) == tag
 }
-
-// fn table_row(input: &str) -> IResult<&str, Vec<ast::TableField>> {
-//     preceded(
-//         tag("|"),
-//         take_while1(|c| c != '\n').and_then(many1(map(
-//             pair(
-//                 opt(tag("|")),
-//                 terminated(take_until("|"), tag("|"))
-//                     .and_then(map(many1(parse_inline_tag), simplify)),
-//             ),
-//             |(is_header, tags)| {
-//                 if is_header.is_some() {
-//                     ast::TableField::Heading(tags)
-//                 } else {
-//                     ast::TableField::Plain(tags)
-//                 }
-//             },
-//         ))),
-//     )(input)
-// }
