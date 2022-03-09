@@ -1,5 +1,5 @@
 use jira_parser::ast::*;
-use jira_parser::parse;
+use jira_parser::{ast, parse};
 
 #[test]
 fn combine_format() {
@@ -203,17 +203,25 @@ fn test_comment() {
 * (/) Some acceptance criteria
 * (/) Another one"#;
     let expected = vec![
-        Tag::Text("||".into()),
-        Tag::Strong("Environment".into()),
-        Tag::Text("|PR-1234|".into()),
-        Tag::Newline,
-        Tag::Text("||".into()),
-        Tag::Strong("Timestamp".into()),
-        Tag::Text("|01. Januar 2022 08:00|".into()),
-        Tag::Newline,
-        Tag::Text("||".into()),
-        Tag::Strong("Hash".into()),
-        Tag::Text("|123abc|".into()),
+        Tag::Table(Table {
+            rows: vec![
+                vec![
+                    ast::TableField::Heading(vec![ast::Tag::Strong("Environment".into())]),
+                    ast::TableField::Plain(vec![ast::Tag::Text("PR-1234".into())]),
+                ]
+                .into(),
+                vec![
+                    ast::TableField::Heading(vec![ast::Tag::Strong("Timestamp".into())]),
+                    ast::TableField::Plain(vec![ast::Tag::Text("01. Januar 2022 08:00".into())]),
+                ]
+                .into(),
+                vec![
+                    ast::TableField::Heading(vec![ast::Tag::Strong("Hash".into())]),
+                    ast::TableField::Plain(vec![ast::Tag::Text("123abc".into())]),
+                ]
+                .into(),
+            ],
+        }),
         Tag::Newline,
         Tag::Newline,
         Tag::UnorderedList(vec![
@@ -233,7 +241,7 @@ fn test_comment() {
 
     let tags = parse(text).unwrap();
 
-    assert_eq!(expected, tags);
+    assert_eq!(tags, expected);
 }
 
 #[test]

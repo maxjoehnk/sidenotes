@@ -1,5 +1,5 @@
 use nom::branch::alt;
-use nom::bytes::complete::{is_not, tag, take, take_till, take_till1, take_until};
+use nom::bytes::complete::{is_not, tag, take, take_till, take_till1, take_until, take_while1};
 use nom::character::complete::{char, multispace0, multispace1, not_line_ending, one_of};
 use nom::combinator::{eof, map, opt, peek};
 use nom::error::ParseError;
@@ -9,6 +9,7 @@ use nom::IResult;
 use nom::Parser;
 
 use crate::ast;
+use crate::ast::{TableField, Tag};
 
 pub fn parse(input: &str) -> IResult<&str, Vec<ast::Tag>> {
     map(many0(parse_tag), simplify)(input)
@@ -22,6 +23,7 @@ fn parse_tag(input: &str) -> IResult<&str, ast::Tag> {
         unordered_list,
         ordered_list,
         newline,
+        table,
         parse_inline_tag,
     ))(input)
 }
@@ -40,10 +42,16 @@ fn parse_inline_tag(input: &str) -> IResult<&str, ast::Tag> {
         link,
         image,
         color,
+        icons,
+        plain_text,
+    ))(input)
+}
+
+fn icons(input: &str) -> IResult<&str, ast::Tag> {
+    alt((
         icon_builder("/", ast::Icon::CheckMark),
         icon_builder("-", ast::Icon::Minus),
         icon_builder("!", ast::Icon::Warning),
-        plain_text,
     ))(input)
 }
 
@@ -344,3 +352,98 @@ fn simplify(tags: Vec<ast::Tag>) -> Vec<ast::Tag> {
         tags
     })
 }
+
+fn table(input: &str) -> IResult<&str, ast::Tag> {
+    map(separated_list1(newline, table_row), |rows| {
+        let rows = rows.into_iter().map(ast::TableRow).collect::<Vec<_>>();
+
+        ast::Tag::Table(ast::Table { rows })
+    })(input)
+}
+
+fn table_row(input: &str) -> IResult<&str, Vec<ast::TableField>> {
+    preceded(
+        peek(tag("|")),
+        take_while1(|c| c != '\n').and_then(map(many1(parse_inline_tag), |tags| {
+            let mut columns = vec![];
+            let len = tags.len();
+            let len = if tags.iter().nth(len - 2) == Some(&Tag::Text("|".into())) {
+                len - 2
+            } else {
+                len - 1
+            };
+            let mut iterator = tags.into_iter().take(len).peekable();
+            while let Some(tag) = iterator.next() {
+                if is_column_separator(&tag) {
+                    let mut tags = vec![];
+                    let mut is_header = false;
+                    if let Some(next) = iterator.peek() {
+                        if is_column_separator(next) {
+                            is_header = true;
+                            iterator.next();
+                        }
+                    }
+                    while let Some(tag) = iterator.peek() {
+                        if is_column_separator(tag) {
+                            break;
+                        }
+                        let tag = iterator.next().unwrap();
+                        tags.push(tag);
+                    }
+                    let tags = simplify(tags);
+                    let tags = tags
+                        .into_iter()
+                        .flat_map(|tag| match tag {
+                            Tag::Text(text) => {
+                                let x = text.clone();
+                                let tags = if let Ok(("", tags)) =
+                                    map(many1(parse_inline_tag), simplify)(&x)
+                                {
+                                    tags
+                                } else {
+                                    vec![Tag::Text(text)]
+                                };
+                                tags
+                            }
+                            tag => vec![tag],
+                        })
+                        .collect();
+                    let field = if is_header {
+                        TableField::Heading(tags)
+                    } else {
+                        TableField::Plain(tags)
+                    };
+                    columns.push(field);
+                } else {
+                    println!("no column_separator")
+                }
+            }
+
+            columns
+        })),
+    )(input)
+}
+
+fn is_column_separator(tag: &ast::Tag) -> bool {
+    &Tag::Text("|".to_string()) == tag
+}
+
+// fn table_row(input: &str) -> IResult<&str, Vec<ast::TableField>> {
+//     preceded(
+//         tag("|"),
+//         take_while1(|c| c != '\n').and_then(many1(map(
+//             pair(
+//                 opt(tag("|")),
+//                 terminated(take_until("|"), tag("|"))
+//                     .and_then(map(many1(parse_inline_tag), simplify)),
+//             ),
+//             |(is_header, tags)| {
+//                 if is_header.is_some() {
+//                     ast::TableField::Heading(tags)
+//                 } else {
+//                     ast::TableField::Plain(tags)
+//                 }
+//             },
+//         ))),
+//     )(input)
+// }

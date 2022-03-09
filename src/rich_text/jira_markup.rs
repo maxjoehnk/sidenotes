@@ -1,12 +1,13 @@
 use crate::rich_text::{
-    get_font_size_for_heading, IntoMarkup, MarkupItem, MarkupItemStyle, MarkupPart,
+    get_font_size_for_heading, IntoMarkup, MarkupItem, MarkupItemStyle, MarkupPart, Table,
+    TableField, TableRow,
 };
 use crate::ui::commands::OPEN_LINK;
 use crate::LINK_COLOR;
 use druid::text::{Attribute, AttributesAdder, RichTextBuilder};
 use druid::{Color, Data, FontFamily, FontStyle, FontWeight};
 use im::Vector;
-use jira_parser::ast::*;
+use jira_parser::ast::{self, *};
 use palette::{RelativeContrast, Srgb};
 use serde::Deserialize;
 use std::str::FromStr;
@@ -40,11 +41,20 @@ impl IntoMarkup for JiraMarkup {
                         items.push(build_panel_title(&panel, disable_colorized_backgrounds));
                         items.push(build_panel_content(panel, disable_colorized_backgrounds));
                     }
+                    (last_item, Tag::Table(table)) => {
+                        if let Some(last_item) = last_item {
+                            items.push(last_item);
+                        }
+                        items.push(build_table(table));
+                    }
                     (Some(MarkupItemBuilder::Text(mut builder, style)), tag) => {
                         build_tag(&mut builder, &attrs, tag);
                         items.push(MarkupItemBuilder::Text(builder, style));
                     }
-                    (None, tag) => {
+                    (last_item, tag) => {
+                        if let Some(last_item) = last_item {
+                            items.push(last_item);
+                        }
                         let mut builder = RichTextBuilder::new();
                         build_tag(&mut builder, &attrs, tag);
                         items.push(MarkupItemBuilder::Text(builder, Default::default()));
@@ -96,6 +106,38 @@ fn build_panel_content(panel: Panel, disable_colorized_backgrounds: bool) -> Mar
     MarkupItemBuilder::Text(builder, style)
 }
 
+fn build_table(table: ast::Table) -> MarkupItemBuilder {
+    let attrs = vec![];
+    let rows = table
+        .rows
+        .into_iter()
+        .map(|row| TableRow {
+            fields: row
+                .0
+                .into_iter()
+                .map(|field| {
+                    let (tags, is_heading) = match field {
+                        ast::TableField::Plain(tags) => (tags, false),
+                        ast::TableField::Heading(tags) => (tags, true),
+                    };
+
+                    let mut builder = RichTextBuilder::new();
+                    for tag in tags.into_iter() {
+                        build_tag(&mut builder, &attrs, tag);
+                    }
+
+                    TableField {
+                        content: builder.build(),
+                        is_heading,
+                    }
+                })
+                .collect(),
+        })
+        .collect();
+
+    MarkupItemBuilder::Table(Table { rows })
+}
+
 fn get_high_contrast_text_color(style: &MarkupItemStyle) -> Option<Color> {
     style
         .background
@@ -116,6 +158,7 @@ fn get_high_contrast_text_color(style: &MarkupItemStyle) -> Option<Color> {
 
 enum MarkupItemBuilder {
     Text(RichTextBuilder, MarkupItemStyle),
+    Table(Table),
 }
 
 impl From<MarkupItemBuilder> for MarkupItem {
@@ -124,6 +167,10 @@ impl From<MarkupItemBuilder> for MarkupItem {
             MarkupItemBuilder::Text(text_builder, style) => MarkupItem {
                 part: MarkupPart::Text(text_builder.build()),
                 style,
+            },
+            MarkupItemBuilder::Table(table) => MarkupItem {
+                part: MarkupPart::Table(table),
+                style: MarkupItemStyle::default(),
             },
         }
     }

@@ -5,7 +5,7 @@ use druid_widget_nursery::prism::Prism;
 
 use crate::models::*;
 use crate::providers::ProviderConfigEntry;
-use crate::rich_text::{MarkupPart, RawRichText};
+use crate::rich_text::{MarkupPart, RawRichText, Table};
 
 pub struct TodoLink;
 
@@ -225,8 +225,6 @@ impl Prism<AppState, AppState> for NavigationAppointmentsPrism {
 pub struct MarkupTextPrism;
 impl Prism<MarkupPart, RichText> for MarkupTextPrism {
     fn get(&self, data: &MarkupPart) -> Option<RichText> {
-        // TODO: This can be removed once support for tables lands
-        #[allow(irrefutable_let_patterns)]
         if let MarkupPart::Text(text) = data {
             Some(text.clone())
         } else {
@@ -236,5 +234,20 @@ impl Prism<MarkupPart, RichText> for MarkupTextPrism {
 
     fn put(&self, data: &mut MarkupPart, inner: RichText) {
         *data = MarkupPart::Text(inner);
+    }
+}
+
+pub struct MarkupTablePrism;
+impl Prism<MarkupPart, Table> for MarkupTablePrism {
+    fn get(&self, data: &MarkupPart) -> Option<Table> {
+        if let MarkupPart::Table(table) = data {
+            Some(table.clone())
+        } else {
+            None
+        }
+    }
+
+    fn put(&self, data: &mut MarkupPart, inner: Table) {
+        *data = MarkupPart::Table(inner);
     }
 }

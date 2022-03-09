@@ -64,4 +64,21 @@ pub struct MarkupItemStyle {
 #[derive(Debug, Clone, From, Data)]
 pub enum MarkupPart {
     Text(RichText),
+    Table(Table),
+}
+
+#[derive(Debug, Clone, Data, Lens)]
+pub struct Table {
+    pub rows: Vector<TableRow>,
+}
+
+#[derive(Debug, Clone, Data, Lens)]
+pub struct TableRow {
+    pub fields: Vector<TableField>,
+}
+
+#[derive(Debug, Clone, Data, Lens)]
+pub struct TableField {
+    pub content: RichText,
+    pub is_heading: bool,
 }
