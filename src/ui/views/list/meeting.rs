@@ -1,11 +1,13 @@
 use crate::calendar::TZ;
 use druid::widget::{Either, Flex, Label, LineBreaking, MainAxisAlignment, Maybe, Slider};
-use druid::{FontDescriptor, FontFamily, Insets, Widget, WidgetExt};
+use druid::{Command, FontDescriptor, FontFamily, Insets, Target, Widget, WidgetExt};
 
-use crate::models::Appointment;
+use crate::models::{Appointment, Navigation};
+use crate::ui::commands;
 use crate::ui::lazy_icon::*;
 use crate::ui::lens::{AppointmentProgress, TimeUntilNextAppointment};
 use crate::ui::views::list::timer::TimerController;
+use crate::ui::widgets::ClickableArea;
 use crate::CARD_COLOR;
 
 thread_local! {
@@ -73,4 +75,12 @@ fn meeting_card() -> impl Widget<Appointment> {
 
 pub fn meeting_builder() -> impl Widget<Option<Appointment>> {
     Maybe::new(meeting_card, Flex::row)
+        .controller(ClickableArea)
+        .on_click(|event_ctx, _: &mut _, _: &_| {
+            event_ctx.submit_command(Command::new(
+                commands::NAVIGATE,
+                Navigation::Appointments,
+                Target::Auto,
+            ))
+        })
 }

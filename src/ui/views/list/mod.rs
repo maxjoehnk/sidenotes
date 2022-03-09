@@ -9,7 +9,7 @@ use crate::ui::widgets::button_builder;
 
 mod meeting;
 mod provider_item;
-mod timer;
+pub mod timer;
 mod todo_item;
 
 pub fn list_builder() -> impl Widget<AppState> {

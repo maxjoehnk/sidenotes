@@ -12,7 +12,7 @@ use crate::rich_text::RawRichText;
 pub struct AppState {
     #[lens(ignore)]
     pub providers: Vector<TodoProvider>,
-    pub next_appointment: Option<Appointment>,
+    pub appointments: Vector<Appointment>,
     pub navigation: Navigation,
     pub config: Config,
     #[data(ignore)]
@@ -36,6 +36,28 @@ impl AppState {
     }
 }
 
+impl AppState {
+    #[allow(non_upper_case_globals)]
+    pub const next_appointment: NextAppointmentLens = NextAppointmentLens;
+}
+
+#[derive(Clone, Copy)]
+pub struct NextAppointmentLens;
+
+impl Lens<AppState, Option<Appointment>> for NextAppointmentLens {
+    fn with<V, F: FnOnce(&Option<Appointment>) -> V>(&self, data: &AppState, f: F) -> V {
+        f(&data.appointments.front().cloned())
+    }
+
+    fn with_mut<V, F: FnOnce(&mut Option<Appointment>) -> V>(
+        &self,
+        data: &mut AppState,
+        f: F,
+    ) -> V {
+        f(&mut data.appointments.front().cloned())
+    }
+}
+
 #[derive(Debug, Clone, Data)]
 #[allow(clippy::large_enum_variant)]
 pub enum Navigation {
@@ -49,6 +71,7 @@ pub enum Navigation {
     EditProvider(ProviderConfigEntry),
     NewCalendar,
     EditCalendar((CalendarId, CalendarConfig)),
+    Appointments,
 }
 
 impl Default for Navigation {

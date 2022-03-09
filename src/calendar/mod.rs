@@ -2,6 +2,7 @@ use crate::models::Appointment;
 use chrono::Local;
 use derive_more::From;
 use futures::future::BoxFuture;
+use im::Vector;
 use serde::{Deserialize, Serialize};
 
 pub(crate) type TZ = Local;
@@ -10,7 +11,7 @@ pub(crate) type TZ = Local;
 pub mod ews;
 
 pub trait Calendar {
-    fn next_appointment(&self) -> BoxFuture<anyhow::Result<Option<Appointment>>>;
+    fn todays_appointments(&self) -> BoxFuture<anyhow::Result<Vector<Appointment>>>;
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, From, druid::Data)]
@@ -59,10 +60,10 @@ pub enum CalendarProvider {
 }
 
 impl Calendar for CalendarProvider {
-    fn next_appointment(&self) -> BoxFuture<anyhow::Result<Option<Appointment>>> {
+    fn todays_appointments(&self) -> BoxFuture<anyhow::Result<Vector<Appointment>>> {
         match self {
             #[cfg(feature = "ews-calendar")]
-            Self::Ews(ews) => ews.next_appointment(),
+            Self::Ews(ews) => ews.todays_appointments(),
         }
     }
 }

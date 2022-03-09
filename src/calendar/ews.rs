@@ -3,21 +3,25 @@ pub(crate) use ews_calendar::EwsClient;
 use ews_calendar::ExchangeVersion::Exchange2016;
 use futures::future::BoxFuture;
 use futures::FutureExt;
+use im::Vector;
 use serde::{Deserialize, Serialize};
 
 impl Calendar for EwsClient {
-    fn next_appointment(&self) -> BoxFuture<anyhow::Result<Option<Appointment>>> {
+    fn todays_appointments(&self) -> BoxFuture<anyhow::Result<Vector<Appointment>>> {
         async move {
             let items = self.find_items().await?;
-            let appointment = items.first().map(|item| Appointment {
-                title: item.subject.clone(),
-                description: Default::default(),
-                start_time: item.start,
-                end_time: item.end,
-                meeting_link: None,
-            });
+            let appointments = items
+                .into_iter()
+                .map(|item| Appointment {
+                    title: item.subject.clone(),
+                    description: Default::default(),
+                    start_time: item.start,
+                    end_time: item.end,
+                    meeting_link: None,
+                })
+                .collect();
 
-            Ok(appointment)
+            Ok(appointments)
         }
         .boxed()
     }

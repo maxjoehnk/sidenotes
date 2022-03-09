@@ -30,5 +30,5 @@ pub const PROVIDER_ACTION: Selector<TodoAction> = Selector::new("sidenotes.provi
 pub const TRIGGER_SYNC: Selector<()> = Selector::new("sidenotes.trigger-sync");
 
 pub const FETCH_APPOINTMENTS: Selector<()> = Selector::new("sidenotes.fetch-appointments");
-pub const NEXT_APPOINTMENT_FETCHED: Selector<Option<Appointment>> =
-    Selector::new("event-sidenotes.next-appointment-fetched");
+pub const APPOINTMENTS_FETCHED: Selector<Vector<Appointment>> =
+    Selector::new("event-sidenotes.appointments-fetched");

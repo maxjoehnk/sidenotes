@@ -3556,6 +3556,7 @@ dependencies = [
  "futures",
  "gitlab",
  "im",
+ "itertools",
  "jira-parser",
  "octorust",
  "once_cell",

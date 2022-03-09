@@ -205,6 +205,23 @@ impl Prism<AppState, AppState> for NavigationNewCalendarPrism {
     }
 }
 
+pub struct NavigationAppointmentsPrism;
+impl Prism<AppState, AppState> for NavigationAppointmentsPrism {
+    fn get(&self, data: &AppState) -> Option<AppState> {
+        if matches!(data.navigation, Navigation::Appointments) {
+            Some(data.clone())
+        } else {
+            None
+        }
+    }
+
+    fn put(&self, data: &mut AppState, inner: AppState) {
+        if matches!(data.navigation, Navigation::Appointments) {
+            *data = inner;
+        }
+    }
+}
+
 pub struct MarkupTextPrism;
 impl Prism<MarkupPart, RichText> for MarkupTextPrism {
     fn get(&self, data: &MarkupPart) -> Option<RichText> {

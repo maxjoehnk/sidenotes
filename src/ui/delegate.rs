@@ -82,8 +82,8 @@ impl AppDelegate<AppState> for SidenotesDelegate {
             data.navigation = next;
         } else if let Some(link) = cmd.get(commands::OPEN_LINK) {
             open::that_in_background(link);
-        } else if let Some(appointment) = cmd.get(commands::NEXT_APPOINTMENT_FETCHED) {
-            data.next_appointment = appointment.clone();
+        } else if let Some(appointments) = cmd.get(commands::APPOINTMENTS_FETCHED) {
+            data.appointments = appointments.clone();
         } else if let Some(provider) = cmd.get(commands::TOGGLE_PROVIDER) {
             if let Some(index) = data.providers.iter().position(|p| p.name == provider.name) {
                 data.providers[index].collapsed = !data.providers[index].collapsed;
