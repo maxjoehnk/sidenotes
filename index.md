@@ -1,37 +1,63 @@
-## Welcome to GitHub Pages
+A small desktop app to view github PRs, gitlab MRs, jira issues, taskwarrior tasks, joplin notebooks and upsource tasks in a sidebar.
 
-You can use the [editor on GitHub](https://github.com/maxjoehnk/sidenotes/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+### Supported Providers
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+* Github
+* Gitlab
+* Jira
+* Taskwarrior
+* Joplin
+* Upsource
+* Confluence
 
-### Markdown
+#### Github
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+The Github provider supports a list of open pull requests as well as a running a search for issues and prs.
 
-```markdown
-Syntax highlighted code block
+![Github Configuration](assets/img/github_config.png)
 
-# Header 1
-## Header 2
-### Header 3
+##### Config
 
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
+```toml
+[[provider]]
+type = "github" # required
+token = "<github token>" # required
+repos = ["maxjoehnk/sidenotes"] # optional
+query = "type:pr is:open draft:false author:@me review:changes_requested" # optional
 ```
 
-For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
+At least one of `repos` or `query` is required for the Github provider to show anything.
 
-### Jekyll Themes
+#### Gitlab
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/maxjoehnk/sidenotes/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+The Gitlab provider supports a list of open pull requests.
 
-### Support or Contact
+![Gitlab Configuration](assets/img/gitlab_config.png)
 
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+##### Config
+
+```toml
+[[provider]]
+type = "gitlab" # required
+url = "your.gitlab.url" # required
+token = "<gitlab token>" # required
+repos = ["maxjoehnk/sidenotes"] # required
+show_drafts = true # optional (default: false)
+```
+
+#### Jira
+
+The Jira provider supports any valid JQL query.
+
+![Jira Configuration](assets/img/jira_config.png)
+
+##### Config
+
+```toml
+[[provider]]
+type = "jira" # required
+url = "https://your.jira.url" # required
+username = "your username" # required
+password = "your password" # required
+jql = "assignee = currentUser() and statusCategory != Done" # required
+```
