@@ -1,6 +1,6 @@
-# Sidenotes
-
 <img src="assets/logo.svg" width="256px"/>
+
+# Sidenotes
 
 A small desktop app to view github PRs, gitlab MRs, jira issues, taskwarrior tasks, joplin notebooks and upsource tasks in a sidebar.
 
