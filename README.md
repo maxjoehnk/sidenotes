@@ -25,6 +25,7 @@ Available:
 * joplin
 * upsource
 * confluence
+* nextcloud
 
 ## Installation
 
@@ -80,4 +81,13 @@ type = "confluence"
 username = "your-usernamee"
 password = "your-password"
 url = "https://your.confluence.url"
+
+[[provider]]
+type = "nextcloudDeck"
+host = "https://nextcloud.url"
+username = "username"
+password = "password"
+[[provider.boards]] # multiple supported
+title = "Infrastruktur" # limit todos to cards in this board
+stacks = ["TODO", "in Bearbeitung"] # limit todos to cards in these stacks
 ```
