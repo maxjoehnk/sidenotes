@@ -2,14 +2,14 @@ A small desktop app to view github PRs, gitlab MRs, jira issues, taskwarrior tas
 
 ### Supported Providers
 
-* Github
-* Gitlab
-* Jira
-* Taskwarrior
-* Joplin
-* Upsource
-* Confluence
-* Nextcloud Deck
+* [Github](#github)
+* [Gitlab](#gitlab)
+* [Jira](#jira)
+* [Taskwarrior](#taskwarrior)
+* [Joplin](#joplin)
+* [Upsource](#upsource)
+* [Confluence](#confluence)
+* [Nextcloud Deck](#nextcloud-deck)
 
 #### Github
 
