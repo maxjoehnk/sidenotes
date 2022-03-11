@@ -1,5 +1,7 @@
 A small desktop app to view github PRs, gitlab MRs, jira issues, taskwarrior tasks, joplin notebooks and upsource tasks in a sidebar.
 
+![Example Screenshot](assets/img/screenshot.png)
+
 ### Supported Providers
 
 * [Github](#github)
