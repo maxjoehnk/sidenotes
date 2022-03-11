@@ -1,0 +1,6 @@
+@import "{{ site.theme }}";
+
+section img {
+    border-radius: 4px;
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3);
+}
