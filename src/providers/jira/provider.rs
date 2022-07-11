@@ -74,6 +74,7 @@ impl JiraProvider {
             link: Some(format!("{}/browse/{}", self.api.url, issue.key)),
             actions: Default::default(),
             comments: Default::default(),
+            due_date: None,
         }
     }
 }

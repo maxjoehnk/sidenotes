@@ -1,7 +1,8 @@
 use crate::calendar::{CalendarConfig, CalendarId, TZ};
-use chrono::DateTime;
+use chrono::{DateTime, Local, TimeZone};
 use druid::im::Vector;
 use druid::{lens, Data, Lens};
+use std::ops::Deref;
 use std::path::PathBuf;
 
 use crate::config::Config;
@@ -101,6 +102,42 @@ pub struct Todo {
     pub link: Option<String>,
     pub actions: Vector<TodoAction>,
     pub comments: Vector<TodoComment>,
+    #[data(ignore)]
+    pub due_date: Option<LocalDateTime>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Ord, PartialOrd)]
+#[repr(transparent)]
+pub struct LocalDateTime(DateTime<TZ>);
+
+impl Data for LocalDateTime {
+    fn same(&self, other: &Self) -> bool {
+        self.0 == other.0
+    }
+}
+
+impl From<DateTime<TZ>> for LocalDateTime {
+    fn from(time: DateTime<TZ>) -> Self {
+        Self(time)
+    }
+}
+
+impl Deref for LocalDateTime {
+    type Target = DateTime<TZ>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl LocalDateTime {
+    pub fn from_timestamp(timestamp: u64) -> Self {
+        Self(Local.timestamp_millis(timestamp as i64))
+    }
+
+    pub fn is_today(&self) -> bool {
+        self.0.date() == TZ::today()
+    }
 }
 
 #[derive(Debug, Clone, Copy, Data)]

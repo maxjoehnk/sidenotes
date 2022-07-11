@@ -54,6 +54,7 @@ impl ConfluenceProvider {
             link: Some(format!("{}{}", self.api.url, task.item.url)),
             actions: Default::default(),
             comments: Default::default(),
+            due_date: None,
         }
     }
 }

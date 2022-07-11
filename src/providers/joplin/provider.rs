@@ -1,5 +1,5 @@
 use super::api;
-use crate::models::{Todo, TodoId};
+use crate::models::{LocalDateTime, Todo, TodoId};
 use crate::providers::joplin::models::{Notebook, TodoNote};
 use crate::providers::{Provider, ProviderConfig, ProviderId, TodoAction};
 use druid::{Data, Lens};
@@ -7,6 +7,7 @@ use futures::future::BoxFuture;
 use futures::FutureExt;
 use im::Vector;
 use serde::{Deserialize, Serialize};
+use std::cmp::Ordering;
 
 const MARK_AS_DONE_ACTION: &str = "JOPLIN_MARK_AS_DONE";
 
@@ -53,11 +54,23 @@ impl JoplinProvider {
                     body: note.body,
                     tags,
                     notebook: notebook.clone(),
+                    due_date: if note.todo_due == 0 {
+                        None
+                    } else {
+                        Some(LocalDateTime::from_timestamp(note.todo_due))
+                    },
                 };
                 notes.push(note);
             }
         }
-        let todos: Vector<_> = notes.into_iter().map(|note| note.map(self)).collect();
+        let mut todos: Vector<_> = notes.into_iter().map(|note| note.map(self)).collect();
+        todos.sort_by(|lhs, rhs| match (&lhs.due_date, &rhs.due_date) {
+            (Some(lhs), Some(rhs)) if lhs > rhs => Ordering::Greater,
+            (Some(lhs), Some(rhs)) if lhs < rhs => Ordering::Less,
+            (Some(_), None) => Ordering::Less,
+            (None, Some(_)) => Ordering::Greater,
+            _ => Ordering::Equal,
+        });
         tracing::info!("Fetched {} Joplin notes", todos.len());
 
         Ok(todos)
@@ -144,6 +157,7 @@ impl TodoNote {
             }]
             .into(),
             comments: Default::default(),
+            due_date: self.due_date,
         }
     }
 }

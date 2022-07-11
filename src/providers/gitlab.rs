@@ -134,6 +134,7 @@ impl IntoTodo for MergeRequest {
             link: Some(self.web_url),
             actions: Default::default(),
             comments: Default::default(),
+            due_date: None,
         }
     }
 }

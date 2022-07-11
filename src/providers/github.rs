@@ -107,6 +107,7 @@ impl GithubProvider {
                     link: pr.html_url.map(|url| url.to_string()),
                     actions: Default::default(),
                     comments: Default::default(),
+                    due_date: None,
                 })
             }
         }
@@ -162,6 +163,7 @@ impl GithubProvider {
                     link: item.html_url.map(|url| url.to_string()),
                     actions: Default::default(),
                     comments: Default::default(),
+                    due_date: None,
                 });
             }
 

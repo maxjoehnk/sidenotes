@@ -47,6 +47,7 @@ impl TaskwarriorProvider {
                     link: None,
                     actions: Default::default(),
                     comments: Default::default(),
+                    due_date: None,
                 })
             }
             tracing::info!("Fetched {} TaskWarrior tasks", todos.len());

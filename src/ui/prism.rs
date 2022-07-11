@@ -31,6 +31,18 @@ impl Prism<Todo, RawRichText> for TodoBody {
     }
 }
 
+pub struct TodoDueDate;
+
+impl Prism<Todo, LocalDateTime> for TodoDueDate {
+    fn get(&self, data: &Todo) -> Option<LocalDateTime> {
+        data.due_date.clone()
+    }
+
+    fn put(&self, data: &mut Todo, due_date: LocalDateTime) {
+        data.due_date = Some(due_date)
+    }
+}
+
 pub struct ProviderConfigPrism;
 pub struct CalendarConfigPrism;
 

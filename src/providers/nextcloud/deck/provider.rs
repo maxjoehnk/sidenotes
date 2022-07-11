@@ -109,6 +109,7 @@ impl IntoTodo for (String, CardModel) {
             link: None,
             actions: Default::default(),
             comments: Default::default(),
+            due_date: None,
         }
     }
 }

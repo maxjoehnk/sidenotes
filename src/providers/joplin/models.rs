@@ -1,3 +1,4 @@
+use crate::models::LocalDateTime;
 use crate::rich_text::Markdown;
 use serde::Deserialize;
 
@@ -8,6 +9,7 @@ pub struct TodoNote {
     pub body: Markdown,
     pub notebook: Notebook,
     pub tags: Vec<Tag>,
+    pub due_date: Option<LocalDateTime>,
 }
 
 #[derive(Debug, Clone, Deserialize)]

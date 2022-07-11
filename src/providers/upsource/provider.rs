@@ -112,6 +112,7 @@ impl From<(ProviderId, &str, models::ReviewDescriptor)> for Todo {
             id: review.review_id.review_id.into(), // TODO: this should be a combination of review and project id
             actions: Default::default(),
             comments: Default::default(),
+            due_date: None,
         }
     }
 }
