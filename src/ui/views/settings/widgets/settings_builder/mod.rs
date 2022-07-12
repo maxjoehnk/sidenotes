@@ -14,7 +14,7 @@ pub struct SettingsBuilder<T: druid::Data> {
     pub(super) fields: Vec<BuiltSettingsRow<T>>,
 }
 
-impl<'a, T: druid::Data> SettingsBuilder<T> {
+impl<T: druid::Data> SettingsBuilder<T> {
     pub fn new(title: &'static str) -> Self {
         Self {
             title,
