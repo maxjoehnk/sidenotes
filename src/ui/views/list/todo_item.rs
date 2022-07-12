@@ -1,12 +1,10 @@
 use chrono::Datelike;
 use druid::widget::*;
 use druid::{Color, Command, FontDescriptor, FontFamily, Insets, Target, Widget};
-use druid_widget_nursery::prism;
 
 use crate::models::*;
 use crate::ui::commands;
 use crate::ui::lazy_icon::{IconExtensions, IconLoader, LazyIcon};
-use crate::ui::prism::TodoDueDate;
 use crate::ui::theme::{CARD_COLOR, STATUS_COLOR};
 use crate::ui::widgets::ClickableArea;
 
@@ -79,23 +77,31 @@ fn todo_item_builder(tag_row: impl Widget<Todo> + 'static) -> impl Widget<Todo> 
 }
 
 fn due_builder() -> impl Widget<Todo> {
-    prism::PrismWrap::new(due_date_builder(), TodoDueDate)
+    Either::new(
+        |todo: &Todo, _: &_| todo.due_date.is_some(),
+        due_date_builder().lens(Todo::due_date),
+        Flex::row(),
+    )
 }
 
-fn due_date_builder() -> impl Widget<LocalDateTime> {
+fn due_date_builder() -> impl Widget<Option<LocalDateTime>> {
     let time_font = FontDescriptor::new(FontFamily::SYSTEM_UI).with_size(14.0);
     let icon = DUE_DATE_ICON.to_svg().fix_size(16., 16.).padding(8.);
 
-    let date = Label::new(|due_date: &LocalDateTime, _: &_| {
-        if due_date.is_today() {
-            "Today".to_string()
+    let date = Label::new(|due_date: &Option<LocalDateTime>, _: &_| {
+        if let Some(due_date) = due_date {
+            if due_date.is_today() {
+                "Today".to_string()
+            } else {
+                format!(
+                    "{}.{}.{}",
+                    due_date.day(),
+                    due_date.month(),
+                    due_date.year()
+                )
+            }
         } else {
-            format!(
-                "{}.{}.{}",
-                due_date.day(),
-                due_date.month(),
-                due_date.year()
-            )
+            Default::default()
         }
     })
     .with_font(time_font)

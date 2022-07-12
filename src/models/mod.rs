@@ -102,7 +102,6 @@ pub struct Todo {
     pub link: Option<String>,
     pub actions: Vector<TodoAction>,
     pub comments: Vector<TodoComment>,
-    #[data(ignore)]
     pub due_date: Option<LocalDateTime>,
 }
 
