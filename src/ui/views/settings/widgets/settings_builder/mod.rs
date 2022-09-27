@@ -2,6 +2,7 @@ pub use self::calendar::*;
 pub use self::provider::*;
 
 use super::ProviderSettingsRow;
+use crate::ui::views::settings::widgets::ProviderSettingsFlagRow;
 use druid::{Lens, Widget, WidgetExt};
 
 mod calendar;
@@ -25,6 +26,18 @@ impl<T: druid::Data> SettingsBuilder<T> {
     pub fn add_field<L: Lens<T, String> + Clone + 'static>(
         mut self,
         row: ProviderSettingsRow<T, L>,
+    ) -> Self {
+        let edit = row.build_edit();
+        let edit = edit.boxed();
+        let view = row.build_view();
+        let view = view.boxed();
+        self.fields.push((edit, view));
+        self
+    }
+
+    pub fn add_flag_field<L: Lens<T, bool> + Clone + 'static>(
+        mut self,
+        row: ProviderSettingsFlagRow<T, L>,
     ) -> Self {
         let edit = row.build_edit();
         let edit = edit.boxed();

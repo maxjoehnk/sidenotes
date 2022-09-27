@@ -3,7 +3,7 @@ use async_compat::CompatExt;
 use druid::{Data, Lens};
 use futures::future::BoxFuture;
 use futures::FutureExt;
-use im::Vector;
+use im::{vector, Vector};
 use octorust::auth::Credentials;
 use octorust::types::{
     IssueSearchResultItem, IssuesListState, Order, PullRequestReviewData, PullRequestSimple,
@@ -12,11 +12,13 @@ use octorust::types::{
 use octorust::Client;
 use serde::{Deserialize, Serialize};
 
-use crate::models::Todo;
+use crate::models::{Todo, TodoAction, TodoId};
 use crate::providers::ProviderId;
 use crate::rich_text::Markdown;
 
 use super::Provider;
+
+const MARK_NOTIFICATION_AS_READ: &str = "GITHUB_MARK_AS_READ";
 
 #[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, Data, Lens)]
 pub struct GithubConfig {
@@ -25,6 +27,8 @@ pub struct GithubConfig {
     repos: Vector<String>,
     #[serde(default)]
     query: Option<String>,
+    #[serde(default)]
+    notifications: bool,
 }
 
 #[derive(Clone)]
@@ -34,6 +38,7 @@ pub struct GithubProvider {
     token: String,
     repos: Vec<(String, String)>,
     query: Option<String>,
+    notifications: bool,
 }
 
 impl GithubProvider {
@@ -55,18 +60,21 @@ impl GithubProvider {
                 })
                 .collect(),
             query: config.query,
+            notifications: config.notifications,
         })
     }
 
     async fn fetch_todos(&self) -> anyhow::Result<Vector<Todo>> {
         tracing::info!("Fetching Github Todos...");
-        let (lhs, rhs): (Vector<Todo>, Vector<Todo>) = futures::future::try_join(
+        let (todos1, todos2, todos3) = futures::future::try_join3(
             self.fetch_repo_pull_requests(),
             self.search_issues_and_prs(),
+            self.get_notifications(),
         )
         .await?;
-        let mut todos = lhs;
-        todos.append(rhs);
+        let mut todos = todos1;
+        todos.append(todos2);
+        todos.append(todos3);
 
         tracing::info!("Fetched {} Github Todos", todos.len());
 
@@ -175,6 +183,49 @@ impl GithubProvider {
         }
     }
 
+    async fn get_notifications(&self) -> anyhow::Result<Vector<Todo>> {
+        if !self.notifications {
+            return Ok(Vector::new());
+        }
+        let threads = self
+            .client
+            .activity()
+            .list_all_notifications_for_authenticated_user(false, false, None, None)
+            .await?;
+
+        let todos = threads
+            .into_iter()
+            .map(|thread| Todo {
+                id: thread.id.into(),
+                title: thread.subject.title,
+                link: thread.subject.url.into(),
+                author: None,
+                tags: vector![thread.repository.full_name],
+                body: None,
+                provider: self.id,
+                state: thread.reason.into(),
+                comments: Default::default(),
+                actions: vector![TodoAction {
+                    id: MARK_NOTIFICATION_AS_READ,
+                    label: "Mark as read"
+                }],
+                due_date: None,
+            })
+            .collect();
+
+        Ok(todos)
+    }
+
+    async fn mark_thread_as_read(&self, thread_id: String) -> anyhow::Result<()> {
+        let thread_id = thread_id.parse::<i64>()?;
+        self.client
+            .activity()
+            .mark_thread_as_read(thread_id)
+            .await?;
+
+        Ok(())
+    }
+
     fn get_pr_state(
         pr: &impl GithubIssueOrPullRequest,
         reviews: &[PullRequestReviewData],
@@ -210,6 +261,7 @@ impl Provider for GithubProvider {
                 .iter()
                 .map(|(owner, repo)| format!("{}/{}", owner, repo))
                 .collect(),
+            notifications: self.notifications,
         }
         .into()
     }
@@ -220,6 +272,15 @@ impl Provider for GithubProvider {
 
     fn fetch_todos(&self) -> BoxFuture<anyhow::Result<Vector<Todo>>> {
         self.fetch_todos().compat().boxed()
+    }
+
+    fn run_action(&self, todo: TodoId, action: TodoAction) -> BoxFuture<anyhow::Result<()>> {
+        match (todo, action.id) {
+            (TodoId::String(thread), MARK_NOTIFICATION_AS_READ) => {
+                self.mark_thread_as_read(thread).compat().boxed()
+            }
+            _ => unimplemented!(),
+        }
     }
 }
 

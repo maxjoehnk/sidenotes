@@ -9,6 +9,10 @@ pub fn github_settings() -> impl ProviderSettingsBuilder<GithubConfig> {
     SettingsBuilder::new("Github")
         // .add_field(ProviderSettingsRow::optional("Query", GithubConfig::query).multiline())
         .add_field(ProviderSettingsRow::new("Token", GithubConfig::token).secret())
+        .add_flag_field(ProviderSettingsFlagRow::new(
+            "Notifications",
+            GithubConfig::notifications,
+        ))
 }
 
 pub fn view() -> impl Widget<(GithubConfig, ProviderSettings)> {
