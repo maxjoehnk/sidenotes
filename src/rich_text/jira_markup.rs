@@ -1,16 +1,19 @@
+use std::str::FromStr;
+
+use druid::text::{Attribute, AttributesAdder, RichTextBuilder};
+use druid::{Color, Data, FontFamily, FontStyle, FontWeight};
+use im::Vector;
+use palette::{RelativeContrast, Srgb};
+use serde::Deserialize;
+
+use jira_parser::ast::{self, *};
+
 use crate::rich_text::{
     get_font_size_for_heading, IntoMarkup, MarkupItem, MarkupItemStyle, MarkupPart, Table,
     TableField, TableRow,
 };
 use crate::ui::commands::OPEN_LINK;
 use crate::LINK_COLOR;
-use druid::text::{Attribute, AttributesAdder, RichTextBuilder};
-use druid::{Color, Data, FontFamily, FontStyle, FontWeight};
-use im::Vector;
-use jira_parser::ast::{self, *};
-use palette::{RelativeContrast, Srgb};
-use serde::Deserialize;
-use std::str::FromStr;
 
 const BLOCKQUOTE_COLOR: Color = Color::grey8(0x88);
 const INSERTED_COLOR: Color = Color::rgb8(0, 255, 0);
@@ -57,7 +60,10 @@ impl IntoMarkup for JiraMarkup {
                         }
                         let mut builder = RichTextBuilder::new();
                         build_tag(&mut builder, &attrs, tag);
-                        items.push(MarkupItemBuilder::Text(Box::new(builder), Default::default()));
+                        items.push(MarkupItemBuilder::Text(
+                            Box::new(builder),
+                            Default::default(),
+                        ));
                     }
                 }
 
