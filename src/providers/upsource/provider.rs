@@ -8,7 +8,7 @@ use druid::{Data, Lens};
 use futures::future::{BoxFuture, FutureExt};
 use serde::{Deserialize, Serialize};
 
-#[derive(Default, Debug, Clone, Deserialize, Serialize, PartialEq, Data, Lens)]
+#[derive(Default, Debug, Clone, Deserialize, Serialize, PartialEq, Eq, Data, Lens)]
 pub struct UpsourceConfig {
     url: String,
     token: String,
@@ -35,7 +35,7 @@ impl Lens<UpsourceConfig, String> for UpsourceQueryLens {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Data)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq, Data)]
 #[repr(transparent)]
 #[serde(transparent)]
 struct UpsourceQuery(String);

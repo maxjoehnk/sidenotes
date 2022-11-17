@@ -59,7 +59,7 @@ pub struct ProviderSettings {
     pub exclude_status: Vector<String>,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, From, PartialEq, Data)]
+#[derive(Debug, Clone, Deserialize, Serialize, From, PartialEq, Eq, Data)]
 #[serde(rename_all = "camelCase", tag = "type")]
 pub enum ProviderConfig {
     #[cfg(feature = "github")]

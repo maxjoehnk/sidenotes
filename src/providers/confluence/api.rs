@@ -50,7 +50,7 @@ impl ConfluenceApi {
 
     fn auth_header(&self) -> String {
         let unencoded = format!("{}:{}", self.username, self.password);
-        let encoded = base64::encode(&unencoded);
+        let encoded = base64::encode(unencoded);
 
         format!("Basic {}", encoded)
     }

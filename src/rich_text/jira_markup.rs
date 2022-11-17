@@ -1,16 +1,19 @@
+use std::str::FromStr;
+
+use druid::text::{Attribute, AttributesAdder, RichTextBuilder};
+use druid::{Color, Data, FontFamily, FontStyle, FontWeight};
+use im::Vector;
+use palette::{RelativeContrast, Srgb};
+use serde::Deserialize;
+
+use jira_parser::ast::{self, *};
+
 use crate::rich_text::{
     get_font_size_for_heading, IntoMarkup, MarkupItem, MarkupItemStyle, MarkupPart, Table,
     TableField, TableRow,
 };
 use crate::ui::commands::OPEN_LINK;
 use crate::LINK_COLOR;
-use druid::text::{Attribute, AttributesAdder, RichTextBuilder};
-use druid::{Color, Data, FontFamily, FontStyle, FontWeight};
-use im::Vector;
-use jira_parser::ast::{self, *};
-use palette::{RelativeContrast, Srgb};
-use serde::Deserialize;
-use std::str::FromStr;
 
 const BLOCKQUOTE_COLOR: Color = Color::grey8(0x88);
 const INSERTED_COLOR: Color = Color::rgb8(0, 255, 0);
@@ -57,7 +60,10 @@ impl IntoMarkup for JiraMarkup {
                         }
                         let mut builder = RichTextBuilder::new();
                         build_tag(&mut builder, &attrs, tag);
-                        items.push(MarkupItemBuilder::Text(builder, Default::default()));
+                        items.push(MarkupItemBuilder::Text(
+                            Box::new(builder),
+                            Default::default(),
+                        ));
                     }
                 }
 
@@ -72,7 +78,7 @@ impl IntoMarkup for JiraMarkup {
 fn build_panel_title(panel: &Panel, disable_colorized_backgrounds: bool) -> MarkupItemBuilder {
     let style = MarkupItemStyle {
         background: (!disable_colorized_backgrounds)
-            .then(|| ())
+            .then_some(())
             .and_then(|_| panel.title_background_color.clone()),
     };
     let mut text_builder = RichTextBuilder::new();
@@ -84,14 +90,14 @@ fn build_panel_title(panel: &Panel, disable_colorized_backgrounds: bool) -> Mark
         }
     }
 
-    MarkupItemBuilder::Text(text_builder, style)
+    MarkupItemBuilder::Text(Box::new(text_builder), style)
 }
 
 fn build_panel_content(panel: Panel, disable_colorized_backgrounds: bool) -> MarkupItemBuilder {
     let mut attrs = vec![];
     let style = MarkupItemStyle {
         background: (!disable_colorized_backgrounds)
-            .then(|| ())
+            .then_some(())
             .and_then(|_| panel.background_color.clone()),
     };
     if let Some(color) = get_high_contrast_text_color(&style) {
@@ -103,7 +109,7 @@ fn build_panel_content(panel: Panel, disable_colorized_backgrounds: bool) -> Mar
         build_tag(&mut builder, &attrs, tag);
     }
 
-    MarkupItemBuilder::Text(builder, style)
+    MarkupItemBuilder::Text(Box::new(builder), style)
 }
 
 fn build_table(table: ast::Table) -> MarkupItemBuilder {
@@ -157,7 +163,7 @@ fn get_high_contrast_text_color(style: &MarkupItemStyle) -> Option<Color> {
 }
 
 enum MarkupItemBuilder {
-    Text(RichTextBuilder, MarkupItemStyle),
+    Text(Box<RichTextBuilder>, MarkupItemStyle),
     Table(Table),
 }
 

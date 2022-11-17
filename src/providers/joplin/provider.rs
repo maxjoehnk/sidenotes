@@ -11,7 +11,7 @@ use std::cmp::Ordering;
 
 const MARK_AS_DONE_ACTION: &str = "JOPLIN_MARK_AS_DONE";
 
-#[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, Data, Lens)]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, Eq, Data, Lens)]
 pub struct JoplinConfig {
     token: String,
     #[serde(default)]
