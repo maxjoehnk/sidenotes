@@ -1,5 +1,23 @@
+use crate::models::LocalDateTime;
 use crate::rich_text::Markdown;
 use serde::Deserialize;
+
+#[derive(Debug, Clone)]
+pub struct TodoNote {
+    pub id: String,
+    pub title: String,
+    pub body: Markdown,
+    pub notebook: Notebook,
+    pub tags: Vec<Tag>,
+    pub due_date: Option<LocalDateTime>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct Notebook {
+    pub id: String,
+    pub title: String,
+    pub parent_id: Option<String>,
+}
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Note {
@@ -27,4 +45,11 @@ impl Note {
 pub struct JoplinResponse<T> {
     pub items: Vec<T>,
     pub has_more: bool,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct Tag {
+    pub id: String,
+    pub parent_id: Option<String>,
+    pub title: String,
 }

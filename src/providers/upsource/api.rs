@@ -1,9 +1,10 @@
 use super::models::*;
 use serde::{Deserialize, Serialize};
 
+#[derive(Clone)]
 pub struct UpsourceApi {
-    url: String,
-    token: String,
+    pub(super) url: String,
+    pub(super) token: String,
 }
 
 impl UpsourceApi {

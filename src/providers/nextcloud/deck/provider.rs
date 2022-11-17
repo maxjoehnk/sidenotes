@@ -1,41 +1,41 @@
 use crate::models::Todo;
 use crate::providers::nextcloud::deck::api::NextcloudApi;
 use crate::providers::nextcloud::deck::models::CardModel;
-use crate::providers::Provider;
+use crate::providers::{IntoTodo, Provider, ProviderConfig, ProviderId};
 use crate::rich_text::RawRichText;
 use druid::im::Vector;
+use druid::{Data, Lens};
 use futures::future::BoxFuture;
 use futures::FutureExt;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, Eq, Data, Lens)]
 pub struct NextcloudDeckProviderConfig {
-    #[serde(default)]
-    name: Option<String>,
     pub host: String,
     pub username: String,
     pub password: String,
-    pub boards: Vec<BoardConfig>,
+    pub boards: Vector<BoardConfig>,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq, Data, Lens)]
 pub struct BoardConfig {
     title: String,
-    stacks: Vec<String>,
+    stacks: Vector<String>,
 }
 
+#[derive(Clone)]
 pub struct NextcloudDeckProvider {
-    name: Option<String>,
+    id: ProviderId,
     api: NextcloudApi,
     boards: Vec<BoardConfig>,
 }
 
 impl NextcloudDeckProvider {
-    pub fn new(config: NextcloudDeckProviderConfig) -> Self {
+    pub fn new(id: ProviderId, config: NextcloudDeckProviderConfig) -> Self {
         Self {
-            name: config.name,
+            id,
             api: NextcloudApi::new(config.host, config.username, config.password),
-            boards: config.boards,
+            boards: config.boards.into_iter().collect(),
         }
     }
 
@@ -64,7 +64,10 @@ impl NextcloudDeckProvider {
                 }
             }
         }
-        let todos: Vector<_> = cards.into_iter().map(Todo::from).collect();
+        let todos: Vector<_> = cards
+            .into_iter()
+            .map(|card| card.into_todo(self.id))
+            .collect();
         tracing::info!("Fetched {} Nextcloud Deck cards", todos.len());
 
         Ok(todos)
@@ -72,8 +75,18 @@ impl NextcloudDeckProvider {
 }
 
 impl Provider for NextcloudDeckProvider {
-    fn name(&self) -> String {
-        self.name.clone().unwrap_or_else(|| "Nextcloud Deck".into())
+    fn to_config(&self) -> ProviderConfig {
+        NextcloudDeckProviderConfig {
+            username: self.api.username.clone(),
+            password: self.api.password.clone(),
+            host: self.api.host.clone(),
+            boards: self.boards.iter().cloned().collect(),
+        }
+        .into()
+    }
+
+    fn name(&self) -> &'static str {
+        "Nextcloud Deck"
     }
 
     fn fetch_todos(&self) -> BoxFuture<anyhow::Result<Vector<Todo>>> {
@@ -81,14 +94,22 @@ impl Provider for NextcloudDeckProvider {
     }
 }
 
-impl From<(String, CardModel)> for Todo {
-    fn from((stack, card): (String, CardModel)) -> Self {
-        Self {
+impl IntoTodo for (String, CardModel) {
+    fn into_todo(self, id: ProviderId) -> Todo {
+        let (stack, card) = self;
+
+        Todo {
+            provider: id,
+            id: card.id.into(),
             title: card.title,
             body: Some(RawRichText::Markdown(card.description.into())),
             state: Some(stack),
+            tags: Default::default(),
             author: None,
             link: None,
+            actions: Default::default(),
+            comments: Default::default(),
+            due_date: None,
         }
     }
 }

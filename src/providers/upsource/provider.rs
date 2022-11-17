@@ -1,23 +1,41 @@
 use super::{api, models};
 use crate::models::Todo;
 use crate::providers::upsource::models::{ReviewDescriptor, ReviewState};
-use crate::providers::Provider;
+use crate::providers::{Provider, ProviderConfig, ProviderId};
 use crate::rich_text::Markdown;
 use druid::im::Vector;
+use druid::{Data, Lens};
 use futures::future::{BoxFuture, FutureExt};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Default, Debug, Clone, Deserialize, Serialize, PartialEq, Eq, Data, Lens)]
 pub struct UpsourceConfig {
-    #[serde(default)]
-    name: Option<String>,
     url: String,
     token: String,
     #[serde(default)]
+    #[lens(ignore)]
     query: UpsourceQuery,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+impl UpsourceConfig {
+    #[allow(non_upper_case_globals)]
+    pub const query: UpsourceQueryLens = UpsourceQueryLens;
+}
+
+#[derive(Clone, Copy)]
+pub struct UpsourceQueryLens;
+
+impl Lens<UpsourceConfig, String> for UpsourceQueryLens {
+    fn with<V, F: FnOnce(&String) -> V>(&self, data: &UpsourceConfig, f: F) -> V {
+        f(&data.query.0)
+    }
+
+    fn with_mut<V, F: FnOnce(&mut String) -> V>(&self, data: &mut UpsourceConfig, f: F) -> V {
+        f(&mut data.query.0)
+    }
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq, Data)]
 #[repr(transparent)]
 #[serde(transparent)]
 struct UpsourceQuery(String);
@@ -28,18 +46,19 @@ impl Default for UpsourceQuery {
     }
 }
 
+#[derive(Clone)]
 pub struct UpsourceProvider {
+    id: ProviderId,
     base_url: String,
-    name: Option<String>,
     api: api::UpsourceApi,
     query: String,
 }
 
 impl UpsourceProvider {
-    pub fn new(config: UpsourceConfig) -> anyhow::Result<Self> {
+    pub fn new(id: ProviderId, config: UpsourceConfig) -> anyhow::Result<Self> {
         Ok(Self {
+            id,
             base_url: config.url.clone(),
-            name: config.name,
             api: api::UpsourceApi::new(config.url, config.token),
             query: config.query.0,
         })
@@ -50,7 +69,7 @@ impl UpsourceProvider {
         let issues = self.api.get_reviews(&self.query).await?;
         let todos: Vector<_> = issues
             .into_iter()
-            .map(|review| Todo::from((self.base_url.as_str(), review)))
+            .map(|review| Todo::from((self.id, self.base_url.as_str(), review)))
             .collect();
         tracing::info!("Fetched {} Upsource notes", todos.len());
 
@@ -59,8 +78,17 @@ impl UpsourceProvider {
 }
 
 impl Provider for UpsourceProvider {
-    fn name(&self) -> String {
-        self.name.clone().unwrap_or_else(|| "Upsource".into())
+    fn to_config(&self) -> ProviderConfig {
+        UpsourceConfig {
+            query: UpsourceQuery(self.query.clone()),
+            url: self.api.url.clone(),
+            token: self.api.token.clone(),
+        }
+        .into()
+    }
+
+    fn name(&self) -> &'static str {
+        "Upsource"
     }
 
     fn fetch_todos(&self) -> BoxFuture<anyhow::Result<Vector<Todo>>> {
@@ -68,17 +96,23 @@ impl Provider for UpsourceProvider {
     }
 }
 
-impl From<(&str, models::ReviewDescriptor)> for Todo {
-    fn from((url, review): (&str, ReviewDescriptor)) -> Self {
+impl From<(ProviderId, &str, models::ReviewDescriptor)> for Todo {
+    fn from((provider_id, url, review): (ProviderId, &str, ReviewDescriptor)) -> Self {
         Self {
+            provider: provider_id,
             title: format!("{} - {}", review.review_id.review_id, review.title),
-            state: Some(review.state()),
-            body: review.description.map(|desc| Markdown(desc).into()),
-            author: None,
             link: Some(format!(
                 "{}/{}/review/{}",
                 url, review.review_id.project_id, review.review_id.review_id
             )),
+            state: Some(review.state()),
+            body: review.description.map(|desc| Markdown(desc).into()),
+            tags: review.labels.into_iter().map(|label| label.name).collect(),
+            author: review.created_by,
+            id: review.review_id.review_id.into(), // TODO: this should be a combination of review and project id
+            actions: Default::default(),
+            comments: Default::default(),
+            due_date: None,
         }
     }
 }

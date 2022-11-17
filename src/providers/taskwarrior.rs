@@ -1,26 +1,29 @@
 use super::Provider;
 use crate::models::Todo;
+use crate::providers::ProviderConfig;
+use crate::providers::ProviderId;
 use druid::im::Vector;
+use druid::{Data, Lens};
 use futures::future::BoxFuture;
 use futures::FutureExt;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use task_hookrs::tw::query;
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, Eq, Data, Lens)]
 pub struct TaskwarriorConfig {
-    name: Option<String>,
     query: String,
 }
 
+#[derive(Clone)]
 pub struct TaskwarriorProvider {
-    name: Option<String>,
+    id: ProviderId,
     query: String,
 }
 
 impl TaskwarriorProvider {
-    pub fn new(config: TaskwarriorConfig) -> anyhow::Result<Self> {
+    pub fn new(id: ProviderId, config: TaskwarriorConfig) -> anyhow::Result<Self> {
         Ok(Self {
-            name: config.name,
+            id,
             query: config.query,
         })
     }
@@ -31,11 +34,20 @@ impl TaskwarriorProvider {
         if let Ok(tasks) = query(&self.query) {
             for task in tasks {
                 todos.push_back(Todo {
+                    provider: self.id,
+                    id: task.id().unwrap_or_default().into(),
                     title: task.description().into(),
                     state: Some(task.status().to_string()),
+                    tags: task
+                        .tags()
+                        .map(|tags| tags.iter().cloned().collect())
+                        .unwrap_or_default(),
                     author: None,
                     body: None,
                     link: None,
+                    actions: Default::default(),
+                    comments: Default::default(),
+                    due_date: None,
                 })
             }
             tracing::info!("Fetched {} TaskWarrior tasks", todos.len());
@@ -48,8 +60,15 @@ impl TaskwarriorProvider {
 }
 
 impl Provider for TaskwarriorProvider {
-    fn name(&self) -> String {
-        self.name.clone().unwrap_or_else(|| "TaskWarrior".into())
+    fn to_config(&self) -> ProviderConfig {
+        TaskwarriorConfig {
+            query: self.query.clone(),
+        }
+        .into()
+    }
+
+    fn name(&self) -> &'static str {
+        "TaskWarrior"
     }
 
     fn fetch_todos(&self) -> BoxFuture<anyhow::Result<Vector<Todo>>> {

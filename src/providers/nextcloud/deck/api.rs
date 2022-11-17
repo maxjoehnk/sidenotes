@@ -2,16 +2,17 @@ use crate::providers::nextcloud::deck::models::*;
 use serde::de::DeserializeOwned;
 use std::fmt::Debug;
 
+#[derive(Clone)]
 pub struct NextcloudApi {
-    url: String,
-    username: String,
-    password: String,
+    pub(super) host: String,
+    pub(super) username: String,
+    pub(super) password: String,
 }
 
 impl NextcloudApi {
-    pub fn new(url: String, username: String, password: String) -> Self {
+    pub fn new(host: String, username: String, password: String) -> Self {
         Self {
-            url,
+            host,
             username,
             password,
         }
@@ -40,7 +41,7 @@ impl NextcloudApi {
     }
 
     async fn get<T: DeserializeOwned + Debug>(&self, url: &str) -> anyhow::Result<T> {
-        let mut res = surf::get(format!("{}/{}", &self.url, url))
+        let mut res = surf::get(format!("{}/{}", &self.host, url))
             .header("Accept", "application/json")
             .header("OCS-APIRequest", "true")
             .header("Authorization", self.auth_header())
@@ -74,7 +75,7 @@ impl NextcloudApi {
 
     fn auth_header(&self) -> String {
         let unencoded = format!("{}:{}", self.username, self.password);
-        let encoded = base64::encode(&unencoded);
+        let encoded = base64::encode(unencoded);
 
         format!("Basic {}", encoded)
     }

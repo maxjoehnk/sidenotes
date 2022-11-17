@@ -19,7 +19,21 @@ pub enum Tag {
     UnorderedList(Vec<ListItem>),
     OrderedList(Vec<ListItem>),
     Panel(Panel),
+    Icon(Icon),
+    /**
+     * (Text, Link)
+     */
+    Link(String, String),
+    Image(Image),
     Newline,
+    Table(Table),
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Icon {
+    CheckMark,
+    Minus,
+    Warning,
 }
 
 #[derive(PartialEq, Eq, Debug, Clone)]
@@ -38,6 +52,14 @@ impl ListItem {
 }
 
 #[derive(PartialEq, Eq, Debug, Clone, Default)]
+pub struct Image {
+    pub filename: String,
+    pub width: Option<String>,
+    pub height: Option<String>,
+    pub thumbnail: Option<bool>,
+}
+
+#[derive(PartialEq, Eq, Debug, Clone, Default)]
 pub struct Panel {
     pub content: Vec<Tag>,
     pub title: Option<String>,
@@ -51,5 +73,40 @@ pub struct Panel {
 impl From<Tag> for Vec<Tag> {
     fn from(tag: Tag) -> Self {
         vec![tag]
+    }
+}
+
+impl From<Table> for Tag {
+    fn from(table: Table) -> Self {
+        Self::Table(table)
+    }
+}
+
+#[derive(PartialEq, Eq, Debug, Clone, Default)]
+pub struct Table {
+    pub rows: Vec<TableRow>,
+}
+
+#[derive(PartialEq, Eq, Debug, Clone, Default)]
+pub struct TableRow(pub Vec<TableField>);
+
+#[derive(PartialEq, Eq, Debug, Clone)]
+pub enum TableField {
+    Heading(Vec<Tag>),
+    Plain(Vec<Tag>),
+}
+
+impl TableField {
+    pub fn push(&mut self, tag: Tag) {
+        match self {
+            Self::Heading(ref mut tags) => tags.push(tag),
+            Self::Plain(ref mut tags) => tags.push(tag),
+        }
+    }
+}
+
+impl From<Vec<TableField>> for TableRow {
+    fn from(fields: Vec<TableField>) -> Self {
+        Self(fields)
     }
 }

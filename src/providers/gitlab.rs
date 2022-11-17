@@ -1,35 +1,39 @@
 use crate::models::Todo;
-use crate::providers::Provider;
+use crate::providers::{IntoTodo, Provider, ProviderConfig, ProviderId};
 use crate::rich_text::Markdown;
 use async_compat::CompatExt;
-use druid::im::Vector;
+use druid::{Data, Lens};
 use futures::future::BoxFuture;
 use futures::FutureExt;
 use gitlab::api::projects::{self, merge_requests};
 use gitlab::{api, api::AsyncQuery, AsyncGitlab, GitlabBuilder, MergeRequest, Project};
-use serde::Deserialize;
+use im::Vector;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, Eq, Data, Lens)]
 pub struct GitlabConfig {
-    #[serde(default)]
-    name: Option<String>,
     url: String,
     token: String,
     #[serde(default)]
-    repos: Option<Vec<String>>,
+    repos: Option<Vector<String>>,
     #[serde(default)]
     show_drafts: bool,
 }
 
+#[derive(Clone)]
 pub struct GitlabProvider {
-    name: Option<String>,
+    id: ProviderId,
     client: AsyncGitlab,
     repos: Option<Vec<String>>,
     show_drafts: bool,
+    url: String,
+    token: String,
 }
 
 impl GitlabProvider {
-    pub async fn new(config: GitlabConfig) -> anyhow::Result<Self> {
+    pub async fn new(id: ProviderId, config: GitlabConfig) -> anyhow::Result<Self> {
+        let url = config.url.clone();
+        let token = config.token.clone();
         let client = GitlabBuilder::new(config.url, config.token)
             .insecure()
             .build_async()
@@ -37,10 +41,12 @@ impl GitlabProvider {
             .await?;
 
         Ok(Self {
-            name: config.name,
+            id,
             client,
-            repos: config.repos,
+            repos: config.repos.map(|repos| repos.into_iter().collect()),
             show_drafts: config.show_drafts,
+            url,
+            token,
         })
     }
 
@@ -62,7 +68,7 @@ impl GitlabProvider {
             tracing::debug!("{:?}", requests);
 
             for request in requests {
-                todos.push_back(request.into());
+                todos.push_back(request.into_todo(self.id));
             }
         }
         tracing::info!("Fetched {} Gitlab MRs", todos.len());
@@ -93,8 +99,21 @@ impl GitlabProvider {
 }
 
 impl Provider for GitlabProvider {
-    fn name(&self) -> String {
-        self.name.clone().unwrap_or_else(|| "Gitlab".into())
+    fn to_config(&self) -> ProviderConfig {
+        GitlabConfig {
+            repos: self
+                .repos
+                .as_ref()
+                .map(|repos| repos.iter().cloned().collect()),
+            url: self.url.clone(),
+            token: self.token.clone(),
+            show_drafts: self.show_drafts,
+        }
+        .into()
+    }
+
+    fn name(&self) -> &'static str {
+        "Gitlab"
     }
 
     fn fetch_todos(&self) -> BoxFuture<anyhow::Result<Vector<Todo>>> {
@@ -102,14 +121,20 @@ impl Provider for GitlabProvider {
     }
 }
 
-impl From<MergeRequest> for Todo {
-    fn from(mr: MergeRequest) -> Self {
-        Self {
-            title: format!("#{} - {}", mr.iid, mr.title),
-            state: Some(format!("{:?}", mr.state)),
-            body: mr.description.map(|desc| Markdown(desc).into()),
-            author: Some(mr.author.name),
-            link: Some(mr.web_url),
+impl IntoTodo for MergeRequest {
+    fn into_todo(self, id: ProviderId) -> Todo {
+        Todo {
+            provider: id,
+            id: self.id.value().into(),
+            title: format!("#{} - {}", self.iid, self.title),
+            state: Some(format!("{:?}", self.state)),
+            tags: self.labels.into(),
+            body: self.description.map(|desc| Markdown(desc).into()),
+            author: Some(self.author.name),
+            link: Some(self.web_url),
+            actions: Default::default(),
+            comments: Default::default(),
+            due_date: None,
         }
     }
 }

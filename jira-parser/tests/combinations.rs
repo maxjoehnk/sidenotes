@@ -1,15 +1,18 @@
 use jira_parser::ast::*;
-use jira_parser::parse;
+use jira_parser::{ast, parse};
 
 #[test]
 fn combine_format() {
-    let tags = parse("*bold*_italic_-deleted-+inserted+").unwrap();
+    let tags = parse("*bold* _italic_ -deleted- +inserted+").unwrap();
 
     assert_eq!(
         vec![
             Tag::Strong("bold".into()),
+            Tag::Text(" ".into()),
             Tag::Emphasis("italic".into()),
+            Tag::Text(" ".into()),
             Tag::Deleted("deleted".into()),
+            Tag::Text(" ".into()),
             Tag::Inserted("inserted".into()),
         ],
         tags
@@ -25,7 +28,7 @@ fn formatted_heading() {
             1,
             vec![
                 Tag::Strong("Important".into()),
-                Tag::Text(" something something".into()).into(),
+                Tag::Text(" something something".into()),
             ]
         )],
         tags
@@ -165,7 +168,7 @@ h3. *Acceptance criteria*
 
     let tags = parse(text).unwrap();
 
-    assert_eq!(expected, tags);
+    assert_eq!(tags, expected);
 }
 
 #[test]
@@ -185,6 +188,79 @@ fn color_in_panel_ticket() {
         title: Some("Steps to reproduce".into()),
         ..Default::default()
     })];
+
+    let tags = parse(text).unwrap();
+
+    assert_eq!(tags, expected);
+}
+
+#[test]
+fn test_comment() {
+    let text = r#"||*Environment*|PR-1234|
+||*Timestamp*|01. Januar 2022 08:00|
+||*Hash*|123abc|
+
+* (/) Some acceptance criteria
+* (/) Another one"#;
+    let expected = vec![
+        Tag::Table(Table {
+            rows: vec![
+                vec![
+                    ast::TableField::Heading(vec![ast::Tag::Strong("Environment".into())]),
+                    ast::TableField::Plain(vec![ast::Tag::Text("PR-1234".into())]),
+                ]
+                .into(),
+                vec![
+                    ast::TableField::Heading(vec![ast::Tag::Strong("Timestamp".into())]),
+                    ast::TableField::Plain(vec![ast::Tag::Text("01. Januar 2022 08:00".into())]),
+                ]
+                .into(),
+                vec![
+                    ast::TableField::Heading(vec![ast::Tag::Strong("Hash".into())]),
+                    ast::TableField::Plain(vec![ast::Tag::Text("123abc".into())]),
+                ]
+                .into(),
+            ],
+        }),
+        Tag::Newline,
+        Tag::Newline,
+        Tag::UnorderedList(vec![
+            ListItem {
+                content: vec![
+                    Tag::Icon(Icon::CheckMark),
+                    Tag::Text(" Some acceptance criteria".into()),
+                ],
+                level: 1,
+            },
+            ListItem {
+                content: vec![Tag::Icon(Icon::CheckMark), Tag::Text(" Another one".into())],
+                level: 1,
+            },
+        ]),
+    ];
+
+    let tags = parse(text).unwrap();
+
+    assert_eq!(tags, expected);
+}
+
+#[test]
+fn inline_bold() {
+    let text = "Inline *bold*";
+    let expected = vec![Tag::Text("Inline ".into()), Tag::Strong("bold".into())];
+
+    let tags = parse(text).unwrap();
+
+    assert_eq!(expected, tags);
+}
+
+#[test]
+fn color_in_list() {
+    let text = "* {color:#FF0000}colorized{color}";
+    let expected = vec![Tag::UnorderedList(vec![ListItem {
+        content: vec![Tag::Color("#FF0000".into(), "colorized".into())],
+        level: 1,
+    }])];
 
     let tags = parse(text).unwrap();
 

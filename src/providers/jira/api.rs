@@ -1,15 +1,23 @@
 use super::models::*;
+use serde::de::DeserializeOwned;
 use serde::Serialize;
+use std::fmt::Debug;
 
+#[derive(Clone)]
 pub struct JiraApi {
     pub(super) url: String,
-    username: String,
-    password: String,
+    pub(super) username: String,
+    pub(super) password: String,
 }
 
 #[derive(Serialize)]
 struct SearchQuery<'a> {
     jql: &'a str,
+}
+
+#[derive(Serialize)]
+struct GetIssueQuery<'a> {
+    fields: Option<&'a str>,
 }
 
 impl JiraApi {
@@ -23,10 +31,31 @@ impl JiraApi {
 
     pub async fn search(&self, query: &str) -> anyhow::Result<Vec<Issue>> {
         let query = SearchQuery { jql: query };
-        let mut res = surf::get(format!("{}/rest/api/2/search", &self.url))
+        let res: SearchResponse = self.get("rest/api/2/search", &query).await?;
+
+        Ok(res.issues)
+    }
+
+    pub async fn comments(&self, id: &str) -> anyhow::Result<Vec<Comment>> {
+        let query = GetIssueQuery {
+            fields: Some("comment"),
+        };
+        let res: IssueWithComments = self
+            .get(&format!("rest/agile/1.0/issue/{}", id), &query)
+            .await?;
+
+        Ok(res.fields.comment.comments)
+    }
+
+    async fn get<T: DeserializeOwned + Debug>(
+        &self,
+        url: &str,
+        query: &impl Serialize,
+    ) -> anyhow::Result<T> {
+        let mut res = surf::get(format!("{}/{}", &self.url, url))
             .content_type("application/json")
             .header("Authorization", self.auth_header())
-            .query(&query)
+            .query(query)
             .unwrap()
             .await
             .map_err(|err| anyhow::anyhow!("{:?}", err))?;
@@ -47,18 +76,18 @@ impl JiraApi {
             "Jira api returned non success status code"
         );
 
-        let res: SearchResponse = res
+        let res: T = res
             .body_json()
             .await
             .map_err(|err| anyhow::anyhow!("{:?}", err))?;
         tracing::trace!("{:?}", res);
 
-        Ok(res.issues)
+        Ok(res)
     }
 
     fn auth_header(&self) -> String {
         let unencoded = format!("{}:{}", self.username, self.password);
-        let encoded = base64::encode(&unencoded);
+        let encoded = base64::encode(unencoded);
 
         format!("Basic {}", encoded)
     }

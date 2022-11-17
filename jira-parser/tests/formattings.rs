@@ -58,6 +58,27 @@ fn text_effect_deleted() {
 }
 
 #[test]
+fn deleted_effect_should_not_apply_across_newlines() {
+    let tag = parse("-spaced\neffect-").unwrap();
+
+    assert_eq!(
+        vec![
+            Tag::Text("-spaced".into()),
+            Tag::Newline,
+            Tag::Text("effect-".into())
+        ],
+        tag
+    );
+}
+
+#[test]
+fn deleted_effect_should_not_apply_without_spaces() {
+    let tag = parse("please-delete-this").unwrap();
+
+    assert_eq!(vec![Tag::Text("please-delete-this".into()),], tag);
+}
+
+#[test]
 fn text_effect_inserted() {
     let tag = parse("+inserted+").unwrap();
 
@@ -118,4 +139,62 @@ fn color() {
         vec![Tag::Color("red".into(), "look ma, red text!".into())],
         tag
     );
+}
+
+#[test_case("(/)", Icon::CheckMark)]
+#[test_case("(!)", Icon::Warning)]
+#[test_case("(-)", Icon::Minus)]
+fn icon(input: &str, icon: Icon) {
+    let tags = parse(input).unwrap();
+
+    assert_eq!(vec![Tag::Icon(icon)], tags);
+}
+
+#[test_case(
+    "[http://jira.atlassian.com]",
+    "http://jira.atlassian.com",
+    "http://jira.atlassian.com"
+)]
+#[test_case(
+    "[Atlassian|http://atlassian.com]",
+    "Atlassian",
+    "http://atlassian.com"
+)]
+#[test_case(
+    "[mailto:legendaryservice@atlassian.com]",
+    "legendaryservice@atlassian.com",
+    "mailto:legendaryservice@atlassian.com" => inconclusive ()
+)]
+fn link(input: &str, title: &str, link: &str) {
+    let tags = parse(input).unwrap();
+
+    assert_eq!(vec![Tag::Link(title.into(), link.into())], tags)
+}
+
+#[test_case(
+    "!http://www.host.com/image.gif!",
+    ast::Image {
+        filename: "http://www.host.com/image.gif".to_string(),
+        ..Default::default()
+    }
+)]
+#[test_case(
+    "!attached-image.gif!",
+    ast::Image {
+        filename: "attached-image.gif".to_string(),
+        ..Default::default()
+    }
+)]
+#[test_case(
+    "!image.jpg|thumbnail!",
+    ast::Image {
+        filename: "image.jpg".to_string(),
+        thumbnail: Some(true),
+        ..Default::default()
+    } => inconclusive ()
+)]
+fn images(input: &str, img: ast::Image) {
+    let tags = parse(input).unwrap();
+
+    assert_eq!(vec![Tag::Image(img)], tags)
 }

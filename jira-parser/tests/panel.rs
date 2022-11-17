@@ -37,3 +37,40 @@ fn panel_with_title() {
         tag
     );
 }
+
+#[test]
+fn panel_with_trailing_spaces() {
+    let input = r#"{panel:title=Test Title}
+Some content
+{panel}   "#;
+
+    let tag = parse(input).unwrap();
+
+    assert_eq!(
+        vec![Tag::Panel(Panel {
+            content: vec![Tag::Text("Some content".into())],
+            title: Some("Test Title".into()),
+            ..Default::default()
+        })],
+        tag
+    );
+}
+
+#[test]
+fn panel_with_trailing_spaces_before_newline() {
+    let input = r#"{panel:title=Test Title}
+Some content
+{panel}   
+"#;
+
+    let tag = parse(input).unwrap();
+
+    assert_eq!(
+        vec![Tag::Panel(Panel {
+            content: vec![Tag::Text("Some content".into())],
+            title: Some("Test Title".into()),
+            ..Default::default()
+        })],
+        tag
+    );
+}

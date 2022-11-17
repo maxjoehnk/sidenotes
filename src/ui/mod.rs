@@ -1,57 +1,46 @@
-use druid::widget::{Controller, ViewSwitcher};
-use druid::{Env, Event, EventCtx, LensExt, Widget, WidgetExt};
+use druid::{Widget, WidgetExt};
+use druid_widget_nursery::enum_switcher::Switcher;
 
-use widgets::detail::detail_builder;
-use widgets::list::list_builder;
+use crate::DISABLE_COLORIZED_BACKGROUNDS;
+use views::appointments::appointments_builder;
+use views::detail::detail_builder;
+use views::list::list_builder;
+use views::settings::calendar::calendar_settings_builder;
+use views::settings::calendar::{edit_calendar, new_calendar_selector};
+use views::settings::global::global_settings_builder;
+use views::settings::providers::{edit_provider, new_provider_selector, provider_settings_builder};
+use views::settings::settings_builder;
 
+pub(crate) use self::delegate::SidenotesDelegate;
 use crate::models::*;
+use crate::ui::prism::*;
 
 pub mod commands;
+mod delegate;
+mod lazy_icon;
 mod lens;
 mod prism;
 pub mod theme;
+mod views;
 mod widgets;
 
-struct Sidenotes;
-
-impl<W: Widget<AppState>> Controller<AppState, W> for Sidenotes {
-    fn event(
-        &mut self,
-        child: &mut W,
-        ctx: &mut EventCtx,
-        event: &Event,
-        data: &mut AppState,
-        env: &Env,
-    ) {
-        if let Event::Command(cmd) = event {
-            if let Some(config) = cmd.get(commands::UI_CONFIG_LOADED) {
-                data.ui_config = *config;
-            } else if let Some(providers) = cmd.get(commands::PROVIDERS_CONFIGURED) {
-                data.providers = providers.clone();
-            } else if let Some((provider, todos)) = cmd.get(commands::TODOS_FETCHED) {
-                data.providers[*provider].items = todos.clone();
-            } else if let Some(todo) = cmd.get(commands::OPEN_TODO) {
-                data.navigation = Navigation::Selected(todo.clone());
-            } else if cmd.get(commands::CLOSE_TODO).is_some() {
-                data.navigation = Navigation::List;
-            } else if let Some(link) = cmd.get(commands::OPEN_LINK) {
-                open::that_in_background(link);
-            }
-        } else {
-            child.event(ctx, event, data, env)
-        }
-    }
-}
-
 pub fn ui_builder() -> impl Widget<AppState> {
-    ViewSwitcher::new(
-        |state: &AppState, _| state.navigation.clone(),
-        |nav: &Navigation, _: &AppState, _| match nav {
-            Navigation::List => list_builder().lens(AppState::providers()).boxed(),
-            Navigation::Selected(_) => detail_builder()
-                .lens(AppState::navigation.then(Navigation::selected()))
-                .boxed(),
-        },
-    )
-    .controller(Sidenotes)
+    Switcher::new()
+        .with_variant(NavigationListPrism, list_builder())
+        .with_variant(NavigationSelectedPrism, detail_builder())
+        .with_variant(NavigationSettingsPrism, settings_builder())
+        .with_variant(NavigationGlobalSettingsPrism, global_settings_builder())
+        .with_variant(NavigationProviderSettingsPrism, provider_settings_builder())
+        .with_variant(NavigationEditProviderPrism, edit_provider())
+        .with_variant(NavigationNewProviderPrism, new_provider_selector())
+        .with_variant(NavigationCalendarSettingsPrism, calendar_settings_builder())
+        .with_variant(NavigationEditCalendarPrism, edit_calendar())
+        .with_variant(NavigationNewCalendarPrism, new_calendar_selector())
+        .with_variant(NavigationAppointmentsPrism, appointments_builder())
+        .env_scope(|env, data| {
+            env.set(
+                DISABLE_COLORIZED_BACKGROUNDS,
+                data.config.ui.disable_colorized_backgrounds,
+            );
+        })
 }
