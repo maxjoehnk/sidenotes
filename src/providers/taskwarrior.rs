@@ -9,7 +9,7 @@ use futures::FutureExt;
 use serde::{Deserialize, Serialize};
 use task_hookrs::tw::query;
 
-#[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, Data, Lens)]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, Eq, Data, Lens)]
 pub struct TaskwarriorConfig {
     query: String,
 }

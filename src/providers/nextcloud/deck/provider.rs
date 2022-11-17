@@ -9,7 +9,7 @@ use futures::future::BoxFuture;
 use futures::FutureExt;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, Data, Lens)]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, Eq, Data, Lens)]
 pub struct NextcloudDeckProviderConfig {
     pub host: String,
     pub username: String,
@@ -17,7 +17,7 @@ pub struct NextcloudDeckProviderConfig {
     pub boards: Vector<BoardConfig>,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Data, Lens)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq, Data, Lens)]
 pub struct BoardConfig {
     title: String,
     stacks: Vector<String>,

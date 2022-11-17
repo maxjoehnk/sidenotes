@@ -20,7 +20,7 @@ use super::Provider;
 
 const MARK_NOTIFICATION_AS_READ: &str = "GITHUB_MARK_AS_READ";
 
-#[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, Data, Lens)]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, Eq, Data, Lens)]
 pub struct GithubConfig {
     token: String,
     #[serde(default)]

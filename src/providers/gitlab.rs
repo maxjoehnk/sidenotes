@@ -10,7 +10,7 @@ use gitlab::{api, api::AsyncQuery, AsyncGitlab, GitlabBuilder, MergeRequest, Pro
 use im::Vector;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, Data, Lens)]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, Eq, Data, Lens)]
 pub struct GitlabConfig {
     url: String,
     token: String,
