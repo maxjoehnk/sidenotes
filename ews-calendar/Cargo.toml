@@ -14,4 +14,4 @@ derive_builder = "0.10"
 
 
 [dev-dependencies]
-async-std = { version = "1.10", features = ["attributes"] }
+async-std = { version = "1.12", features = ["attributes"] }
