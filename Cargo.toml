@@ -53,6 +53,5 @@ itertools = "0.10"
 
 [profile.release]
 strip = true
-opt-level = "s"
 lto = true
 codegen-units = 1
