@@ -48,3 +48,10 @@ jobs:
         with:
           command: build
           args: --release
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.os }}
+          path: |
+            target/release/sidenotes
+            target/release/sidenotes.exe
+          if-no-files-found: error
