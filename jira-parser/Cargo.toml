@@ -9,4 +9,4 @@ nom = "7"
 anyhow = "1"
 
 [dev-dependencies]
-test-case = "1.2.3"
+test-case = "2.2.2"
