@@ -1,5 +1,5 @@
 use crate::parser::{parse_soap_response, CalendarItem, FindItemResponseMessage};
-use chrono::{DateTime, Duration, Local};
+use chrono::{DateTime, Duration, Local, TimeZone};
 use std::fmt::{Display, Formatter};
 use std::ops::Add;
 use std::str::FromStr;
@@ -52,7 +52,12 @@ impl EwsClient {
 
     pub async fn find_items(&self) -> anyhow::Result<Vec<CalendarItem>> {
         let start = TZ::now();
-        let end = start.date().add(Duration::days(1)).and_hms(0, 0, 0);
+        let end = start
+            .date_naive()
+            .add(Duration::days(1))
+            .and_hms_opt(0, 0, 0)
+            .ok_or_else(|| anyhow::anyhow!("Unable to build end time for query"))?;
+        let end = Local.from_utc_datetime(&end);
         tracing::debug!("Fetching Calendar items between {} and {}", start, end);
         let mut response = surf::post(&self.url)
             .body(self.get_find_items_request(start, end))

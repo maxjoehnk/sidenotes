@@ -131,11 +131,11 @@ impl Deref for LocalDateTime {
 
 impl LocalDateTime {
     pub fn from_timestamp(timestamp: u64) -> Self {
-        Self(Local.timestamp_millis(timestamp as i64))
+        Self(Local.timestamp_millis_opt(timestamp as i64).unwrap())
     }
 
     pub fn is_today(&self) -> bool {
-        self.0.date() == TZ::today()
+        self.0.date_naive() == TZ::now().date_naive()
     }
 }
 
