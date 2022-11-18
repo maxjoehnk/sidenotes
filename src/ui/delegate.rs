@@ -6,6 +6,7 @@ use crate::jobs::{
 use druid::{AppDelegate, Command, DelegateCtx, Env, ExtEventSink, Handled, Target};
 use im::Vector;
 use std::collections::HashMap;
+use tracing::log;
 
 use crate::models::{AppState, Navigation, Todo, TodoAction, TodoProvider};
 use crate::providers::{Provider, ProviderId, ProviderImpl, ProviderSettings};
@@ -81,7 +82,9 @@ impl AppDelegate<AppState> for SidenotesDelegate {
             };
             data.navigation = next;
         } else if let Some(link) = cmd.get(commands::OPEN_LINK) {
-            open::that_in_background(link);
+            if let Err(err) = open::that(link) {
+                log::error!("Error opening {link}: {err}");
+            }
         } else if let Some(appointments) = cmd.get(commands::APPOINTMENTS_FETCHED) {
             data.appointments = appointments.clone();
         } else if let Some(provider) = cmd.get(commands::TOGGLE_PROVIDER) {
