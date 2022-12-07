@@ -3,25 +3,74 @@ on: [push, pull_request]
 name: CI
 
 jobs:
-  lint:
-    name: Lint
+  fmt:
+    name: Check Formatting
     runs-on: ubuntu-latest
     steps:
       - run: sudo apt update && sudo apt install -y libgtk-3-dev
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-          components: rustfmt, clippy
+          components: rustfmt
           override: true
       - uses: actions-rs/cargo@v1
         with:
           command: fmt
           args: --all -- --check
+
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
+    steps:
+      - run: sudo apt update && sudo apt install -y libgtk-3-dev
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          components: clippy
+          override: true
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo
       - uses: actions-rs/cargo@v1
         with:
           command: clippy
           args: -- -D warnings
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - run: sudo apt update && sudo apt install -y libgtk-3-dev
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo
+      - uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --workspace
 
   build:
     name: Build (${{ matrix.runs_on }})
@@ -39,12 +88,30 @@ jobs:
     steps:
       - if: ${{ matrix.os=='linux' }}
         run: sudo apt update && sudo apt install -y libgtk-3-dev
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           override: true
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo
       - uses: actions-rs/cargo@v1
         with:
           command: build
           args: --release
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.os }}
+          path: |
+            target/release/sidenotes
+            target/release/sidenotes.exe
+          if-no-files-found: error
