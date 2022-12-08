@@ -37,15 +37,16 @@ impl TaskwarriorProvider {
                     Some(text) => text.as_str(),
                     None => "",
                 };
+                let mut tags: Vector<String> = task.tags()
+                    .map(|tags| tags.iter().cloned().collect())
+                    .unwrap_or_default();
+                tags.push_front(project.into());
                 todos.push_back(Todo {
                     provider: self.id,
                     id: task.id().unwrap_or_default().into(),
-                    title: format!("[{}] {}", &String::from(project), task.description()),
+                    title: task.description().into(),
                     state: Some(task.status().to_string()),
-                    tags: task
-                        .tags()
-                        .map(|tags| tags.iter().cloned().collect())
-                        .unwrap_or_default(),
+                    tags,
                     author: None,
                     body: None,
                     link: None,
