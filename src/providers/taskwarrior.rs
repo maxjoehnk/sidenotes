@@ -12,12 +12,14 @@ use task_hookrs::tw::query;
 #[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, Eq, Data, Lens)]
 pub struct TaskwarriorConfig {
     query: String,
+    show_project: bool,
 }
 
 #[derive(Clone)]
 pub struct TaskwarriorProvider {
     id: ProviderId,
     query: String,
+    show_project: bool,
 }
 
 impl TaskwarriorProvider {
@@ -25,6 +27,7 @@ impl TaskwarriorProvider {
         Ok(Self {
             id,
             query: config.query,
+            show_project: config.show_project,
         })
     }
 
@@ -41,7 +44,9 @@ impl TaskwarriorProvider {
                     .tags()
                     .map(|tags| tags.iter().cloned().collect())
                     .unwrap_or_default();
-                tags.push_front(project.into());
+                if self.show_project {
+                    tags.push_front(project.into());
+                }
                 todos.push_back(Todo {
                     provider: self.id,
                     id: task.id().unwrap_or_default().into(),
@@ -69,6 +74,7 @@ impl Provider for TaskwarriorProvider {
     fn to_config(&self) -> ProviderConfig {
         TaskwarriorConfig {
             query: self.query.clone(),
+            show_project: self.show_project,
         }
         .into()
     }
