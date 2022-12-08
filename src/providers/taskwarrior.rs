@@ -37,7 +37,8 @@ impl TaskwarriorProvider {
                     Some(text) => text.as_str(),
                     None => "",
                 };
-                let mut tags: Vector<String> = task.tags()
+                let mut tags: Vector<String> = task
+                    .tags()
                     .map(|tags| tags.iter().cloned().collect())
                     .unwrap_or_default();
                 tags.push_front(project.into());
