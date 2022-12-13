@@ -36,16 +36,12 @@ impl TaskwarriorProvider {
         let mut todos: Vector<Todo> = Vector::new();
         if let Ok(tasks) = query(&self.query) {
             for task in tasks {
-                let project = match task.project() {
-                    Some(text) => text.as_str(),
-                    None => "",
-                };
                 let mut tags: Vector<String> = task
                     .tags()
                     .map(|tags| tags.iter().cloned().collect())
                     .unwrap_or_default();
-                if self.show_project {
-                    tags.push_front(project.into());
+                if self.show_project && task.project().is_some() {
+                    tags.push_front(task.project().unwrap().into());
                 }
                 todos.push_back(Todo {
                     provider: self.id,
