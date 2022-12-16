@@ -40,7 +40,8 @@ impl TaskwarriorProvider {
                     .tags()
                     .map(|tags| tags.iter().cloned().collect())
                     .unwrap_or_default();
-                if let Some(project) = self.show_project.then_some(()).and_then(|_| task.project()) {
+                if let Some(project) = self.show_project.then_some(()).and_then(|_| task.project())
+                {
                     tags.push_front(project.into());
                 }
                 todos.push_back(Todo {
