@@ -8,6 +8,10 @@ use druid_widget_nursery::prism::Prism;
 fn taskwarrior_settings() -> impl ProviderSettingsBuilder<TaskwarriorConfig> {
     SettingsBuilder::new("Taskwarrior")
         .add_field(ProviderSettingsRow::new("Query", TaskwarriorConfig::query).multiline())
+        .add_flag_field(ProviderSettingsFlagRow::new(
+            "ShowProjects",
+            TaskwarriorConfig::show_project,
+        ))
 }
 
 pub fn view() -> impl Widget<(TaskwarriorConfig, ProviderSettings)> {
