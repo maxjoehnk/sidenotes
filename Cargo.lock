@@ -1128,7 +1128,7 @@ dependencies = [
  "async-std",
  "base64 0.20.0",
  "chrono",
- "derive_builder 0.11.2",
+ "derive_builder 0.12.0",
  "surf",
  "tracing",
  "xml-rs",
