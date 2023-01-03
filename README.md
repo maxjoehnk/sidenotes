@@ -29,7 +29,7 @@ Available:
 
 ## Installation
 
-Create a `settings.toml` in `$XDG_HOME/sitenotes/`
+Create a `settings.toml` in `$XDG_CONFIG_HOME/sidenotes/`
 
 Example:
 
