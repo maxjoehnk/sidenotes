@@ -9,6 +9,8 @@ use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "confluence")]
 pub mod confluence;
+#[cfg(feature = "devops")]
+pub mod devops;
 #[cfg(feature = "github")]
 pub mod github;
 #[cfg(feature = "gitlab")]
@@ -78,6 +80,8 @@ pub enum ProviderConfig {
     Upsource(upsource::UpsourceConfig),
     #[cfg(feature = "nextcloud")]
     NextcloudDeck(nextcloud::deck::NextcloudDeckProviderConfig),
+    #[cfg(feature = "devops")]
+    AzureDevops(devops::AzureDevopsConfig),
 }
 
 impl ProviderConfig {
@@ -101,6 +105,8 @@ impl ProviderConfig {
             Self::NextcloudDeck(config) => {
                 nextcloud::deck::NextcloudDeckProvider::new(id, config).into()
             }
+            #[cfg(feature = "devops")]
+            Self::AzureDevops(config) => devops::AzureDevopsProvider::new(id, config)?.into(),
         };
 
         Ok(provider)
@@ -126,6 +132,8 @@ pub enum ProviderImpl {
     Taskwarrior(taskwarrior::TaskwarriorProvider),
     #[cfg(feature = "upsource")]
     Upsource(upsource::UpsourceProvider),
+    #[cfg(feature = "devops")]
+    AzureDevOps(devops::AzureDevopsProvider),
 }
 
 #[enum_dispatch(ProviderImpl)]
