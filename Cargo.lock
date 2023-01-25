@@ -1566,9 +1566,9 @@ dependencies = [
 
 [[package]]
 name = "gitlab"
-version = "0.1507.0"
+version = "0.1508.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a826af9a11851a29f6229037acbb1ff515f0f21bd026e86e63af6c1656b4cc9b"
+checksum = "e984b69bb17a510a6145bdcf9ad49868c98c4cee3109e5f6a365dd52771d110a"
 dependencies = [
  "async-trait",
  "base64 0.13.0",
