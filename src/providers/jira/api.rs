@@ -42,7 +42,7 @@ impl JiraApi {
             fields: Some("comment"),
         };
         let res: IssueWithComments = self
-            .get(&format!("rest/agile/1.0/issue/{}", id), &query)
+            .get(&format!("rest/agile/1.0/issue/{id}"), &query)
             .await?;
 
         Ok(res.fields.comment.comments)
@@ -90,6 +90,6 @@ impl JiraApi {
         let unencoded = format!("{}:{}", self.username, self.password);
         let encoded = BASE64_STANDARD.encode(unencoded);
 
-        format!("Basic {}", encoded)
+        format!("Basic {encoded}")
     }
 }

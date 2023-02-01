@@ -50,7 +50,7 @@ impl FetchAppointmentsJob {
                 tracing::error!("{:?}", err);
                 self.event_sink.submit_command(
                     commands::PROVIDER_ERROR,
-                    format!("{}", err),
+                    format!("{err}"),
                     Target::Auto,
                 )?;
             }

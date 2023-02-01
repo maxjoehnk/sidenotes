@@ -53,6 +53,6 @@ impl ConfluenceApi {
         let unencoded = format!("{}:{}", self.username, self.password);
         let encoded = BASE64_STANDARD.encode(unencoded);
 
-        format!("Basic {}", encoded)
+        format!("Basic {encoded}")
     }
 }

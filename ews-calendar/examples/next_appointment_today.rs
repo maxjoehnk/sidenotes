@@ -10,7 +10,7 @@ async fn main() -> anyhow::Result<()> {
 
     let items = api.find_items().await?;
 
-    println!("{:#?}", items);
+    println!("{items:#?}");
 
     Ok(())
 }

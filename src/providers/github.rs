@@ -259,7 +259,7 @@ impl Provider for GithubProvider {
             repos: self
                 .repos
                 .iter()
-                .map(|(owner, repo)| format!("{}/{}", owner, repo))
+                .map(|(owner, repo)| format!("{owner}/{repo}"))
                 .collect(),
             notifications: self.notifications,
         }
