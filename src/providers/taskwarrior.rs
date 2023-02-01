@@ -12,6 +12,7 @@ use task_hookrs::tw::query;
 #[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, Eq, Data, Lens)]
 pub struct TaskwarriorConfig {
     query: String,
+    #[serde(default)]
     show_project: bool,
 }
 
