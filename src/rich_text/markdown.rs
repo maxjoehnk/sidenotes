@@ -108,8 +108,8 @@ mod converter {
 
     fn add_attribute_for_tag(tag: &Tag, mut attrs: AttributesAdder) {
         match tag {
-            Tag::Heading(lvl) => {
-                let font_size = get_font_size_for_heading(*lvl);
+            Tag::Heading(lvl, _, _) => {
+                let font_size = get_font_size_for_heading(*lvl as u32);
                 attrs.size(font_size).weight(FontWeight::BOLD);
             }
             Tag::BlockQuote => {
