@@ -26,7 +26,7 @@ impl FromStr for ExchangeVersion {
 
 impl Display for ExchangeVersion {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
+        write!(f, "{self:?}")
     }
 }
 
@@ -118,6 +118,6 @@ impl EwsClient {
         let decoded = format!("{}:{}", self.username, self.password);
         let encoded = base64::encode(decoded);
 
-        format!("Basic {}", encoded)
+        format!("Basic {encoded}")
     }
 }
