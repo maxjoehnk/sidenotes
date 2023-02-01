@@ -38,7 +38,7 @@ surf = { version = "2.3", optional = true }
 base64 = { version = "0.21.0", optional = true }
 gitlab = { version = "0.1508.0", optional = true }
 enum_dispatch = "0.3.11"
-pulldown-cmark = "0.8.0"
+pulldown-cmark = "0.9.2"
 open = "3.2.0"
 jira-parser = { path = "jira-parser", optional = true }
 druid-widget-nursery = { git = "https://github.com/linebender/druid-widget-nursery", rev = "6d5dfc548603a45f307cfc1fde9b9d5f49863b49" }
