@@ -1,4 +1,5 @@
 use super::models::*;
+use base64::prelude::*;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use std::fmt::Debug;
@@ -87,7 +88,7 @@ impl JiraApi {
 
     fn auth_header(&self) -> String {
         let unencoded = format!("{}:{}", self.username, self.password);
-        let encoded = base64::encode(unencoded);
+        let encoded = BASE64_STANDARD.encode(unencoded);
 
         format!("Basic {}", encoded)
     }

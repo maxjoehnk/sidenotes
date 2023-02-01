@@ -1,4 +1,5 @@
 use crate::providers::nextcloud::deck::models::*;
+use base64::prelude::*;
 use serde::de::DeserializeOwned;
 use std::fmt::Debug;
 
@@ -75,7 +76,7 @@ impl NextcloudApi {
 
     fn auth_header(&self) -> String {
         let unencoded = format!("{}:{}", self.username, self.password);
-        let encoded = base64::encode(unencoded);
+        let encoded = BASE64_STANDARD.encode(unencoded);
 
         format!("Basic {}", encoded)
     }

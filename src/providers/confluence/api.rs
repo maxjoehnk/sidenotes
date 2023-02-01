@@ -1,4 +1,5 @@
 use super::models::*;
+use base64::prelude::*;
 
 #[derive(Clone)]
 pub struct ConfluenceApi {
@@ -50,7 +51,7 @@ impl ConfluenceApi {
 
     fn auth_header(&self) -> String {
         let unencoded = format!("{}:{}", self.username, self.password);
-        let encoded = base64::encode(unencoded);
+        let encoded = BASE64_STANDARD.encode(unencoded);
 
         format!("Basic {}", encoded)
     }

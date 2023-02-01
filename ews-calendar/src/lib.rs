@@ -1,4 +1,5 @@
 use crate::parser::{parse_soap_response, CalendarItem, FindItemResponseMessage};
+use base64::prelude::*;
 use chrono::{DateTime, Duration, Local, TimeZone};
 use std::fmt::{Display, Formatter};
 use std::ops::Add;
@@ -116,7 +117,7 @@ impl EwsClient {
 
     fn get_authorization_header(&self) -> String {
         let decoded = format!("{}:{}", self.username, self.password);
-        let encoded = base64::encode(decoded);
+        let encoded = BASE64_STANDARD.encode(decoded);
 
         format!("Basic {encoded}")
     }
