@@ -49,6 +49,7 @@ jobs:
         uses: taiki-e/create-gh-release-action@v1
         with:
           draft: true
+          changelog: CHANGELOG.md
           # (required) GitHub token for creating GitHub Releases.
           token: ${{ secrets.GITHUB_TOKEN }}
 
