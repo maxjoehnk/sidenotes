@@ -1,1 +1,4 @@
 pre-release-hook = ["git", "cliff", "--output", "CHANGELOG.md", "-u", "-t", "{{version}}"]
+pre-release-commit-message = "chore: Release version {{version}}"
+# Don't publish until we are not using git dependencies anymore
+publish = false
