@@ -1037,7 +1037,7 @@ checksum = "212d0f5754cb6769937f4501cc0e67f4f4483c8d2c3e1e922ee9edbe4ab4c7c0"
 [[package]]
 name = "druid"
 version = "0.7.0"
-source = "git+https://github.com/linebender/druid.git?rev=2f5beb8faba648c170a485b8d6a00d0d991a1737#2f5beb8faba648c170a485b8d6a00d0d991a1737"
+source = "git+https://github.com/linebender/druid.git?rev=fc05e965c85fced8720c655685e02478e0530e94#fc05e965c85fced8720c655685e02478e0530e94"
 dependencies = [
  "console_error_panic_hook",
  "druid-derive",
@@ -1060,7 +1060,7 @@ dependencies = [
 [[package]]
 name = "druid-derive"
 version = "0.4.0"
-source = "git+https://github.com/linebender/druid.git?rev=2f5beb8faba648c170a485b8d6a00d0d991a1737#2f5beb8faba648c170a485b8d6a00d0d991a1737"
+source = "git+https://github.com/linebender/druid.git?rev=fc05e965c85fced8720c655685e02478e0530e94#fc05e965c85fced8720c655685e02478e0530e94"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1070,7 +1070,7 @@ dependencies = [
 [[package]]
 name = "druid-shell"
 version = "0.7.0"
-source = "git+https://github.com/linebender/druid.git?rev=2f5beb8faba648c170a485b8d6a00d0d991a1737#2f5beb8faba648c170a485b8d6a00d0d991a1737"
+source = "git+https://github.com/linebender/druid.git?rev=fc05e965c85fced8720c655685e02478e0530e94#fc05e965c85fced8720c655685e02478e0530e94"
 dependencies = [
  "anyhow",
  "bitflags",
@@ -1103,7 +1103,7 @@ dependencies = [
 [[package]]
 name = "druid-widget-nursery"
 version = "0.1.0"
-source = "git+https://github.com/linebender/druid-widget-nursery?rev=6d5dfc548603a45f307cfc1fde9b9d5f49863b49#6d5dfc548603a45f307cfc1fde9b9d5f49863b49"
+source = "git+https://github.com/linebender/druid-widget-nursery?rev=462adec558b791e72a256a01e0bd377d7e746d40#462adec558b791e72a256a01e0bd377d7e746d40"
 dependencies = [
  "druid",
  "log",
