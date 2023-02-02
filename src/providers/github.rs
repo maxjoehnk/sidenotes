@@ -11,6 +11,7 @@ use octorust::types::{
 };
 use octorust::Client;
 use serde::{Deserialize, Serialize};
+use url::Url;
 
 use crate::models::{Todo, TodoAction, TodoId};
 use crate::providers::ProviderId;
@@ -112,7 +113,7 @@ impl GithubProvider {
                     tags: pr.labels.into_iter().map(|label| label.name).collect(),
                     author: pr.user.map(|user| user.name),
                     body: Some(Markdown(pr.body).into()),
-                    link: pr.html_url.map(|url| url.to_string()),
+                    link: Some(pr.html_url),
                     actions: Default::default(),
                     comments: Default::default(),
                     due_date: None,
@@ -141,11 +142,8 @@ impl GithubProvider {
                 .await?;
             for item in res.items {
                 let state = if item.pull_request.is_some() {
-                    if let Some(repository_url) = item
-                        .repository_url
-                        .as_ref()
-                        .and_then(|url| url.path_segments())
-                    {
+                    let repository_url = Url::parse(&item.repository_url)?;
+                    if let Some(repository_url) = repository_url.path_segments() {
                         let paths = repository_url.skip(1).collect::<Vec<_>>();
 
                         let reviews = self
@@ -168,7 +166,7 @@ impl GithubProvider {
                     tags: item.labels.into_iter().map(|label| label.name).collect(),
                     author: item.user.map(|user| user.name),
                     body: Some(Markdown(item.body).into()),
-                    link: item.html_url.map(|url| url.to_string()),
+                    link: Some(item.html_url),
                     actions: Default::default(),
                     comments: Default::default(),
                     due_date: None,

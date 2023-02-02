@@ -13,7 +13,7 @@ license = "GPL-3.0"
 
 [features]
 default = ["github", "jira", "joplin", "gitlab", "taskwarrior", "upsource", "nextcloud", "confluence", "ews-calendar", "devops"]
-github = ["octorust", "async-compat"]
+github = ["octorust", "async-compat", "url"]
 jira = ["surf", "base64", "jira-parser"]
 confluence = ["surf", "base64"]
 joplin = ["surf"]
@@ -27,7 +27,8 @@ directories-next = "2.0.0"
 tracing = "0.1"
 anyhow = "1"
 druid = { git = "https://github.com/linebender/druid.git", features = ["im", "svg"], rev = "fc05e965c85fced8720c655685e02478e0530e94" }
-octorust = { git = "https://github.com/maxjoehnk/third-party-api-clients.git", branch = "feature/run-on-stable", optional = true }
+octorust = { version = "0.2", optional = true }
+url = { version = "2.3", optional = true }
 serde = { version = "1", features = ["derive"] }
 task-hookrs = { version = "0.8.0", optional = true}
 toml = "0.7.1"
