@@ -20,7 +20,7 @@ joplin = ["surf"]
 taskwarrior = ["task-hookrs"]
 upsource = ["surf", "serde_repr"]
 nextcloud = ["surf", "base64"]
-devops = ["azure_devops_rust_api"]
+devops = ["azure_devops_rust_api", "async-compat"]
 
 [dependencies]
 directories-next = "2.0.0"
