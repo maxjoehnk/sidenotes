@@ -46,9 +46,6 @@ impl AzureDevopsProvider {
             .client
             .pull_requests_client()
             .get_pull_requests_by_project(&self.organization, &self.project)
-            .send()
-            .await?
-            .into_body()
             .await?;
 
         let todos = res
