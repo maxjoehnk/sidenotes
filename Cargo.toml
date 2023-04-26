@@ -40,7 +40,7 @@ base64 = { version = "0.21.0", optional = true }
 gitlab = { version = "0.1510.0", optional = true }
 enum_dispatch = "0.3.11"
 pulldown-cmark = "0.9.2"
-open = "4.0.2"
+open = "4.1.0"
 jira-parser = { path = "jira-parser", optional = true }
 druid-widget-nursery = { git = "https://github.com/linebender/druid-widget-nursery", rev = "462adec558b791e72a256a01e0bd377d7e746d40" }
 serde_repr = { version = "0.1", optional = true }
