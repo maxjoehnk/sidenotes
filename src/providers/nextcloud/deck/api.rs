@@ -1,4 +1,5 @@
 use crate::providers::nextcloud::deck::models::*;
+use base64::prelude::*;
 use serde::de::DeserializeOwned;
 use std::fmt::Debug;
 
@@ -31,12 +32,12 @@ impl NextcloudApi {
     }
 
     pub async fn get_stacks(&self, board_id: u32) -> anyhow::Result<Vec<StackModel>> {
-        self.get_deck_api(&format!("boards/{}/stacks", board_id))
+        self.get_deck_api(&format!("boards/{board_id}/stacks"))
             .await
     }
 
     async fn get_deck_api<T: DeserializeOwned + Debug>(&self, url: &str) -> anyhow::Result<T> {
-        self.get(&format!("index.php/apps/deck/api/v1.0/{}", url))
+        self.get(&format!("index.php/apps/deck/api/v1.0/{url}"))
             .await
     }
 
@@ -75,8 +76,8 @@ impl NextcloudApi {
 
     fn auth_header(&self) -> String {
         let unencoded = format!("{}:{}", self.username, self.password);
-        let encoded = base64::encode(unencoded);
+        let encoded = BASE64_STANDARD.encode(unencoded);
 
-        format!("Basic {}", encoded)
+        format!("Basic {encoded}")
     }
 }

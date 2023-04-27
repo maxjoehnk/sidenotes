@@ -59,12 +59,12 @@ impl TimeUntilNextAppointment {
         if minutes_until >= 60 {
             return format!("At {}:{:0<2}", time.hour(), time.minute());
         }
-        let time = format!("{} minutes", minutes_until);
+        let time = format!("{minutes_until} minutes");
 
         if time_until.num_minutes() > 0 {
-            format!("In {}", time)
+            format!("In {time}")
         } else {
-            format!("Since {}", time)
+            format!("Since {time}")
         }
     }
 }

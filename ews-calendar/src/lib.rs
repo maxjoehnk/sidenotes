@@ -1,4 +1,5 @@
 use crate::parser::{parse_soap_response, CalendarItem, FindItemResponseMessage};
+use base64::prelude::*;
 use chrono::{DateTime, Duration, Local, TimeZone};
 use std::fmt::{Display, Formatter};
 use std::ops::Add;
@@ -26,7 +27,7 @@ impl FromStr for ExchangeVersion {
 
 impl Display for ExchangeVersion {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
+        write!(f, "{self:?}")
     }
 }
 
@@ -116,8 +117,8 @@ impl EwsClient {
 
     fn get_authorization_header(&self) -> String {
         let decoded = format!("{}:{}", self.username, self.password);
-        let encoded = base64::encode(decoded);
+        let encoded = BASE64_STANDARD.encode(decoded);
 
-        format!("Basic {}", encoded)
+        format!("Basic {encoded}")
     }
 }

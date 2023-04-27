@@ -26,10 +26,11 @@ Available:
 * upsource
 * confluence
 * nextcloud
+* devops
 
 ## Installation
 
-Create a `settings.toml` in `$XDG_HOME/sitenotes/`
+Create a `settings.toml` in `$XDG_CONFIG_HOME/sidenotes/`
 
 Example:
 
@@ -90,4 +91,10 @@ password = "password"
 [[provider.boards]] # multiple supported
 title = "Infrastruktur" # limit todos to cards in this board
 stacks = ["TODO", "in Bearbeitung"] # limit todos to cards in these stacks
+
+[[provider]]
+type = "azureDevops"
+token = "your private access token"
+organization = "organization name"
+project = "project name"
 ```

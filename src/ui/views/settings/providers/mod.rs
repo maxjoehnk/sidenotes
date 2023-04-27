@@ -10,6 +10,8 @@ use druid_widget_nursery::enum_switcher::Switcher;
 
 #[cfg(feature = "confluence")]
 pub mod confluence;
+#[cfg(feature = "devops")]
+pub mod devops;
 #[cfg(feature = "github")]
 pub mod github;
 #[cfg(feature = "gitlab")]
@@ -106,6 +108,12 @@ pub fn new_provider_selector() -> impl Widget<AppState> {
             "Nextcloud Deck",
         );
     }
+    if cfg!(feature = "devops") {
+        add_provider::<crate::providers::devops::AzureDevopsConfig, _>(
+            &mut selector,
+            "Azure DevOps",
+        );
+    }
 
     let header = header_builder("Add Provider");
 
@@ -156,6 +164,9 @@ pub fn view_provider_builder() -> impl Widget<ProviderConfigEntry> {
     if cfg!(feature = "nextcloud") {
         switcher = switcher.with_variant(ProviderConfigPrism, nextcloud::view());
     }
+    if cfg!(feature = "devops") {
+        switcher = switcher.with_variant(ProviderConfigPrism, devops::view());
+    }
 
     switcher
         .padding(4.)
@@ -197,6 +208,9 @@ pub fn edit_provider_builder() -> impl Widget<ProviderConfigEntry> {
     }
     if cfg!(feature = "nextcloud") {
         switcher = switcher.with_variant(ProviderConfigPrism, nextcloud::edit());
+    }
+    if cfg!(feature = "devops") {
+        switcher = switcher.with_variant(ProviderConfigPrism, devops::edit());
     }
 
     switcher

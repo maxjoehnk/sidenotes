@@ -1,3 +1,4 @@
+#![windows_subsystem = "windows"]
 use crate::jobs::{ConfigLoadJob, SyncTimerJob};
 use druid::{AppLauncher, Color, WindowDesc};
 
