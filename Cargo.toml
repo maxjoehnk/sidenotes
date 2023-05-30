@@ -46,7 +46,7 @@ druid-widget-nursery = { git = "https://github.com/linebender/druid-widget-nurse
 serde_repr = { version = "0.1", optional = true }
 im = { version = "15", features = ["serde"] }
 ews-calendar = { path = "ews-calendar", optional = true }
-chrono = "0.4.25"
+chrono = "0.4.26"
 derive_more = "0.99.17"
 once_cell = "1.17"
 uuid = { version = "1.3.3", features = ["v4"] }
