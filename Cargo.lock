@@ -1546,7 +1546,7 @@ dependencies = [
  "futures-util",
  "graphql_client",
  "http",
- "itertools",
+ "itertools 0.10.5",
  "log",
  "percent-encoding",
  "reqwest",
@@ -2082,6 +2082,15 @@ name = "itertools"
 version = "0.10.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b0fd2260e829bddf4cb6ea802289de2f86d6a7a690192fbe91b3f46e0f2c8473"
+dependencies = [
+ "either",
+]
+
+[[package]]
+name = "itertools"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b1c173a5686ce8bfa551b3563d0c2170bf24ca44da99c7ca4bfdab5418c3fe57"
 dependencies = [
  "either",
 ]
@@ -3571,7 +3580,7 @@ dependencies = [
  "futures",
  "gitlab",
  "im",
- "itertools",
+ "itertools 0.11.0",
  "jira-parser",
  "octorust",
  "once_cell",
@@ -3860,7 +3869,7 @@ dependencies = [
  "anyhow",
  "cfg-expr",
  "heck 0.3.3",
- "itertools",
+ "itertools 0.10.5",
  "pkg-config",
  "strum",
  "strum_macros",
