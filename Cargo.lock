@@ -717,6 +717,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "cron"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1ff76b51e4c068c52bfd2866e1567bee7c567ae8f24ada09fd4307019e25eab7"
+dependencies = [
+ "chrono",
+ "nom",
+ "once_cell",
+]
+
+[[package]]
 name = "crossbeam-channel"
 version = "0.5.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1496,14 +1507,15 @@ dependencies = [
 
 [[package]]
 name = "gitlab"
-version = "0.1601.0"
+version = "0.1602.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0903a8cf810ea5d083d01ae3939231247e4c76897731598322494aa2c652af61"
+checksum = "1a14dd9fdf52da91cf8abb672d0745c8c88a9f5779ac2ff7a6b17e1d467b157e"
 dependencies = [
  "async-trait",
  "base64 0.13.1",
  "bytes 1.4.0",
  "chrono",
+ "cron",
  "derive_builder 0.11.2",
  "futures-util",
  "graphql_client",
