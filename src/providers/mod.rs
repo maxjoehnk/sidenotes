@@ -1,4 +1,5 @@
 use crate::models::{Todo, TodoAction, TodoComment, TodoId};
+use anyhow::Context;
 use derive_more::From;
 use druid::im::Vector;
 use druid::{Data, Lens};
@@ -88,25 +89,42 @@ impl ProviderConfig {
     pub async fn create(self, id: ProviderId) -> anyhow::Result<ProviderImpl> {
         let provider = match self {
             #[cfg(feature = "github")]
-            Self::Github(config) => github::GithubProvider::new(id, config)?.into(),
+            Self::Github(config) => github::GithubProvider::new(id, config)
+                .context("Setting up Github provider")?
+                .into(),
             #[cfg(feature = "gitlab")]
-            Self::Gitlab(config) => gitlab::GitlabProvider::new(id, config).await?.into(),
+            Self::Gitlab(config) => gitlab::GitlabProvider::new(id, config)
+                .await
+                .context("Setting up Gitlab provider")?
+                .into(),
             #[cfg(feature = "jira")]
-            Self::Jira(config) => jira::JiraProvider::new(id, config)?.into(),
+            Self::Jira(config) => jira::JiraProvider::new(id, config)
+                .context("Setting up Jira provider")?
+                .into(),
             #[cfg(feature = "jira")]
-            Self::Confluence(config) => confluence::ConfluenceProvider::new(id, config)?.into(),
+            Self::Confluence(config) => confluence::ConfluenceProvider::new(id, config)
+                .context("Setting up Confluence provider")?
+                .into(),
             #[cfg(feature = "joplin")]
-            Self::Joplin(config) => joplin::JoplinProvider::new(id, config)?.into(),
+            Self::Joplin(config) => joplin::JoplinProvider::new(id, config)
+                .context("Setting up Joplin provider")?
+                .into(),
             #[cfg(feature = "taskwarrior")]
-            Self::Taskwarrior(config) => taskwarrior::TaskwarriorProvider::new(id, config)?.into(),
+            Self::Taskwarrior(config) => taskwarrior::TaskwarriorProvider::new(id, config)
+                .context("Setting up Taskwarrior provider")?
+                .into(),
             #[cfg(feature = "upsource")]
-            Self::Upsource(config) => upsource::UpsourceProvider::new(id, config)?.into(),
+            Self::Upsource(config) => upsource::UpsourceProvider::new(id, config)
+                .context("Setting up Upsource provider")?
+                .into(),
             #[cfg(feature = "nextcloud")]
             Self::NextcloudDeck(config) => {
                 nextcloud::deck::NextcloudDeckProvider::new(id, config).into()
             }
             #[cfg(feature = "devops")]
-            Self::AzureDevops(config) => devops::AzureDevopsProvider::new(id, config)?.into(),
+            Self::AzureDevops(config) => devops::AzureDevopsProvider::new(id, config)
+                .context("Setting up Azure DevOps provider")?
+                .into(),
         };
 
         Ok(provider)

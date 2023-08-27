@@ -1,6 +1,7 @@
 use crate::models::Todo;
 use crate::providers::{Provider, ProviderImpl, ProviderSettings};
 use crate::ui::commands;
+use anyhow::Context;
 use druid::{ExtEventSink, Target};
 use futures::FutureExt;
 use im::Vector;
@@ -44,7 +45,10 @@ impl FetchTodosJob {
         provider: &impl Provider,
         settings: &ProviderSettings,
     ) -> anyhow::Result<()> {
-        match provider.fetch_todos().await {
+        match provider.fetch_todos().await.context(format!(
+            "Failed to fetch todos for provider {}",
+            settings.name.as_deref().unwrap_or_else(|| provider.name())
+        )) {
             Ok(todos) => {
                 let todos = filter_todos(todos, settings);
                 self.event_sink.submit_command(
