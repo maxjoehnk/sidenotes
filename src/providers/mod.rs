@@ -150,6 +150,6 @@ pub trait Provider: Sync + Send {
     }
 }
 
-pub(self) trait IntoTodo {
+trait IntoTodo {
     fn into_todo(self, provider_id: ProviderId) -> Todo;
 }
