@@ -372,9 +372,9 @@ dependencies = [
 
 [[package]]
 name = "azure_devops_rust_api"
-version = "0.9.0"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "21b44300c754fd82c66c766cd559de8bde0d95042ccfc03739f23728a01cd750"
+checksum = "05e25e93d8ff400812302ab6d506788468ccb6c30bb68e009ffd2d7377720028"
 dependencies = [
  "azure_core",
  "base64 0.21.3",
