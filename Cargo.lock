@@ -351,7 +351,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1f20eb684aea745292c540173304383c9cba9697d1c31d307620a57d6f878fa9"
 dependencies = [
  "async-trait",
- "base64 0.21.3",
+ "base64 0.21.4",
  "bytes 1.4.0",
  "dyn-clone",
  "futures",
@@ -377,7 +377,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bdb234b3df32a52d967eff35ae0be2b24cb717328763015736a2aae572cafa17"
 dependencies = [
  "azure_core",
- "base64 0.21.3",
+ "base64 0.21.4",
  "bytes 1.4.0",
  "futures",
  "serde",
@@ -399,9 +399,9 @@ checksum = "9e1b586273c5702936fe7b7d6896644d8be71e6314cfe09d3167c95f712589e8"
 
 [[package]]
 name = "base64"
-version = "0.21.3"
+version = "0.21.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "414dcefbc63d77c526a76b3afcf6fbb9b5e2791c19c3aa2297733208750c6e53"
+checksum = "9ba43ea6f343b788c8764558649e08df62f86c6ef251fdaeb1ffd010a9ae50a2"
 
 [[package]]
 name = "bitflags"
@@ -1121,7 +1121,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-std",
- "base64 0.21.3",
+ "base64 0.21.4",
  "chrono",
  "derive_builder 0.12.0",
  "surf",
@@ -2130,7 +2130,7 @@ version = "8.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6971da4d9c3aa03c3d8f3ff0f4155b534aad021292003895a469716b2a230378"
 dependencies = [
- "base64 0.21.3",
+ "base64 0.21.4",
  "pem",
  "ring",
  "serde",
@@ -3081,7 +3081,7 @@ version = "0.11.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3e9ad3fe7488d7e34558a2033d45a0c90b72d97b4f80705666fea71472e2e6a1"
 dependencies = [
- "base64 0.21.3",
+ "base64 0.21.4",
  "bytes 1.4.0",
  "encoding_rs",
  "futures-core",
@@ -3275,7 +3275,7 @@ version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d194b56d58803a43635bdc398cd17e383d6f71f9182b9a192c127ca42494a59b"
 dependencies = [
- "base64 0.21.3",
+ "base64 0.21.4",
 ]
 
 [[package]]
@@ -3542,7 +3542,7 @@ dependencies = [
  "anyhow",
  "async-compat",
  "azure_devops_rust_api",
- "base64 0.21.3",
+ "base64 0.21.4",
  "chrono",
  "derive_more",
  "directories-next",
