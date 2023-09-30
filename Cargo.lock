@@ -346,9 +346,9 @@ checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 
 [[package]]
 name = "azure_core"
-version = "0.15.0"
+version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1f20eb684aea745292c540173304383c9cba9697d1c31d307620a57d6f878fa9"
+checksum = "8e29286b9edfdd6f2c7e9d970bb5b015df8621258acab9ecfcea09b2d7692467"
 dependencies = [
  "async-trait",
  "base64 0.21.4",
@@ -372,9 +372,9 @@ dependencies = [
 
 [[package]]
 name = "azure_devops_rust_api"
-version = "0.11.0"
+version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bdb234b3df32a52d967eff35ae0be2b24cb717328763015736a2aae572cafa17"
+checksum = "3fb72b2efe092b81175ddd05aef41a9f3189da88f3841bdfe831bcd4ad92e5e4"
 dependencies = [
  "azure_core",
  "base64 0.21.4",
@@ -2385,15 +2385,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "num_threads"
-version = "0.1.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2819ce041d2ee131036f4fc9d6ae7ae125a3a40e97ba64d04fe799ad9dabbb44"
-dependencies = [
- "libc",
-]
-
-[[package]]
 name = "objc"
 version = "0.2.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3987,8 +3978,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ea9e1b3cf1243ae005d9e74085d4d542f3125458f3a81af210d901dcd7411efd"
 dependencies = [
  "itoa",
- "libc",
- "num_threads",
+ "js-sys",
  "serde",
  "time-core",
  "time-macros 0.2.9",
