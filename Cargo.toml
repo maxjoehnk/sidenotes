@@ -49,7 +49,7 @@ ews-calendar = { path = "ews-calendar", optional = true }
 chrono = "0.4.31"
 derive_more = "0.99.17"
 once_cell = "1.18"
-uuid = { version = "1.4.1", features = ["v4"] }
+uuid = { version = "1.5.0", features = ["v4"] }
 palette = "0.6"
 itertools = "0.11"
 azure_devops_rust_api = { version = "0.13.0", features = ["git"], optional = true }
