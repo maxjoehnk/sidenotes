@@ -3,7 +3,7 @@ use std::str::FromStr;
 use druid::text::{Attribute, AttributesAdder, RichTextBuilder};
 use druid::{Color, Data, FontFamily, FontStyle, FontWeight};
 use im::Vector;
-use palette::{RelativeContrast, Srgb};
+use palette::{color_difference::Wcag21RelativeContrast, Srgb};
 use serde::Deserialize;
 
 use jira_parser::ast::{self, *};
@@ -153,7 +153,7 @@ fn get_high_contrast_text_color(style: &MarkupItemStyle) -> Option<Color> {
             let white = Srgb::new(1., 1., 1.);
             if background
                 .into_format::<f64>()
-                .has_enhanced_contrast_text(&white)
+                .has_enhanced_contrast_text(white)
             {
                 Color::grey(1.)
             } else {
