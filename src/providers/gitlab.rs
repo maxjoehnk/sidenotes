@@ -137,12 +137,19 @@ impl Provider for GitlabProvider {
 
 impl IntoTodo for MergeRequest {
     fn into_todo(self, id: ProviderId) -> Todo {
+        let mut tags: Vector<_> = self.labels.into();
+        if self.has_conflicts {
+            tags.push_back("conflicts".into());
+        }
+        if !self.blocking_discussions_resolved {
+            tags.push_back("discussions".into());
+        }
         Todo {
             provider: id,
             id: self.id.value().into(),
             title: format!("#{} - {}", self.iid, self.title),
             state: Some(format!("{:?}", self.state)),
-            tags: self.labels.into(),
+            tags,
             body: self.description.map(|desc| Markdown(desc).into()),
             author: Some(self.author.name),
             link: Some(self.web_url),
