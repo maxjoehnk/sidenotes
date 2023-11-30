@@ -15,13 +15,7 @@ thread_local! {
 }
 
 pub fn todo_builder() -> impl Widget<Todo> {
-    let state = Either::new(
-        |todo: &Todo, _: &_| todo.state.is_some(),
-        todo_item_builder(tags_with_state_builder()),
-        todo_item_builder(tags_builder()),
-    );
-
-    state
+    todo_item_builder()
         .padding(4.0)
         .background(CARD_COLOR)
         .rounded(2.0)
@@ -51,28 +45,18 @@ fn todo_title_builder() -> impl Widget<Todo> {
 }
 
 fn tags_builder() -> impl Widget<Todo> {
-    List::new(tag_builder).with_spacing(4.).lens(Todo::tags)
+    List::new(tag_builder)
+        .horizontal()
+        .with_spacing(4.)
+        .lens(Todo::labels())
 }
 
-fn tags_with_state_builder() -> impl Widget<Todo> {
-    let state = Label::new(|todo: &Todo, _env: &_| todo.state.clone().unwrap_or_default())
-        .with_text_color(Color::BLACK)
-        .padding(2.0)
-        .background(STATUS_COLOR)
-        .rounded(2.0);
-
-    Flex::row()
-        .with_child(state)
-        .with_spacer(4.)
-        .with_child(tags_builder())
-}
-
-fn todo_item_builder(tag_row: impl Widget<Todo> + 'static) -> impl Widget<Todo> {
+fn todo_item_builder() -> impl Widget<Todo> {
     Flex::column()
         .cross_axis_alignment(CrossAxisAlignment::Start)
         .with_child(todo_title_builder())
         .with_spacer(4.0)
-        .with_child(tag_row)
+        .with_child(tags_builder())
         .with_child(due_builder())
 }
 

@@ -105,6 +105,25 @@ pub struct Todo {
     pub due_date: Option<LocalDateTime>,
 }
 
+impl Todo {
+    pub fn labels() -> impl Lens<Self, Vector<String>> {
+        lens::Map::new(
+            |todo: &Todo| {
+                let mut labels = Vector::new();
+                if let Some(state) = &todo.state {
+                    labels.push_back(state.clone());
+                }
+                for tag in &todo.tags {
+                    labels.push_back(tag.clone());
+                }
+
+                labels
+            },
+            |_, _| {},
+        )
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Ord, PartialOrd)]
 #[repr(transparent)]
 pub struct LocalDateTime(DateTime<TZ>);
