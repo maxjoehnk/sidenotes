@@ -1,3 +1,4 @@
+use anyhow::Context;
 use std::path::{Path, PathBuf};
 
 use directories_next::ProjectDirs;
@@ -41,7 +42,8 @@ impl Default for UiConfig {
 
 pub fn load() -> anyhow::Result<(Config, PathBuf)> {
     let file_path = get_config_path();
-    let file = std::fs::read_to_string(&file_path)?;
+    let file = std::fs::read_to_string(&file_path)
+        .context(format!("Loading config from {file_path:?}"))?;
 
     let config = toml::from_str(&file)?;
 
