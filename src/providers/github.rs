@@ -98,13 +98,15 @@ impl GithubProvider {
                     PullsListSort::Created,
                     Order::default(),
                 )
-                .await?;
+                .await?
+                .body;
             for pr in pull_requests {
                 let reviews = self
                     .client
                     .pulls()
                     .list_all_reviews(owner, repo, pr.number)
-                    .await?;
+                    .await?
+                    .body;
                 todos.push_back(Todo {
                     provider: self.id,
                     id: (pr.id as u64).into(),
@@ -139,7 +141,8 @@ impl GithubProvider {
                     20,
                     0,
                 )
-                .await?;
+                .await?
+                .body;
             for item in res.items {
                 let state = if item.pull_request.is_some() {
                     let repository_url = Url::parse(&item.repository_url)?;
@@ -150,7 +153,8 @@ impl GithubProvider {
                             .client
                             .pulls()
                             .list_all_reviews(paths[0], paths[1], item.number)
-                            .await?;
+                            .await?
+                            .body;
                         Some(Self::get_pr_state(&item, &reviews))
                     } else {
                         None
@@ -189,7 +193,8 @@ impl GithubProvider {
             .client
             .activity()
             .list_all_notifications_for_authenticated_user(false, false, None, None)
-            .await?;
+            .await?
+            .body;
 
         let todos = threads
             .into_iter()
