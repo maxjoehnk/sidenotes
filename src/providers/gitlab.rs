@@ -20,6 +20,8 @@ pub struct GitlabConfig {
     repos: Option<Vector<String>>,
     #[serde(default)]
     show_drafts: bool,
+    #[serde(default)]
+    labels: Vector<String>,
 }
 
 #[derive(Clone)]
@@ -30,6 +32,7 @@ pub struct GitlabProvider {
     show_drafts: bool,
     url: String,
     token: String,
+    labels: Vec<String>,
 }
 
 impl GitlabProvider {
@@ -53,6 +56,7 @@ impl GitlabProvider {
             show_drafts: config.show_drafts,
             url,
             token,
+            labels: config.labels.into_iter().collect(),
         })
     }
 
@@ -68,6 +72,9 @@ impl GitlabProvider {
                 .state(merge_requests::MergeRequestState::Opened);
             if !self.show_drafts {
                 builder.wip(true);
+            }
+            if !self.labels.is_empty() {
+                builder.labels(&self.labels);
             }
             let endpoint = builder.build().map_err(|err| anyhow::anyhow!("{}", err))?;
             let requests: Vec<MergeRequest> = endpoint.query_async(&self.client).await?;
@@ -114,6 +121,7 @@ impl Provider for GitlabProvider {
             url: self.url.clone(),
             token: self.token.clone(),
             show_drafts: self.show_drafts,
+            labels: self.labels.iter().cloned().collect(),
         }
         .into()
     }
