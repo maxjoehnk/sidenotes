@@ -71,7 +71,7 @@ impl GitlabProvider {
                 .project(repo.as_str())
                 .state(merge_requests::MergeRequestState::Opened);
             if !self.show_drafts {
-                builder.wip(true);
+                builder.wip(false);
             }
             if !self.labels.is_empty() {
                 builder.labels(&self.labels);
