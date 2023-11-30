@@ -9,6 +9,10 @@ pub fn gitlab_settings() -> impl ProviderSettingsBuilder<GitlabConfig> {
     SettingsBuilder::new("Gitlab")
         .add_field(ProviderSettingsRow::new("URL", GitlabConfig::url))
         .add_field(ProviderSettingsRow::new("Token", GitlabConfig::token).secret())
+        .add_flag_field(ProviderSettingsFlagRow::new(
+            "Show Drafts",
+            GitlabConfig::show_drafts,
+        ))
 }
 
 pub fn view() -> impl Widget<(GitlabConfig, ProviderSettings)> {
