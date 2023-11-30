@@ -1,6 +1,7 @@
 use crate::models::Todo;
 use crate::providers::{IntoTodo, Provider, ProviderConfig, ProviderId};
 use crate::rich_text::Markdown;
+use anyhow::Context;
 use async_compat::CompatExt;
 use druid::{Data, Lens};
 use futures::future::BoxFuture;
@@ -9,6 +10,7 @@ use gitlab::api::projects::{self, merge_requests};
 use gitlab::{api, api::AsyncQuery, AsyncGitlab, GitlabBuilder, MergeRequest, Project};
 use im::Vector;
 use serde::{Deserialize, Serialize};
+use url::Url;
 
 #[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, Eq, Data, Lens)]
 pub struct GitlabConfig {
@@ -33,12 +35,16 @@ pub struct GitlabProvider {
 impl GitlabProvider {
     pub async fn new(id: ProviderId, config: GitlabConfig) -> anyhow::Result<Self> {
         let url = config.url.clone();
+        let parsed_url = Url::parse(&url).context("Invalid Gitlab URL")?;
+        let host = parsed_url.host_str().context("Invalid Gitlab URL")?;
+        let path = parsed_url.path();
+        let host = format!("{host}{path}");
         let token = config.token.clone();
-        let client = GitlabBuilder::new(config.url, config.token)
-            .insecure()
-            .build_async()
-            .compat()
-            .await?;
+        let mut builder = GitlabBuilder::new(host, config.token);
+        if parsed_url.scheme() == "http" {
+            builder.insecure();
+        }
+        let client = builder.build_async().compat().await?;
 
         Ok(Self {
             id,
