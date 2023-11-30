@@ -5,31 +5,7 @@ use druid_widget_nursery::prism::Prism;
 
 use crate::models::*;
 use crate::providers::ProviderConfigEntry;
-use crate::rich_text::{MarkupPart, RawRichText, Table};
-
-pub struct TodoLink;
-
-impl Prism<Todo, String> for TodoLink {
-    fn get(&self, data: &Todo) -> Option<String> {
-        data.link.clone()
-    }
-
-    fn put(&self, data: &mut Todo, inner: String) {
-        data.link = Some(inner);
-    }
-}
-
-pub struct TodoBody;
-
-impl Prism<Todo, RawRichText> for TodoBody {
-    fn get(&self, data: &Todo) -> Option<RawRichText> {
-        data.body.clone()
-    }
-
-    fn put(&self, data: &mut Todo, text: RawRichText) {
-        data.body = Some(text)
-    }
-}
+use crate::rich_text::{MarkupPart, Table};
 
 pub struct ProviderConfigPrism;
 pub struct CalendarConfigPrism;

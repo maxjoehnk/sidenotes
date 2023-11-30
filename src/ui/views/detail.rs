@@ -4,13 +4,11 @@ use druid::{
     Command, Env, Event, EventCtx, FontDescriptor, FontFamily, FontWeight, Insets, KbKey, Target,
     TextAlignment, Widget,
 };
-use druid_widget_nursery::prism;
 
 use crate::models::*;
 use crate::ui::commands;
 use crate::ui::commands::PROVIDER_ACTION;
 use crate::ui::lens::Link;
-use crate::ui::prism::{TodoBody, TodoLink};
 use crate::ui::widgets::{header_builder, markup_builder, ClickableArea};
 
 struct DetailController;
@@ -37,8 +35,8 @@ impl<W: Widget<Todo>> Controller<Todo, W> for DetailController {
 
 pub fn detail_builder() -> impl Widget<Todo> {
     let header = header_builder(|item: &Todo, _env: &_| item.title.clone());
-    let link = prism::PrismWrap::new(link_builder(), TodoLink);
-    let body = prism::PrismWrap::new(markup_builder(), TodoBody);
+    let link = Maybe::or_empty(link_builder).lens(Todo::link);
+    let body = Maybe::or_empty(markup_builder).lens(Todo::body);
     let body = Flex::column()
         .with_child(body)
         .with_child(comments_builder());
