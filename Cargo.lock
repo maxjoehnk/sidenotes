@@ -420,9 +420,9 @@ checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 
 [[package]]
 name = "azure_core"
-version = "0.17.0"
+version = "0.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4ccd63c07d1fbfb3d4543d7ea800941bf5a30db1911b9b9e4db3b2c4210a434f"
+checksum = "a6218987c374650fdad0b476bfc675729762c28dfb35f58608a38a2b1ea337dd"
 dependencies = [
  "async-trait",
  "base64 0.21.5",
@@ -432,6 +432,7 @@ dependencies = [
  "getrandom 0.2.11",
  "http-types",
  "log",
+ "once_cell",
  "paste",
  "pin-project",
  "rand 0.8.5",
@@ -446,9 +447,9 @@ dependencies = [
 
 [[package]]
 name = "azure_devops_rust_api"
-version = "0.14.3"
+version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "18d178d32c952f13af442a298e5ed6c45469a989d0ad11da7031e6aedd3a8da0"
+checksum = "821477ca46af741cb1b16862698a8983fc9491ff8a213b11bd8d732370ee4229"
 dependencies = [
  "azure_core",
  "base64 0.21.5",
