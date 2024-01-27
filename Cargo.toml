@@ -39,7 +39,7 @@ surf = { version = "2.3", optional = true }
 base64 = { version = "0.21.7", optional = true }
 gitlab = { version = "0.1608.0", optional = true }
 enum_dispatch = "0.3.12"
-pulldown-cmark = "0.9.3"
+pulldown-cmark = "0.9.4"
 open = "5.0.1"
 jira-parser = { path = "jira-parser", optional = true }
 druid-widget-nursery = "0.1"
