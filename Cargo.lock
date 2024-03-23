@@ -447,12 +447,12 @@ dependencies = [
 
 [[package]]
 name = "azure_devops_rust_api"
-version = "0.17.0"
+version = "0.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "36154b3f71752877cf740b7318606638eaa038cd9587f772eb308ca2f3fdd965"
+checksum = "fa3b5569b08a7f7112e02e71b70e967a50881b174a09b504a236f6630a1cd7ff"
 dependencies = [
  "azure_core",
- "base64 0.21.7",
+ "base64 0.22.0",
  "bytes 1.5.0",
  "futures",
  "serde",
@@ -492,6 +492,12 @@ name = "base64"
 version = "0.21.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9d297deb1925b89f2ccc13d7635fa0714f12c87adce1c75356b39ca9b7178567"
+
+[[package]]
+name = "base64"
+version = "0.22.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9475866fec1451be56a3c2400fd081ff546538961565ccb5b7142cbd22bc7a51"
 
 [[package]]
 name = "bitflags"
