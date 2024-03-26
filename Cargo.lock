@@ -447,10 +447,11 @@ dependencies = [
 
 [[package]]
 name = "azure_devops_rust_api"
-version = "0.19.0"
+version = "0.19.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "273baf2e8058806aa513c11512f03078e371758177ad0add280ec76ceb958f0e"
+checksum = "1f3dfdd7bcb9559b44e6d98cbce57d151f463b60b14658e5fcfe05baedab3432"
 dependencies = [
+ "async-trait",
  "azure_core",
  "base64 0.22.0",
  "bytes 1.5.0",
@@ -458,6 +459,7 @@ dependencies = [
  "serde",
  "serde_json",
  "time 0.3.30",
+ "tracing",
 ]
 
 [[package]]
