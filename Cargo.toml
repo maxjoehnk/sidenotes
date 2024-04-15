@@ -46,7 +46,7 @@ druid-widget-nursery = "0.1"
 serde_repr = { version = "0.1", optional = true }
 im = { version = "15", features = ["serde"] }
 ews-calendar = { path = "ews-calendar", optional = true }
-chrono = "0.4.37"
+chrono = "0.4.38"
 derive_more = "0.99.17"
 once_cell = "1.19"
 uuid = { version = "1.8.0", features = ["v4"] }
