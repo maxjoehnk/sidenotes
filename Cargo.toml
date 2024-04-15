@@ -52,7 +52,7 @@ once_cell = "1.19"
 uuid = { version = "1.8.0", features = ["v4"] }
 palette = "0.7"
 itertools = "0.12"
-azure_devops_rust_api = { version = "0.19.1", features = ["git"], optional = true }
+azure_devops_rust_api = { version = "0.19.2", features = ["git"], optional = true }
 
 [profile.release]
 strip = true
