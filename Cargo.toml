@@ -26,7 +26,7 @@ devops = ["azure_devops_rust_api", "async-compat"]
 directories-next = "2.0.0"
 tracing = "0.1"
 anyhow = "1"
-druid = { version = "0.8", features = ["im", "svg"] }
+druid = { version = "0.8.3", features = ["im", "svg"] }
 octorust = { version = "0.7", optional = true }
 url = { version = "2.5", optional = true }
 serde = { version = "1", features = ["derive"] }
