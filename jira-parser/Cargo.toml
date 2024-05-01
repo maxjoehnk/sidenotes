@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 nom = "7"
 # TODO: replace with concrete error types
-anyhow = "1"
+anyhow = "1.0.82"
 
 [dev-dependencies]
 test-case = "3.3.1"
